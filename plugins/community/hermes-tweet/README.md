@@ -1,5 +1,8 @@
 # Hermes Tweet
 
+> **Xquik is an independent third-party service.** Not affiliated with X Corp.
+> "Twitter" and "X" are trademarks of X Corp.
+
 [![CI](https://github.com/Xquik-dev/hermes-tweet/actions/workflows/ci.yml/badge.svg)](https://github.com/Xquik-dev/hermes-tweet/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-README-blue.svg)](https://github.com/Xquik-dev/hermes-tweet#readme)
 <a href="https://nothumansearch.ai/site/xquik.com" target="_blank" rel="noopener"><img src="https://nothumansearch.ai/badge/xquik.com.svg" alt="NHS Agentic Readiness Score" height="28"></a>
@@ -28,8 +31,8 @@ media automation for agents, or a native Hermes toolset for X/Twitter.
 
 - Published Python package with a native Hermes plugin entry point.
 - Installable from PyPI as `hermes-tweet`.
-- 99 agent-callable Xquik endpoints generated from OpenAPI.
-- 31 MPP-tagged read endpoints in the bundled catalog.
+- 106 agent-callable Xquik endpoints generated from OpenAPI.
+- 33 prepaid paid-read endpoints, including 7 direct per-call MPP routes.
 - Read and action tools are split for least-privilege operation.
 - Action endpoints are disabled by default.
 - Bundled Hermes skill for agent-facing usage guidance.
@@ -101,10 +104,10 @@ runtime locally.
 | Field | Value |
 | --- | --- |
 | PyPI | [`hermes-tweet`](https://pypi.org/project/hermes-tweet/) |
-| Official guide | [`github.com/Xquik-dev/hermes-tweet#readme`](https://github.com/Xquik-dev/hermes-tweet#readme) |
+| Repository guide | [`github.com/Xquik-dev/hermes-tweet#readme`](https://github.com/Xquik-dev/hermes-tweet#readme) |
 | Context7 | [`context7.com/xquik-dev/hermes-tweet`](https://context7.com/xquik-dev/hermes-tweet) |
 | piwheels | [`hermes-tweet`](https://piwheels.org/project/hermes-tweet/) |
-| Latest release | [`v0.1.6`](https://github.com/Xquik-dev/hermes-tweet/releases/tag/v0.1.6) |
+| Prepared source version | `v0.1.8` |
 | Supported Python | `>=3.11` |
 | Package format | Wheel and source distribution |
 | Hermes entry point | `hermes-tweet = hermes_tweet` |
@@ -301,11 +304,11 @@ Python plugin. Both use the same Xquik API contract.
 
 Recommended GitHub description:
 
-> Native Hermes Agent plugin for X/Twitter automation through Xquik.
+> Native Hermes Agent plugin for X/Twitter automation through Xquik. Not affiliated with X Corp.
 
 Recommended topics:
 
 `hermes-agent`, `hermes-plugin`, `hermes`, `twitter`, `x-api`,
 `x-automation`, `xquik`, `tweet`, `automation`, `social-media`,
-`social-media-automation`, `ai-agent`, `mcp`, `agent-tools`, `twitter-api`,
+`social-media-automation`, `ai-agent`, `agent-tools`, `twitter-api`,
 `twitter-automation`, `x-twitter`, `social-media-api`, `agent-skill`, `python`
