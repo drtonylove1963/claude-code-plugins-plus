@@ -31,19 +31,24 @@ import { createBootAnchor, JournalWriter, verifyJournal } from './journal.ts'
 import {
   type Access,
   AUDIT_RECEIPTS_MAX,
+  assertManifestIdentityResolved,
   assertPublishAllowed,
   buildAndPostAuditReceipt,
   buildSecretPlaceholderMap,
   buildSecretValueSet,
   chunkText,
+  classifySocketStartError,
+  type DeliveryObligation,
   decidePermissionRoute,
   defaultAccess,
   detectNewAllowFrom,
   EVENT_DEDUP_TTL_MS,
   enforceAuditReceiptCap,
   escMrkdwn,
+  extractSlackErrorCode,
   formatVerifyResult,
   type GateResult,
+  getChannelPolicy,
   isDuplicateEvent,
   isSlackFileUrl,
   LIST_SESSIONS_MAX,
@@ -54,9 +59,13 @@ import {
   gate as libGate,
   listSessions as libListSessions,
   makeIdempotentSend,
+  nextSocketStartBackoffMs,
   PERMISSION_REPLY_RE,
   type PendingPolicyApproval,
+  parseExpectedGenesisArg,
+  parseMinEventsArg,
   parseSendableRoots,
+  parseV2FloorSeqArg,
   parseVerifyArg,
   permissionPairingKey as permKey,
   pruneExpired,
@@ -79,13 +88,18 @@ import {
 } from './manifest.ts'
 import { createMuteStore } from './mute-store.ts'
 import { createMemoryNonceStore, mintNonce, verifyNonce } from './nonce-hitl.ts'
-import { createPeerBotRateLimitStore } from './peer-bot-rate-limit.ts'
+import {
+  createPeerBotRateLimitStore,
+  DEFAULT_CHANNEL_CIRCUIT_BREAKER,
+  DEFAULT_PEER_BOT_RATE_LIMIT,
+} from './peer-bot-rate-limit.ts'
 import {
   type ApprovalKey,
   approvalKey,
   assertUniqueRuleIds,
   detectBroadAutoApprove,
   detectShadowing,
+  detectUnenforceablePredicates,
   type PolicyRule,
   type ToolCall as PolicyToolCall,
   parsePolicyRules,
@@ -93,13 +107,18 @@ import {
   evaluate as policyEvaluate,
 } from './policy.ts'
 import {
+  beginDurableStream,
   createDeliverySendDeps,
+  createFileSendDeps,
   createReplyPoster,
+  type DurableStreamHandle,
   DurableUnavailableError,
   deliverChunkedReplyDurably,
+  deliverFileReplyDurably,
   deliverReplyDurably,
+  sendFileObligation,
 } from './slack-delivery.ts'
-import { streamReply } from './stream-reply.ts'
+import { type StreamReplyResult, streamReply } from './stream-reply.ts'
 
 // ---------------------------------------------------------------------------
 // --verify-audit-log subcommand (ccsc-t7j, Epic 30-A.15)
@@ -121,8 +140,25 @@ const _verifyPath = parseVerifyArg(process.argv.slice(2))
 if (_verifyPath !== null) {
   const absPath = resolve(_verifyPath)
   try {
-    const result = await verifyJournal(absPath)
-    const { text, exitCode } = formatVerifyResult(result, absPath)
+    // Optional eventsVerified floor (ccsc-x0t.9): `--min-events N` makes a
+    // hash-clean-but-too-short log (e.g. wiped to empty) fail instead of
+    // reading as "verified clean" to a monitoring script. Parsed inside the
+    // try so a present-but-malformed flag (which throws — fail-closed, PR #277)
+    // exits non-zero with a clear message rather than silently disabling the
+    // floor or crashing at module load.
+    const _minEvents = parseMinEventsArg(process.argv.slice(2))
+    // Optional tamper anchors (ccsc-x0t.7): `--expected-genesis-hash HEX` pins
+    // the genesis prevHash (defeats head-shear+rechain) and `--v2-floor-seq N`
+    // requires every event at/after N to be signed v2 (defeats uniform
+    // downgrade-to-v1). Both parse fail-closed (throw on malformed → caught
+    // below). Absent → prior verify behavior.
+    const _genesis = parseExpectedGenesisArg(process.argv.slice(2))
+    const _v2Floor = parseV2FloorSeqArg(process.argv.slice(2))
+    const result = await verifyJournal(absPath, {
+      pinnedGenesisHash: _genesis ?? undefined,
+      v2FloorSeq: _v2Floor ?? undefined,
+    })
+    const { text, exitCode } = formatVerifyResult(result, absPath, _minEvents ?? undefined)
     if (exitCode === 0) {
       console.log(text)
     } else {
@@ -138,7 +174,12 @@ if (_verifyPath !== null) {
   }
 }
 
-import { createSessionSupervisor, resolveIdleMs, type SessionSupervisor } from './supervisor.ts'
+import {
+  createSessionSupervisor,
+  resolveIdleMs,
+  resolveMaxConcurrentSessions,
+  type SessionSupervisor,
+} from './supervisor.ts'
 
 // Re-export constants so they stay in one place (lib.ts)
 export { MAX_PAIRING_REPLIES, MAX_PENDING, PAIRING_EXPIRY_MS } from './lib.ts'
@@ -245,6 +286,14 @@ const web = new WebClient(botToken)
 const socket = new SocketModeClient({ appToken })
 
 let botUserId = ''
+// Settles once the boot-time web.auth.test() attempt completes (success OR
+// failure) — MCP connects before identity resolves, so tools that consume
+// identity (publish_manifest's replace-sweep) bounded-await this latch instead
+// of silently operating with '' identity during the window.
+let settleIdentity: () => void = () => {}
+const identitySettled = new Promise<void>((r) => {
+  settleIdentity = r
+})
 let selfBotId = ''
 let selfAppId = ''
 
@@ -406,7 +455,7 @@ async function postAuditReceiptIfEnabled(
     channel,
     thread,
     tool,
-    accessSnapshot.channels[channel],
+    getChannelPolicy(accessSnapshot, channel),
     (ctx) => console.error('[slack] audit receipt post failed (non-blocking):', ctx),
   )
   if (!result) return undefined
@@ -524,9 +573,20 @@ function loadPolicyRulesAtBoot(): readonly PolicyRule[] {
   for (const warning of broads) {
     console.error(`[slack] policy footgun warning: ${warning.message}`)
   }
+  // detectUnenforceablePredicates (ccsc-x0t.5) — the MCP permission_request
+  // gate carries no structured args, so pathPrefix/argEquals predicates can't
+  // be evaluated there; the evaluator fail-safes such deny/require rules to a
+  // human and skips such auto_approve rules. Warn loud at boot so the operator
+  // knows the rule behaves more coarsely at the gate than its JSON reads.
+  // Warn-not-block for the same reasons as the other two linters.
+  const unenforceable = detectUnenforceablePredicates(parsed)
+  for (const warning of unenforceable) {
+    console.error(`[slack] policy unenforceable-predicate warning: ${warning.message}`)
+  }
   console.error(
     `[slack] policy: loaded ${parsed.length} rule(s), ` +
-      `${shadows.length} shadow warning(s), ${broads.length} footgun warning(s)`,
+      `${shadows.length} shadow warning(s), ${broads.length} footgun warning(s), ` +
+      `${unenforceable.length} unenforceable-predicate warning(s)`,
   )
   return parsed
 }
@@ -555,6 +615,56 @@ function assertNoSecretValues(payload: string): void {
 // Replaces the pre-xa3.6 channel-only set so the outbound gate can
 // enforce thread-level isolation per session-state-machine.md §207.
 const deliveredThreads = new Set<string>()
+
+// ccsc-apj.1 — threads a HUMAN has "engaged" by mentioning the bot at
+// least once. Keyed by the SESSION thread `deliveredThreadKey(channel,
+// thread_ts ?? ts)` (NOT raw thread_ts like deliveredThreads above), so a
+// top-level mention (ts=T1) and its in-thread follow-ups (thread_ts=T1)
+// share one slot. gate() consults this to let a human keep talking in an
+// engaged thread without re-mentioning on a requireMention channel. Peer
+// bots are never added here as sticky — the inbound gate refuses to make
+// ev.bot_id messages sticky regardless. Session-lifetime cache.
+const engagedThreads = new Set<string>()
+// Bound the engaged-thread cache so it can't grow without limit over a long
+// process lifetime (CodeRabbit, PR #244). At capacity the oldest entry is
+// evicted; a human in an evicted thread simply re-mentions to re-engage.
+const MAX_ENGAGED_THREADS = 10_000
+
+/** Record a thread as engaged for mention-stickiness, bounding the cache.
+ *  Sets iterate in insertion order, so the first key is the oldest; evict it
+ *  when at capacity (only when adding a genuinely new key). */
+function recordEngagedThread(key: string): void {
+  if (engagedThreads.size >= MAX_ENGAGED_THREADS && !engagedThreads.has(key)) {
+    const oldest = engagedThreads.values().next().value
+    if (oldest !== undefined) engagedThreads.delete(oldest)
+  }
+  engagedThreads.add(key)
+}
+
+/** Build the SessionKey for an inbound event. When the channel opts into
+ *  per-user session isolation (ccsc-kl410), the sender's userId is added so two
+ *  humans in one thread get separate sessions; otherwise the legacy shared
+ *  (channel, thread) key. Default-safe: no flag → shared, behavior unchanged. */
+function inboundSessionKey(
+  channelId: string,
+  threadKey: string,
+  access: Access,
+  ev: Record<string, unknown>,
+): import('./lib.ts').SessionKey {
+  // Sender identity: the human user_id, or the bot's id for a peer bot. Validate
+  // it is a NON-EMPTY string before keying (ev fields are `unknown`); an
+  // empty/absent sender falls back to the shared session rather than building an
+  // invalid empty-userId key (Gemini, PR #248).
+  const senderId = (ev.user ?? ev.bot_id) as unknown
+  if (
+    getChannelPolicy(access, channelId)?.perUserSessions === true &&
+    typeof senderId === 'string' &&
+    senderId !== ''
+  ) {
+    return { channel: channelId, thread: threadKey, userId: senderId }
+  }
+  return { channel: channelId, thread: threadKey }
+}
 
 // Dedupe events across `message` and `app_mention` subscriptions. Keyed on
 // (channel, ts). See isDuplicateEvent in lib.ts for rationale.
@@ -673,6 +783,9 @@ async function gate(event: unknown): Promise<GateResult> {
     // bounded under sustained load.
     muteStore: adminMuteStore,
     peerBotRateLimitStore: peerBotRateLimitStore,
+    // ccsc-apj.1 — engaged-thread set so a human can keep talking in a
+    // thread they already mentioned the bot in, without re-mentioning.
+    engagedThreads,
   })
 }
 
@@ -1086,13 +1199,85 @@ async function executeReplyFileUploads(
   }
 }
 
+/** ccsc-o7x.6 — record a stream-finalize obligation (full text) if the session
+ *  can go durable, else `null` (best-effort — stream without a net, the prior
+ *  behavior). Module-level so `executeReplyStreamingPath` stays under CRAP-30.
+ *
+ *  The obligation here is a crash safety-net that is SEPARATE from the send (the
+ *  send is the stream itself), unlike the text/chunked durable paths where the
+ *  obligation IS the send. So ANY failure to set it up — `DurableUnavailableError`
+ *  (no session/lease) OR a `recordTerminalDelivery` write failure (disk, fence) —
+ *  degrades to best-effort streaming rather than failing the reply. This keeps
+ *  o7x.6 durability strictly additive: it can never make streaming worse than the
+ *  pre-o7x.6 behavior. A non-`DurableUnavailableError` failure is logged to
+ *  stderr (it signals a real storage problem) but never propagated. */
+async function maybeBeginDurableStream(
+  chatId: string,
+  threadTs: string | undefined,
+  text: string,
+): Promise<DurableStreamHandle | null> {
+  if (supervisor === null || threadTs === undefined) return null
+  try {
+    return await beginDurableStream(
+      { supervisor },
+      { id: randomUUID(), channel: chatId, thread: threadTs, text },
+    )
+  } catch (err) {
+    if (!(err instanceof DurableUnavailableError)) {
+      console.error('[slack] beginDurableStream failed; streaming best-effort', {
+        error: err instanceof Error ? err.message : String(err),
+      })
+    }
+    return null
+  }
+}
+
+/** ccsc-o7x.6 — resolve the stream-finalize obligation from the `streamReply`
+ *  outcome: `completed` → `delivered`; any clean in-process failure
+ *  (`failed_mid_stream` or `gate_rejected_at_start`) → `dead` (the partial
+ *  message that landed is the same best-effort outcome as before; the poller does
+ *  NOT re-run the outbound gate, so a gate-rejected stream must never be
+ *  auto-redelivered). A process crash never reaches here, leaving the obligation
+ *  `pending` for the poller to redeliver. No-op when there is no durable handle. */
+async function resolveStreamObligation(
+  durable: DurableStreamHandle | null,
+  result: StreamReplyResult,
+): Promise<void> {
+  if (durable === null) return
+  switch (result.kind) {
+    case 'completed':
+      await durable.markDelivered()
+      return
+    case 'failed_mid_stream':
+      await durable.markDead(`failed mid-stream: ${result.reason}`)
+      return
+    case 'gate_rejected_at_start':
+      await durable.markDead(`stream rejected at start: ${result.reason}`)
+      return
+    default: {
+      // Exhaustiveness guard: a new StreamReplyResult variant must declare its
+      // obligation resolution here, failing to compile rather than silently
+      // dead-lettering with a misleading reason (matches the
+      // permissionRouteJournalEvents never-guard, ccsc-175).
+      const _exhaustive: never = result
+      return _exhaustive
+    }
+  }
+}
+
 /** ccsc-h1h — extracted streaming path for executeReply. Posts the
  *  reply via streamReply (single message that grows via chat.update)
  *  + handles the file-upload tail + builds the result. streamReply
  *  emits its own gate.outbound.allow + system.stream_finalize events
  *  so this path does NOT write a separate allow event. Kept as a
  *  module-level function so executeReply itself stays under the
- *  CRAP-30 threshold. */
+ *  CRAP-30 threshold.
+ *
+ *  ccsc-o7x.6 — wraps the stream in a stream-finalize obligation so a process
+ *  crash mid-stream redelivers the full text as a fresh message (ADR-002
+ *  addendum). The obligation is recorded BEFORE streaming and resolved after:
+ *  delivered on completion, dead on any in-process failure, left pending only by
+ *  an actual crash. */
 async function executeReplyStreamingPath(opts: {
   chatId: string
   threadTs: string | undefined
@@ -1102,40 +1287,60 @@ async function executeReplyStreamingPath(opts: {
   ctx: ToolContext
 }): Promise<ToolResult> {
   const { chatId, threadTs, text, files, limit, ctx } = opts
-  const result = await streamReply(
-    { channel: chatId, threadTs, text, chunkSize: limit },
-    {
-      assertOutboundAllowed: (c, t) => ctx.assertOutboundAllowed(c, t),
-      postMessage: async (a) => {
-        const res = await ctx.web.chat.postMessage({
-          channel: a.channel,
-          text: a.text,
-          thread_ts: a.thread_ts,
-          unfurl_links: false,
-          unfurl_media: false,
-        })
-        const ts = res.ts as string | undefined
-        // Per Gemini review on PR #188: validate ts BEFORE returning
-        // an empty string downstream. streamReply's invariant is that
-        // subsequent chat.update calls target a real ts; an empty
-        // string would cause each update to fail with a confusing
-        // "channel_not_found"-style Slack error. Throw here so
-        // streamReply's init-failure path runs cleanly + the
-        // system.stream_finalize event records the failure reason.
-        if (!ts) throw new Error('chat.postMessage returned no ts')
-        return { ts }
+
+  const durable = await maybeBeginDurableStream(chatId, threadTs, text)
+
+  let result: StreamReplyResult
+  try {
+    result = await streamReply(
+      { channel: chatId, threadTs, text, chunkSize: limit },
+      {
+        assertOutboundAllowed: (c, t) => ctx.assertOutboundAllowed(c, t),
+        postMessage: async (a) => {
+          const res = await ctx.web.chat.postMessage({
+            channel: a.channel,
+            text: a.text,
+            thread_ts: a.thread_ts,
+            unfurl_links: false,
+            unfurl_media: false,
+          })
+          const ts = res.ts as string | undefined
+          // Per Gemini review on PR #188: validate ts BEFORE returning
+          // an empty string downstream. streamReply's invariant is that
+          // subsequent chat.update calls target a real ts; an empty
+          // string would cause each update to fail with a confusing
+          // "channel_not_found"-style Slack error. Throw here so
+          // streamReply's init-failure path runs cleanly + the
+          // system.stream_finalize event records the failure reason.
+          if (!ts) throw new Error('chat.postMessage returned no ts')
+          return { ts }
+        },
+        updateMessage: async (a) => {
+          await ctx.web.chat.update({ channel: a.channel, ts: a.ts, text: a.text })
+        },
+        // Per Gemini review on PR #188: inject toolName so streamReply's
+        // gate.outbound.allow + system.stream_finalize events attribute
+        // to 'reply' in the audit log (streamReply is a generic
+        // primitive; it doesn't know the calling tool's name).
+        journalWrite: async (input) => ctx.journalWrite({ ...input, toolName: 'reply' }),
+        sleep: (ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
       },
-      updateMessage: async (a) => {
-        await ctx.web.chat.update({ channel: a.channel, ts: a.ts, text: a.text })
-      },
-      // Per Gemini review on PR #188: inject toolName so streamReply's
-      // gate.outbound.allow + system.stream_finalize events attribute
-      // to 'reply' in the audit log (streamReply is a generic
-      // primitive; it doesn't know the calling tool's name).
-      journalWrite: async (input) => ctx.journalWrite({ ...input, toolName: 'reply' }),
-      sleep: (ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
-    },
-  )
+    )
+  } catch (streamErr) {
+    // streamReply re-throws on init failure (the journal-allow write or the
+    // initial postMessage threw before any chunk landed). Resolve the obligation
+    // terminal — best-effort, NOT auto-redelivered — then re-throw so the agent
+    // sees the real failure, exactly as before. Leaving it pending would risk a
+    // double-send (the agent may retry AND the poller would redeliver).
+    await durable?.markDead(streamErr instanceof Error ? streamErr.message : String(streamErr))
+    throw streamErr
+  }
+
+  // Resolve the stream-finalize obligation before any throw, so a
+  // gate_rejected_at_start marks dead (never auto-redelivered) rather than
+  // staying pending.
+  await resolveStreamObligation(durable, result)
+
   if (result.kind === 'gate_rejected_at_start') {
     // Unreachable in practice — assertOutboundAllowed already passed
     // in executeReply — but documented as the structured outcome.
@@ -1245,6 +1450,73 @@ async function executeReplyChunkedDurablePath(opts: {
   }
 }
 
+/** ccsc-o7x.5 — durable path for a reply WITH file attachments. Records the text
+ *  chunks + one obligation per file and delivers them in order via
+ *  `deliverFileReplyDurably`; each file uploads through `createFileSendDeps`,
+ *  which re-runs the outbound exfil guard on the file's bytes before every
+ *  (re)upload and dedups by `(filename, size)` thread scan. A transient failure
+ *  queues the tail for the poller; an `ExfilBlockedError` (a file failed the
+ *  guard) marks that file dead and propagates to the agent — exactly as the
+ *  best-effort path surfaced a block. Throws `DurableUnavailableError` (before any
+ *  record/send) when the session can't go durable — the caller falls back to the
+ *  best-effort direct path. Extracted to keep `executeReply`'s CRAP score down. */
+async function executeReplyFileDurablePath(opts: {
+  chatId: string
+  threadTs: string
+  chunks: string[]
+  files: string[]
+  ctx: ToolContext
+}): Promise<ToolResult> {
+  const { chatId, threadTs, chunks, files, ctx } = opts
+  if (supervisor === null) throw new DurableUnavailableError('supervisor not started')
+
+  const fileDeps = createFileSendDeps({
+    client: ctx.web,
+    assertSendable: ctx.assertSendable,
+    assertNoSecretValues: ctx.assertNoSecretValues,
+    journalExfilBlock: (reason) =>
+      ctx.journalWrite({ kind: 'exfil.block', outcome: 'deny', toolName: 'reply', reason }),
+    readFile: (p) => readFileSync(resolve(p)),
+    fileSize: (p) => statSync(resolve(p)).size,
+  })
+
+  // Drop empty chunks so a files-only reply (empty text) uploads files without an
+  // empty Slack message; each path resolves to a basename for the upload filename.
+  const textChunks = chunks.filter((c) => c.length > 0)
+  const fileDescriptors = files.map((p) => ({ path: p, filename: basename(resolve(p)) }))
+
+  const result = await deliverFileReplyDurably(
+    { supervisor, post: createReplyPoster(ctx.web), files: fileDeps },
+    {
+      id: randomUUID(),
+      channel: chatId,
+      thread: threadTs,
+      chunks: textChunks,
+      files: fileDescriptors,
+    },
+  )
+
+  if (result.status === 'delivered') {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Sent ${result.messagesSent} message(s) + ${result.filesSent} file(s) to ${chatId}${result.ts ? ` [ts: ${result.ts}]` : ''}`,
+        },
+      ],
+    }
+  }
+  const total = result.delivered + result.pending
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `Sent ${result.delivered} of ${total} item(s) to ${chatId}; ${result.pending} queued for delivery (transient Slack error; the poller retries the rest in order)`,
+      },
+    ],
+  }
+}
+
 async function executeReply(args: Record<string, any>, ctx: ToolContext): Promise<ToolResult> {
   const chatId: string = args.chat_id
   const text: string = args.text
@@ -1291,18 +1563,25 @@ async function executeReply(args: Record<string, any>, ctx: ToolContext): Promis
     input: { channel: chatId, thread_ts: threadTs },
   })
 
-  // ccsc-o7x.3/.4 — durable reply path (ADR-002 addendum, Option A). Applies to
-  // any non-streaming, file-free reply in a thread while the supervisor is up:
-  // the reply is recorded as durable obligation(s) so a transient Slack failure
-  // or a crash is retried by the delivery poller instead of lost. One chunk → the
-  // single-message path (ccsc-o7x.3); N chunks → the chunked path (ccsc-o7x.4),
-  // one obligation per chunk delivered in order. Falls back to the best-effort
-  // direct send below if the session can't go durable (DurableUnavailableError).
-  // File / streaming replies are still NOT routed here (ccsc-o7x.5/.6).
+  // ccsc-o7x.3/.4/.5 — durable reply path (ADR-002 addendum, Option A). Applies to
+  // any non-streaming reply in a thread while the supervisor is up: the reply is
+  // recorded as durable obligation(s) so a transient Slack failure or a crash is
+  // retried by the delivery poller instead of lost. One text chunk → the
+  // single-message path (ccsc-o7x.3); N chunks → the chunked path (ccsc-o7x.4);
+  // a reply WITH files → the file path (ccsc-o7x.5), which records the text chunks
+  // + one obligation per file and uploads each with the exfil guard re-run on the
+  // bytes. Falls back to the best-effort direct send below if the session can't go
+  // durable (DurableUnavailableError). Streaming replies are handled above
+  // (ccsc-o7x.6). An ExfilBlockedError from the file path propagates to the agent
+  // (a blocked file surfaces, exactly as the best-effort path did).
   const chunks = chunkText(text, limit, mode)
+  const hasFiles = files !== undefined && files.length > 0
 
-  if (!stream && (!files || files.length === 0) && threadTs !== undefined && supervisor !== null) {
+  if (!stream && threadTs !== undefined && supervisor !== null) {
     try {
+      if (hasFiles) {
+        return await executeReplyFileDurablePath({ chatId, threadTs, chunks, files, ctx })
+      }
       return chunks.length <= 1
         ? await executeReplyDurablePath({ chatId, threadTs, text, ctx })
         : await executeReplyChunkedDurablePath({ chatId, threadTs, chunks, ctx })
@@ -1758,6 +2037,22 @@ async function executePublishManifest(
   // Gate 2: channel must be opted in, same as any outbound write.
   executePublishManifestGate2(channel, callerUserId, ctx)
 
+  // Identity guard: MCP connects before web.auth.test() resolves, so there is
+  // a window (sub-second happy path; up to ~30 min while Slack auth degrades
+  // and the WebClient retries) where tools are live but botUserId is still ''.
+  // findOurPriorManifestPins fails closed on '' and the replace-sweep would
+  // silently no-op, leaving duplicate pinned manifests. Bounded-await the
+  // identity latch; if identity is still unresolved, fail the call loudly as
+  // retryable rather than publish with a silent sweep skip.
+  if (ctx.botUserId === '') {
+    await Promise.race([identitySettled, new Promise((r) => setTimeout(r, 5_000))])
+    // Refresh from module state — this ctx was built before the latch settled.
+    ctx.botUserId = botUserId
+    ctx.selfBotId = selfBotId
+    // Pure guard in lib.ts (ccsc-x0t.3) — testable without importing server.ts.
+    assertManifestIdentityResolved(ctx.botUserId)
+  }
+
   ctx.journalWrite({
     kind: 'gate.outbound.allow',
     outcome: 'allow',
@@ -2164,14 +2459,22 @@ mcp.setNotificationHandler(
     //
     // The permission_request notification carries `input_preview` (string)
     // rather than structured args, so `argEquals` and `pathPrefix`
-    // predicates cannot match from this notification alone. Rules can
-    // still match on `tool`, `channel`, `thread_ts`, and `actor`. Filed
-    // for future work when the MCP surface carries structured input.
+    // predicates cannot be evaluated from this notification alone. We mark
+    // the call `inputAvailable: false` so the evaluator applies the
+    // input-unavailable FAIL-SAFE (ccsc-x0t.5) instead of the old fail-open:
+    // a `deny`/`require_approval` rule whose only unmet field is such a
+    // predicate is routed to a human (never silently skipped), preempting any
+    // later broad `auto_approve`; an `auto_approve` with such a predicate is
+    // skipped. Rules still match fully on `tool`, `channel`, `thread_ts`, and
+    // `actor`. See 000-docs/policy-evaluation-flow.md § Input-unavailable
+    // fail-safe; the boot linter `detectUnenforceablePredicates` names every
+    // affected rule.
     // ---------------------------------------------------------------------
     const sessionThread = lastActiveThread ?? ''
     const policyCall: PolicyToolCall = {
       tool: params.tool_name,
       input: {},
+      inputAvailable: false,
       sessionKey: { channel: targetChannel, thread: sessionThread },
       actor: 'claude_process',
     }
@@ -2291,13 +2594,24 @@ mcp.setNotificationHandler(
     // for the no-opinion case — see release-plan R2).
     let pendingPolicy: PendingPolicyApproval | undefined
     if (route.type === 'require_human' && decision.kind === 'require') {
+      // Honest journaling for the input-unavailable fail-safe (ccsc-x0t.5):
+      // when `evaluate()` routed a deny/require_approval rule to a human
+      // because its pathPrefix/argEquals predicate was unevaluable at this
+      // gate, `decision.reason` is set. Stamp it into the `policy.require`
+      // event's input echo so the signed audit chain records WHY the human
+      // was asked and never implies the predicate was evaluated. A genuine
+      // require_approval match leaves `reason` undefined → echo unchanged.
+      const requireInput =
+        decision.reason !== undefined
+          ? { ...policyInput, failsafeReason: decision.reason }
+          : policyInput
       // Same exhaustive contract as auto_allow above (ccsc-175):
       // require_human → exactly [policy.require], approversNeeded merged
       // into the trace input by the builder.
       for (const ev of permissionRouteJournalEvents(route, {
         sessionKey: policySessionKey,
         toolName: params.tool_name,
-        input: policyInput,
+        input: requireInput,
         approversNeeded: decision.approvers,
       })) {
         journalWrite(ev)
@@ -2747,11 +3061,26 @@ async function deliverEvent(ev: Record<string, unknown>, access: Access): Promis
   const incomingThreadTs = ev.thread_ts as string | undefined
   deliveredThreads.add(libDeliveredThreadKey(channelId, incomingThreadTs))
 
+  // ccsc-apj.1 — mark this thread engaged for mention-stickiness, but ONLY
+  // for human deliveries. A human mentioning the bot opens the thread for
+  // mention-free human follow-ups; a peer bot must keep mentioning, so a
+  // bot-only thread never becomes sticky. Keyed by the session thread
+  // (thread_ts ?? ts) so a top-level mention and its in-thread replies match.
+  if (!ev.bot_id) {
+    recordEngagedThread(libDeliveredThreadKey(channelId, incomingThreadTs ?? (ev.ts as string)))
+  }
+
+  // ccsc-kl410 — per-user session isolation (helper keeps deliverEvent under the
+  // CRAP gate). Built once and used for both the journal record (so the chosen
+  // key shape is auditable) and the supervisor activation below.
+  const threadKey = incomingThreadTs ?? (ev.ts as string)
+  const sessionKey = inboundSessionKey(channelId, threadKey, access, ev)
+
   journalWrite({
     kind: 'gate.inbound.deliver',
     outcome: 'allow',
     actor: ev.bot_id ? 'peer_agent' : 'session_owner',
-    sessionKey: { channel: channelId, thread: incomingThreadTs ?? (ev.ts as string) },
+    sessionKey,
     input: {
       channel: channelId,
       user: ev.bot_id ? (ev.bot_id as string) : (ev.user as string | undefined),
@@ -2769,11 +3098,7 @@ async function deliverEvent(ev: Record<string, unknown>, access: Access): Promis
   // and DROP — do not propagate so the event loop stays alive for
   // other sessions. Same policy for handle.update() failures.
   if (supervisor !== null) {
-    await activateAndTouch(
-      supervisor,
-      { channel: channelId, thread: incomingThreadTs ?? (ev.ts as string) },
-      ev.user as string | undefined,
-    )
+    await activateAndTouch(supervisor, sessionKey, ev.user as string | undefined)
   }
 
   // Track last active channel for permission relay
@@ -3085,7 +3410,7 @@ async function tryDispatchAdminVerb(ev: Record<string, unknown>, access: Access)
 
   const deps = {
     isAllowed: (cId: string, uId: string): boolean => {
-      const policy = access.channels[cId]
+      const policy = getChannelPolicy(access, cId)
       return policy?.adminCommands?.allowFrom?.includes(uId) ?? false
     },
     journalWrite: async (input: Parameters<JournalWriter['writeEvent']>[0]): Promise<unknown> => {
@@ -3137,6 +3462,18 @@ async function tryDispatchAdminVerb(ev: Record<string, unknown>, access: Access)
       }
     },
     muteStore: adminMuteStore,
+    // ccsc-yl6k9 — effective rate-limit view for the read-only !rate-limit verb.
+    getChannelRateLimits: (chId: string) => {
+      const chPolicy = getChannelPolicy(getAccess(), chId)
+      return {
+        peerBot: chPolicy?.peerBotRateLimit ?? DEFAULT_PEER_BOT_RATE_LIMIT,
+        channel: chPolicy?.channelCircuitBreaker ?? DEFAULT_CHANNEL_CIRCUIT_BREAKER,
+      }
+    },
+    // ccsc-4e9bf — "agents online": peer bots active in the last 5 min, derived
+    // from the rate-limit store's per-channel activity.
+    getActiveAgents: (chId: string, now: number) =>
+      peerBotRateLimitStore.activeBots(chId, now, 5 * 60_000),
   }
 
   try {
@@ -3145,6 +3482,19 @@ async function tryDispatchAdminVerb(ev: Record<string, unknown>, access: Access)
       // No emoji reaction at challenge phase — the DM IS the visible
       // feedback that something happened. Reaction lands when the
       // operator redeems.
+    } else if (outcome.kind === 'status') {
+      // ccsc-yl6k9 — post the read-only status message back into the thread.
+      try {
+        await web.chat.postMessage({
+          channel: channelId,
+          thread_ts: threadTs,
+          text: outcome.message,
+          unfurl_links: false,
+          unfurl_media: false,
+        })
+      } catch (err) {
+        console.error('[slack] admin status post failed:', err)
+      }
     }
     return true
   } catch (err) {
@@ -3418,6 +3768,9 @@ async function main(): Promise<void> {
     stateRoot: STATE_DIR,
     idleMs: resolveIdleMs(process.env),
     journal: journal ?? undefined,
+    // ccsc-4e9bf — optional global backpressure cap (SLACK_MAX_CONCURRENT_SESSIONS).
+    // Unset → unlimited (default).
+    maxConcurrentSessions: resolveMaxConcurrentSessions(process.env),
   })
 
   // Idle reaper: one pass every 60 s, finds sessions whose lastActiveAt is
@@ -3430,7 +3783,18 @@ async function main(): Promise<void> {
   reaperTimer = setInterval(() => {
     void supervisor!.reapIdle()
     const now = Date.now()
-    adminMuteStore.prune(now)
+    for (const expired of adminMuteStore.prune(now)) {
+      // ccsc-yl6k9 — notify the channel when a mute auto-expires so a bot
+      // un-muting is never a silent surprise. Best-effort; never blocks the reaper.
+      void web.chat
+        .postMessage({
+          channel: expired.channelId,
+          text: `:loud_sound: <@${expired.botId}> un-muted (mute expired).`,
+          unfurl_links: false,
+          unfurl_media: false,
+        })
+        .catch((err) => console.error('[slack] mute-expiry notice failed:', err))
+    }
     // The reaper's job is "drop entries that NO conceivable window
     // would still consider live" — NOT to match the default window.
     // Per Gemini high-priority fix on PR #187: a hardcoded 60s
@@ -3462,9 +3826,27 @@ async function main(): Promise<void> {
   // idempotent (lib.ts `makeIdempotentSend` over the Slack adapter), so a
   // redelivery after a lost ack never double-posts.
   const idempotentSend = makeIdempotentSend(createDeliverySendDeps(web))
+  // ccsc-o7x.5 — file obligations upload via filesUploadV2 with the outbound exfil
+  // guard re-run on the bytes (a file's content can change between record and
+  // redelivery); text obligations post via the idempotent text send. The guard
+  // uses the same module-level assertSendable / assertNoSecretValues the reply
+  // tool uses, and journals exfil.block on a block.
+  const fileSendDeps = createFileSendDeps({
+    client: web,
+    assertSendable,
+    assertNoSecretValues,
+    journalExfilBlock: (reason) =>
+      journalWrite({ kind: 'exfil.block', outcome: 'deny', toolName: 'reply', reason }),
+    readFile: (p) => readFileSync(resolve(p)),
+    fileSize: (p) => statSync(resolve(p)).size,
+  })
+  const outboxSend = (ob: DeliveryObligation): Promise<void> =>
+    ob.upload !== undefined
+      ? sendFileObligation(fileSendDeps, ob).then(() => undefined)
+      : idempotentSend(ob)
   const drainOutboxOnce = (): void => {
     void supervisor!
-      .drainOutbox(idempotentSend)
+      .drainOutbox(outboxSend)
       .then((report) => {
         if (report.deadLettered.length > 0) {
           console.error('[slack] outbox: dead-lettered obligations', report.deadLettered)
@@ -3482,28 +3864,96 @@ async function main(): Promise<void> {
   deliveryTimer = setInterval(drainOutboxOnce, deliveryPollMs)
   if (typeof deliveryTimer.unref === 'function') deliveryTimer.unref()
 
-  // Resolve bot identity (user ID, bot ID, app ID) for mention detection
-  // and self-echo filtering across payload variants and multi-workspace setups
-  try {
-    const auth = await web.auth.test()
-    botUserId = (auth.user_id as string) || ''
-    selfBotId = (auth.bot_id as string) || ''
-    // app_id may not be present in all auth.test responses; fall back to empty
-    selfAppId = ((auth as unknown as Record<string, unknown>).app_id as string) || ''
-    console.error('[slack] bot identity:', { botUserId, selfBotId, selfAppId })
-  } catch (err) {
-    console.error('[slack] Failed to resolve bot identity:', err)
-  }
-
-  // Connect Socket Mode (Slack ↔ local WebSocket)
-  await socket.start()
-  console.error('[slack] Socket Mode connected')
-
-  // Connect MCP stdio (server ↔ Claude Code)
+  // Connect MCP stdio (server ↔ Claude Code) FIRST. The stdio handshake
+  // has no external dependency and must come up immediately: when
+  // socket.start() (and the web.auth.test() identity call, whose WebClient
+  // defaults to ~30 minutes of internal retries) ran before mcp.connect(),
+  // any Slack-side slowness blew Claude Code's 30s MCP handshake window,
+  // and the client logged a connection timeout and gave up without
+  // retrying — the whole channel stayed dead. Outbound tools
+  // (reply/react/...) use the HTTPS WebClient and work regardless of
+  // Socket Mode state; only inbound events wait on the socket.
   const transport = new StdioServerTransport()
   transport.onclose = () => void shutdown('stdio transport closed')
   await mcp.connect(transport)
   console.error('[slack] MCP server running on stdio')
+
+  // Bring up the Slack side asynchronously: resolve bot identity, then
+  // connect Socket Mode with bounded-backoff retries. Identity resolution
+  // runs here (not before mcp.connect) because it is only consumed by
+  // inbound-event processing — mention detection and self-echo filtering —
+  // and no inbound event can arrive until socket.start() succeeds below.
+  //
+  // The retry loop only guards the initial start(): the @slack/socket-mode
+  // client auto-reconnects once started. Two deliberate exits:
+  //   - shuttingDown → stop retrying; a post-shutdown start() would
+  //     resurrect a socket in a process about to exit (zombie instance
+  //     stealing round-robined events).
+  //   - unrecoverable auth/config errors (revoked or wrong xapp token) →
+  //     fail loud and exit non-zero so the operator sees it at boot,
+  //     instead of retrying a permanently-fatal error forever.
+  void (async () => {
+    // Resolve bot identity (user ID, bot ID, app ID) for mention detection
+    // and self-echo filtering across payload variants and multi-workspace setups
+    try {
+      const auth = await web.auth.test()
+      botUserId = (auth.user_id as string) || ''
+      selfBotId = (auth.bot_id as string) || ''
+      // app_id may not be present in all auth.test responses; fall back to empty
+      selfAppId = ((auth as unknown as Record<string, unknown>).app_id as string) || ''
+      console.error('[slack] bot identity:', { botUserId, selfBotId, selfAppId })
+    } catch (err) {
+      console.error('[slack] Failed to resolve bot identity:', err)
+    } finally {
+      settleIdentity()
+    }
+
+    // Bounded retry: the loop exists to survive a TRANSIENT outage, not to
+    // mask a permanently-dead channel. Auth/config-fatal errors shut down
+    // immediately; anything else (persistent 5xx, proxy blackhole, DNS/TLS
+    // failure — the SDK throws these out of retrieveWSSURL as
+    // RequestError/HTTPError rather than reconnecting internally) gets
+    // MAX_SOCKET_START_ATTEMPTS tries (~5 minutes with the backoff below),
+    // then fails loud the same way. The fatal-vs-retryable decision and the
+    // backoff schedule are pure functions in lib.ts (classifySocketStartError /
+    // nextSocketStartBackoffMs) so the boot-path classification is unit-tested
+    // without importing this module (ccsc-x0t.4 / ccsc-x0t.10).
+    const MAX_SOCKET_START_ATTEMPTS = 10
+    let attempt = 0
+    let delayMs = 2_000
+    while (!shuttingDown) {
+      try {
+        await socket.start()
+        console.error('[slack] Socket Mode connected')
+        return
+      } catch (err) {
+        attempt += 1
+        const msg = err instanceof Error ? err.message : String(err)
+        if (classifySocketStartError(err) === 'fatal') {
+          console.error(
+            '[slack] Socket Mode start failed with unrecoverable error:',
+            extractSlackErrorCode(err) ?? msg,
+          )
+          await shutdown('unrecoverable Socket Mode start error', 1)
+          return
+        }
+        if (attempt >= MAX_SOCKET_START_ATTEMPTS) {
+          console.error(
+            `[slack] Socket Mode start failed ${attempt} consecutive times; giving up:`,
+            msg,
+          )
+          await shutdown('Socket Mode start exhausted retries', 1)
+          return
+        }
+        console.error(
+          `[slack] Socket Mode start failed (attempt ${attempt}/${MAX_SOCKET_START_ATTEMPTS}, retrying in ${Math.round(delayMs / 1000)}s):`,
+          msg,
+        )
+        await new Promise((r) => setTimeout(r, delayMs))
+        delayMs = nextSocketStartBackoffMs(delayMs)
+      }
+    }
+  })()
 
   // Belt-and-suspenders: the SDK's StdioServerTransport doesn't listen for
   // stdin end/close, so transport.onclose never fires on its own. Hook stdin

@@ -27,6 +27,8 @@ context/
     CLIENT_PREFERENCES.md
     SESSION_NOTES.md
     SOURCES.md
+    SESSION_NOTES_ARCHIVE.md       # On-demand narrative history
+    METRICS_LOG.csv                # On-demand structured metrics for trend reports
   README.md
 .claude-plugin/
   plugin.json                      # Plugin manifest
@@ -44,11 +46,13 @@ After installation, your personal context files are stored at:
 ```text
 ~/.claude/over-50s-health-advisor/
     context/                       # Your personal context files (auto-created on first run)
-        ├── INITIAL_USER_INFORMATION.md
-        ├── CLIENT_HEALTH_CONTEXT.md
-        ├── CLIENT_PREFERENCES.md
-        ├── SESSION_NOTES.md
-        └── SOURCES.md
+        ├── INITIAL_USER_INFORMATION.md   # core — read every session
+        ├── CLIENT_HEALTH_CONTEXT.md      # core — read every session
+        ├── CLIENT_PREFERENCES.md         # core — read every session
+        ├── SESSION_NOTES.md              # core — read every session (last ~2 entries)
+        ├── SOURCES.md                    # core — read every session
+        ├── SESSION_NOTES_ARCHIVE.md      # history — read only on demand
+        └── METRICS_LOG.csv               # analysis — read only on demand
 ```
 
 ## Requirements
@@ -105,6 +109,9 @@ first conversation.
    and add high-quality evidence).
 4. Use the agent from any directory in Claude Code. The agent will read and update these context files automatically.
 5. Keep the "Last updated" dates accurate in each file.
+6. Ask for a "trend summary" or "how have I done this year" and the agent will read `METRICS_LOG.csv` — a
+   structured, append-only record of every metric it has logged — instead of re-reading a year of session
+   notes. See `context/README.md` for details on `METRICS_LOG.csv` and `SESSION_NOTES_ARCHIVE.md`.
 
 ## Invoking the Agent
 

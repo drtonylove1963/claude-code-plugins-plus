@@ -40,6 +40,7 @@ import {
   deliveryIdempotencyKey,
   detectNewAllowFrom,
   EVENT_DEDUP_TTL_MS,
+  ExfilBlockedError,
   enforceAuditReceiptCap,
   escMrkdwn,
   extractSlackErrorCode,
@@ -80,12 +81,17 @@ import {
   validateSendableRoots,
 } from './lib.ts'
 import {
+  beginDurableStream,
   createDeliverySendDeps,
+  createFileSendDeps,
   createReplyPoster,
   DurableUnavailableError,
   deliverChunkedReplyDurably,
+  deliverFileReplyDurably,
   deliverReplyDurably,
+  type FileUploadDeps,
   type ReplyPoster,
+  sendFileObligation,
 } from './slack-delivery.ts'
 import {
   classifyRecovery,
@@ -363,6 +369,92 @@ describe('gate', () => {
     expect(result.action).toBe('deliver')
   })
 
+  // -- requireMention thread-stickiness (ccsc-apj.1) --
+  // "Mention once, then converse": a human who has engaged a thread by
+  // mentioning the bot can keep talking in that thread without re-mentioning.
+  // The engaged set is keyed by the SESSION thread (thread_ts ?? ts).
+
+  test('delivers un-mentioned human reply when the thread is already engaged (ccsc-apj.1)', async () => {
+    const { deliveredThreadKey } = await import('./lib.ts')
+    const access = makeAccess({
+      channels: { C_MENTION: { requireMention: true, allowFrom: [] } },
+    })
+    const engagedThreads = new Set([deliveredThreadKey('C_MENTION', '1711.0001')])
+    const result = await gate(
+      {
+        user: 'U123',
+        channel: 'C_MENTION',
+        channel_type: 'channel',
+        text: 'and also do Y',
+        thread_ts: '1711.0001',
+        ts: '1711.0002',
+      },
+      makeOpts({ access, botUserId: 'U_BOT', engagedThreads }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  test('delivers un-mentioned human top-level follow-up keyed by session thread (ccsc-apj.1)', async () => {
+    // Opener was a top-level mention ts=T1 → engaged key uses thread_ts ?? ts = T1.
+    // The bot replied in thread T1; the human's follow-up arrives with thread_ts=T1.
+    const { deliveredThreadKey } = await import('./lib.ts')
+    const access = makeAccess({
+      channels: { C_MENTION: { requireMention: true, allowFrom: [] } },
+    })
+    const engagedThreads = new Set([deliveredThreadKey('C_MENTION', 'T1')])
+    const result = await gate(
+      {
+        user: 'U123',
+        channel: 'C_MENTION',
+        channel_type: 'channel',
+        text: 'thanks',
+        thread_ts: 'T1',
+        ts: 'T2',
+      },
+      makeOpts({ access, botUserId: 'U_BOT', engagedThreads }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  test('still drops un-mentioned human message when the thread is NOT yet engaged (ccsc-apj.1)', async () => {
+    const access = makeAccess({
+      channels: { C_MENTION: { requireMention: true, allowFrom: [] } },
+    })
+    const result = await gate(
+      {
+        user: 'U123',
+        channel: 'C_MENTION',
+        channel_type: 'channel',
+        text: 'hi',
+        thread_ts: 'T9',
+        ts: 'T9',
+      },
+      makeOpts({ access, botUserId: 'U_BOT', engagedThreads: new Set() }),
+    )
+    expect(result.action).toBe('drop')
+  })
+
+  test('does NOT make peer bots sticky — un-mentioned peer bot in an engaged thread is dropped (ccsc-apj.1)', async () => {
+    const { deliveredThreadKey } = await import('./lib.ts')
+    const access = makeAccess({
+      channels: { C_MENTION: { requireMention: true, allowFrom: [], allowBotIds: ['U_PEER'] } },
+    })
+    const engagedThreads = new Set([deliveredThreadKey('C_MENTION', 'T1')])
+    const result = await gate(
+      {
+        bot_id: 'B_PEER',
+        user: 'U_PEER',
+        channel: 'C_MENTION',
+        channel_type: 'channel',
+        text: 'still looping',
+        thread_ts: 'T1',
+        ts: 'T2',
+      },
+      makeOpts({ access, botUserId: 'U_BOT', engagedThreads }),
+    )
+    expect(result.action).toBe('drop')
+  })
+
   test('drops channel messages when user not in channel allowFrom', async () => {
     const access = makeAccess({
       channels: { C_RESTRICTED: { requireMention: false, allowFrom: ['U_VIP'] } },
@@ -383,6 +475,280 @@ describe('gate', () => {
       makeOpts({ access }),
     )
     expect(result.action).toBe('deliver')
+  })
+
+  // -- isMentioned via Slack blocks (ccsc-apj.4) --
+  // A <@bot> quoted inside a code block or blockquote must NOT engage a
+  // requireMention channel; a real mention in a normal section/list must.
+
+  test('engages on a real mention in a rich_text section via blocks (ccsc-apj.4)', async () => {
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      {
+        user: 'U1',
+        channel: 'C_M',
+        channel_type: 'channel',
+        text: 'hey <@U_BOT> help',
+        blocks: [
+          {
+            type: 'rich_text',
+            elements: [
+              {
+                type: 'rich_text_section',
+                elements: [
+                  { type: 'text', text: 'hey ' },
+                  { type: 'user', user_id: 'U_BOT' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  test('does NOT engage on a <@bot> inside a code block (ccsc-apj.4)', async () => {
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      {
+        user: 'U1',
+        channel: 'C_M',
+        channel_type: 'channel',
+        // raw text still contains <@U_BOT> — proving the substring check would have falsely matched
+        text: 'see `<@U_BOT>`',
+        blocks: [
+          {
+            type: 'rich_text',
+            elements: [
+              { type: 'rich_text_preformatted', elements: [{ type: 'user', user_id: 'U_BOT' }] },
+            ],
+          },
+        ],
+      },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('drop')
+    expect(result.dropReason).toBe('channel.require_mention')
+  })
+
+  test('does NOT engage on a <@bot> inside a blockquote (ccsc-apj.4)', async () => {
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      {
+        user: 'U1',
+        channel: 'C_M',
+        channel_type: 'channel',
+        text: '> <@U_BOT> said hi',
+        blocks: [
+          {
+            type: 'rich_text',
+            elements: [{ type: 'rich_text_quote', elements: [{ type: 'user', user_id: 'U_BOT' }] }],
+          },
+        ],
+      },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('drop')
+  })
+
+  test('engages on a mention nested inside a rich_text_list (ccsc-apj.4)', async () => {
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      {
+        user: 'U1',
+        channel: 'C_M',
+        channel_type: 'channel',
+        text: '- <@U_BOT>',
+        blocks: [
+          {
+            type: 'rich_text',
+            elements: [
+              {
+                type: 'rich_text_list',
+                elements: [
+                  { type: 'rich_text_section', elements: [{ type: 'user', user_id: 'U_BOT' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  test('falls back to substring mention when no blocks are present (ccsc-apj.4)', async () => {
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      { user: 'U1', channel: 'C_M', channel_type: 'channel', text: 'hey <@U_BOT>' },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  test('falls back to substring when blocks are layout-only with no rich_text (ccsc-apj.4)', async () => {
+    // Block Kit section/context blocks (typical of bots/integrations) carry no
+    // rich_text, so the structured path must not swallow a real mention.
+    const access = makeAccess({ channels: { C_M: { requireMention: true, allowFrom: [] } } })
+    const result = await gate(
+      {
+        user: 'U1',
+        channel: 'C_M',
+        channel_type: 'channel',
+        text: 'hey <@U_BOT>',
+        blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'hey <@U_BOT>' } }],
+      },
+      makeOpts({ access, botUserId: 'U_BOT' }),
+    )
+    expect(result.action).toBe('deliver')
+  })
+
+  // -- dropReason on every drop branch (ccsc-apj.2) --
+  // Each inbound drop now carries a structured reason so the journal
+  // (gate.inbound.drop, server.ts) explains why Claude stayed silent.
+
+  test('self-echo drop carries dropReason self.echo (ccsc-apj.2)', async () => {
+    const result = await gate(
+      { bot_id: 'B_BOT', user: 'U_BOT', channel: 'C1', channel_type: 'channel' },
+      makeOpts(),
+    )
+    expect(result.action).toBe('drop')
+    expect(result.dropReason).toBe('self.echo')
+  })
+
+  test('non-allowlisted bot drop carries dropReason bot.not_allowlisted (ccsc-apj.2)', async () => {
+    const access = makeAccess({ channels: { C1: { requireMention: false, allowFrom: [] } } })
+    const result = await gate(
+      { bot_id: 'B_PEER', user: 'U_PEER', channel: 'C1', channel_type: 'channel', text: 'hi' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('bot.not_allowlisted')
+  })
+
+  test('permission-relay bot drop carries dropReason bot.permission_relay (ccsc-apj.2)', async () => {
+    const access = makeAccess({
+      channels: { C1: { requireMention: false, allowFrom: [], allowBotIds: ['U_PEER'] } },
+    })
+    const result = await gate(
+      {
+        bot_id: 'B_PEER',
+        user: 'U_PEER',
+        channel: 'C1',
+        channel_type: 'channel',
+        text: 'yes abcde',
+      },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('bot.permission_relay')
+  })
+
+  test('filtered subtype drop carries dropReason subtype.filtered (ccsc-apj.2)', async () => {
+    const result = await gate(
+      { subtype: 'message_changed', user: 'U1', channel_type: 'channel', channel: 'C1' },
+      makeOpts(),
+    )
+    expect(result.dropReason).toBe('subtype.filtered')
+  })
+
+  test('no-user drop carries dropReason event.no_user (ccsc-apj.2)', async () => {
+    const result = await gate({ channel_type: 'channel', channel: 'C1' }, makeOpts())
+    expect(result.dropReason).toBe('event.no_user')
+  })
+
+  test('prototype-chain channel id is dropped, not read off the prototype (Object.hasOwn guard)', async () => {
+    // A channel id equal to an inherited Object.prototype member must be
+    // treated as not-opted-in. A bare `access.channels[channel]` lookup
+    // would read a truthy function (e.g. Object.prototype.constructor) and
+    // either bypass the opt-in gate or crash on `policy.allowFrom`.
+    for (const protoKey of ['constructor', 'toString', 'valueOf']) {
+      const result = await gate(
+        { user: 'U1', channel_type: 'channel', channel: protoKey },
+        makeOpts(),
+      )
+      expect(result.action).toBe('drop')
+      expect(result.dropReason).toBe('channel.not_opted')
+    }
+  })
+
+  test('closed-DM drop carries dropReason dm.policy_closed (ccsc-apj.2)', async () => {
+    const access = makeAccess({ dmPolicy: 'disabled' })
+    const result = await gate(
+      { user: 'U_X', channel_type: 'im', channel: 'D1' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('dm.policy_closed')
+  })
+
+  test('pairing-cap drop carries dropReason dm.pairing_cap (ccsc-apj.2)', async () => {
+    const access = makeAccess({
+      dmPolicy: 'pairing',
+      pending: {
+        ABC123: {
+          senderId: 'U_M',
+          chatId: 'D1',
+          createdAt: Date.now(),
+          expiresAt: Date.now() + PAIRING_EXPIRY_MS,
+          replies: MAX_PAIRING_REPLIES,
+        },
+      },
+    })
+    const result = await gate(
+      { user: 'U_M', channel_type: 'im', channel: 'D1' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('dm.pairing_cap')
+  })
+
+  test('pending-full drop carries dropReason dm.pending_full (ccsc-apj.2)', async () => {
+    const pending: Access['pending'] = {}
+    for (let i = 0; i < MAX_PENDING; i++) {
+      pending[`CODE${i}`] = {
+        senderId: `U_P${i}`,
+        chatId: 'D1',
+        createdAt: Date.now(),
+        expiresAt: Date.now() + PAIRING_EXPIRY_MS,
+        replies: 1,
+      }
+    }
+    const access = makeAccess({ dmPolicy: 'pairing', pending })
+    const result = await gate(
+      { user: 'U_OVF', channel_type: 'im', channel: 'D1' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('dm.pending_full')
+  })
+
+  test('non-opted channel drop carries dropReason channel.not_opted (ccsc-apj.2)', async () => {
+    const result = await gate(
+      { user: 'U1', channel: 'C_UNKNOWN', channel_type: 'channel' },
+      makeOpts(),
+    )
+    expect(result.dropReason).toBe('channel.not_opted')
+  })
+
+  test('channel allowFrom miss drop carries dropReason channel.allowfrom_miss (ccsc-apj.2)', async () => {
+    const access = makeAccess({
+      channels: { C_R: { requireMention: false, allowFrom: ['U_VIP'] } },
+    })
+    const result = await gate(
+      { user: 'U_NO', channel: 'C_R', channel_type: 'channel' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('channel.allowfrom_miss')
+  })
+
+  test('requireMention no-mention drop carries dropReason channel.require_mention (ccsc-apj.2)', async () => {
+    const access = makeAccess({
+      channels: { C_M: { requireMention: true, allowFrom: [] } },
+    })
+    const result = await gate(
+      { user: 'U1', channel: 'C_M', channel_type: 'channel', text: 'hi' },
+      makeOpts({ access }),
+    )
+    expect(result.dropReason).toBe('channel.require_mention')
   })
 
   // -- allowBotIds (cross-bot coordination) --
@@ -1289,6 +1655,19 @@ describe('assertOutboundAllowed', () => {
     expect(() => assertOutboundAllowed('C_SHARED', 'T_B', access, delivered)).toThrow(/thread T_B/)
   })
 
+  test('does NOT treat a prototype-chain channel id as opted-in (Object.hasOwn guard)', () => {
+    // A channel id that shadows an inherited Object.prototype member must
+    // NOT pass the gate via a truthy prototype-chain read. With a bare
+    // `access.channels[chatId]` check, 'constructor'/'toString' would read
+    // a truthy function off the prototype and silently authorize the send.
+    const access = makeAccess()
+    for (const protoKey of ['constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+      expect(() => assertOutboundAllowed(protoKey, 'T1', access, new Set())).toThrow(
+        'Outbound gate',
+      )
+    }
+  })
+
   test('blocks top-level post when only a thread has delivered', async () => {
     const { deliveredThreadKey } = await import('./lib.ts')
     const access = makeAccess()
@@ -2071,6 +2450,45 @@ describe('sessionPath', () => {
 
   test('rejects empty channel component', () => {
     expect(() => sessionPath(tmpRoot, key('', 'T1.0'))).toThrow(/invalid channel component/)
+  })
+
+  // ── ccsc-kl410: per-user session isolation ─────────────────────────────
+
+  test('per-user key nests the file under a userId dir within the channel', () => {
+    const p = sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: 'U_ALICE' })
+    expect(p).toBe(join(tmpRoot, 'sessions', 'C_CHAN', 'U_ALICE', 'T1.0.json'))
+  })
+
+  test('two users in the same thread get distinct session files', () => {
+    const pA = sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: 'U_ALICE' })
+    const pB = sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: 'U_BOB' })
+    const shared = sessionPath(tmpRoot, key('C_CHAN', 'T1.0'))
+    expect(pA).not.toBe(pB)
+    expect(pA).not.toBe(shared)
+    expect(pB).not.toBe(shared)
+  })
+
+  test('undefined userId is the legacy shared path (unchanged)', () => {
+    const p = sessionPath(tmpRoot, key('C_CHAN', 'T1.0'))
+    expect(p).toBe(join(tmpRoot, 'sessions', 'C_CHAN', 'T1.0.json'))
+  })
+
+  test('rejects userId component that is exactly .. (path-injection guard)', () => {
+    expect(() => sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: '..' })).toThrow(
+      /invalid userId component/,
+    )
+  })
+
+  test('rejects userId component with /', () => {
+    expect(() =>
+      sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: 'U/X' }),
+    ).toThrow(/invalid userId component/)
+  })
+
+  test('rejects empty userId component (no collision with the shared session)', () => {
+    expect(() => sessionPath(tmpRoot, { channel: 'C_CHAN', thread: 'T1.0', userId: '' })).toThrow(
+      /invalid userId component/,
+    )
   })
 
   test('rejects thread component that is exactly ..', () => {
@@ -2994,7 +3412,7 @@ describe('PolicyRule schema (29-A.1)', () => {
     ).toThrow()
   })
 
-  // ── thread_ts predicate (schema-only until Epic 29-B wires evaluate()) ─
+  // ── thread_ts predicate (schema validation; enforcement wired 29-B) ────
 
   test('MatchSpec accepts a valid Slack thread_ts', async () => {
     const { PolicyRule } = await loadPolicyModule()
@@ -3377,6 +3795,70 @@ describe('evaluate() — policy engine (29-A.3)', () => {
       ttlMs: 60_000,
       approvers: 1,
     })
+  })
+
+  // ── thread_ts predicate enforcement (Epic 29-B wiring; regression) ──────
+  // Guards the fix for the hazard where a thread_ts-scoped rule silently
+  // matched EVERY thread because matchApplies() ignored match.thread_ts.
+
+  test('thread_ts rule applies only to the matching thread', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'r1',
+        effect: 'auto_approve',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    const decision = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '1712345678.001100' } }),
+      rules,
+      0,
+    )
+    expect(decision).toEqual({ kind: 'allow', rule: 'r1' })
+  })
+
+  test('thread_ts rule does NOT apply to a different thread (no longer matches everything)', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'r1',
+        effect: 'auto_approve',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    // A call in a different thread must fall through to the default allow
+    // with NO rule id — proving the auto_approve did not fire globally.
+    const decision = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '9999999999.000000' } }),
+      rules,
+      0,
+    )
+    expect(decision).toEqual({ kind: 'allow' })
+  })
+
+  test('thread_ts deny scopes to one thread and leaves others unaffected', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'block-thread',
+        effect: 'deny',
+        reason: 'thread quarantined',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    const denied = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '1712345678.001100' } }),
+      rules,
+      0,
+    )
+    expect(denied).toEqual({ kind: 'deny', rule: 'block-thread', reason: 'thread quarantined' })
+    const other = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '2222222222.000000' } }),
+      rules,
+      0,
+    )
+    expect(other).toEqual({ kind: 'allow' })
   })
 
   // ── Approval flow ──────────────────────────────────────────────────────
@@ -3844,6 +4326,78 @@ describe('checkMonotonicity() — hot-reload invariant (29-A.6)', () => {
       rule('r2', 'auto_approve', { tool: 'upload_file' }),
     ]
     expect(checkMonotonicity([], next)).toEqual([])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// thread_ts in matchSubsetOrEqual (ccsc-x0t.1) — detectShadowing and
+// checkMonotonicity must stop false-flagging thread-DISJOINT rules.
+//
+// matchSubsetOrEqual (the subset check both linters use) omitted thread_ts,
+// so a thread-scoped rule was treated as covering EVERY thread: a rule scoped
+// to thread B looked "shadowed" by one scoped to thread A, and a reload adding
+// a thread-B auto_approve alongside a thread-A deny was refused as weakening.
+// matchesIntersect already honored thread_ts; this binds the mirror fix.
+// (evaluate()/matchApplies already compared thread_ts — this is the linter gap.)
+// ---------------------------------------------------------------------------
+
+describe('thread_ts in the subset linters (ccsc-x0t.1)', () => {
+  const THREAD_A = '1712345678.001100'
+  const THREAD_B = '1712999999.002200'
+  const rule = (
+    id: string,
+    effect: string,
+    match: Record<string, unknown> = {},
+    extras: Record<string, unknown> = {},
+  ): import('./policy.ts').PolicyRule =>
+    ({ id, effect, match, priority: 100, ...extras }) as import('./policy.ts').PolicyRule
+
+  test('checkMonotonicity: thread-disjoint auto_approve does NOT weaken a thread-A deny', async () => {
+    const { checkMonotonicity } = await import('./policy.ts')
+    const prev = [rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' })]
+    const next = [
+      rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' }),
+      rule('allow-b', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_B }),
+    ]
+    // Pre-fix: the deny's match was treated as thread-agnostic, so allow-b
+    // looked like a subset → false "reload refused" violation.
+    expect(checkMonotonicity(prev, next)).toEqual([])
+  })
+
+  test('checkMonotonicity: SAME-thread auto_approve under a deny still violates (no over-suppression)', async () => {
+    const { checkMonotonicity } = await import('./policy.ts')
+    const prev = [rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' })]
+    const next = [
+      rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' }),
+      rule('allow-a', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_A }),
+    ]
+    const violations = checkMonotonicity(prev, next)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]!.newRule).toBe('allow-a')
+  })
+
+  test('detectShadowing: two thread-disjoint rules do NOT shadow each other', async () => {
+    const { detectShadowing } = await import('./policy.ts')
+    // Same tier, same tool, disjoint threads: the earlier rule cannot cover the
+    // later rule's thread, so there is no within-tier subset shadow.
+    const rules = [
+      rule('a', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_A }),
+      rule('b', 'deny', { tool: 'Bash', thread_ts: THREAD_B }, { reason: 'x' }),
+    ]
+    expect(detectShadowing(rules)).toEqual([])
+  })
+
+  test('detectShadowing: SAME-thread broad-then-narrow still shadows (no over-suppression)', async () => {
+    const { detectShadowing } = await import('./policy.ts')
+    // Earlier {thread A} (tool wildcard) covers later {thread A, tool Bash}.
+    const rules = [
+      rule('broad-a', 'auto_approve', { thread_ts: THREAD_A }),
+      rule('narrow-a', 'deny', { thread_ts: THREAD_A, tool: 'Bash' }, { reason: 'x' }),
+    ]
+    const warnings = detectShadowing(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.later).toBe('narrow-a')
+    expect(warnings[0]!.earlier).toBe('broad-a')
   })
 })
 
@@ -5371,6 +5925,55 @@ describe('cross-(channel,thread) session isolation (ccsc-1iw.1)', () => {
     expect(b.session.data.mark).toBeUndefined()
   })
 
+  test('per-user keys isolate two users in the same channel+thread (ccsc-kl410)', async () => {
+    // With perUserSessions, Alice and Bob share a Slack thread but get separate
+    // sessions — distinct keyId, distinct on-disk file, own ownerId.
+    const sup = makeSupervisor()
+    const alice = await sup.activate(
+      { channel: 'C_OPS', thread: 'T1', userId: 'U_ALICE' },
+      'U_ALICE',
+    )
+    const bob = await sup.activate({ channel: 'C_OPS', thread: 'T1', userId: 'U_BOB' }, 'U_BOB')
+
+    expect(alice).not.toBe(bob)
+    await alice.update((s) => ({ ...s, data: { ...s.data, secret: 'alice-only' } }))
+    await bob.update((s) => ({ ...s, data: { ...s.data, secret: 'bob-only' } }))
+
+    // No bleed in the live handles…
+    expect(alice.session.data.secret).toBe('alice-only')
+    expect(bob.session.data.secret).toBe('bob-only')
+    expect(alice.session.ownerId).toBe('U_ALICE')
+    expect(bob.session.ownerId).toBe('U_BOB')
+
+    // …nor on disk: each per-user file holds only its own secret.
+    const onDiskAlice = JSON.parse(
+      readFileSync(
+        sessionPath(tmpRoot, { channel: 'C_OPS', thread: 'T1', userId: 'U_ALICE' }),
+        'utf8',
+      ),
+    ) as Session
+    const onDiskBob = JSON.parse(
+      readFileSync(
+        sessionPath(tmpRoot, { channel: 'C_OPS', thread: 'T1', userId: 'U_BOB' }),
+        'utf8',
+      ),
+    ) as Session
+    expect(onDiskAlice.data.secret).toBe('alice-only')
+    expect(onDiskBob.data.secret).toBe('bob-only')
+  })
+
+  test('a per-user session does not collide with the shared (no-userId) session in one thread (ccsc-kl410)', async () => {
+    const sup = makeSupervisor()
+    const shared = await sup.activate({ channel: 'C_OPS', thread: 'T1' }, 'U_SHARED')
+    const peruser = await sup.activate(
+      { channel: 'C_OPS', thread: 'T1', userId: 'U_ALICE' },
+      'U_ALICE',
+    )
+    expect(shared).not.toBe(peruser)
+    await shared.update((s) => ({ ...s, data: { ...s.data, mark: 'shared' } }))
+    expect(peruser.session.data.mark).toBeUndefined()
+  })
+
   test('an inbound thread value that embeds traversal toward another session is rejected before any read', async () => {
     const sup = makeSupervisor()
     // Seed a victim session the attacker would like to read.
@@ -6209,6 +6812,141 @@ describe('computeBackoffMs (ccsc-o7x.2.2)', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Boot-path testability seams (ccsc-x0t.10, binding #267 + #268; also closes
+// the code-ACs of ccsc-x0t.3 and ccsc-x0t.4, which #268 shipped without tests).
+// These are the pure decisions extracted out of server.ts's main()-scope boot
+// wiring (which runs on import and so can't be unit-tested directly). A later
+// refactor that silently reverted #267/#268 now reddens a test.
+// ---------------------------------------------------------------------------
+
+describe('boot-path testability seams (ccsc-x0t.10)', () => {
+  test('#267: defaultLog writes to STDERR, never STDOUT (stdout is the MCP channel)', async () => {
+    const { defaultLog } = await import('./supervisor.ts')
+    const errChunks: string[] = []
+    const outChunks: string[] = []
+    const origErr = process.stderr.write
+    const origOut = process.stdout.write
+    process.stderr.write = ((chunk: unknown) => {
+      errChunks.push(String(chunk))
+      return true
+    }) as typeof process.stderr.write
+    process.stdout.write = ((chunk: unknown) => {
+      outChunks.push(String(chunk))
+      return true
+    }) as typeof process.stdout.write
+    try {
+      defaultLog('session.activate', { channel: 'C1', thread: 'T1' })
+    } finally {
+      process.stderr.write = origErr
+      process.stdout.write = origOut
+    }
+    // A structured log on stdout arrives as an invalid JSON-RPC frame and kills
+    // the transport — the exact #267 regression. stdout MUST stay clean.
+    expect(outChunks).toEqual([])
+    expect(errChunks).toHaveLength(1)
+    expect(JSON.parse(errChunks[0]!.trim())).toEqual({
+      event: 'session.activate',
+      channel: 'C1',
+      thread: 'T1',
+    })
+  })
+
+  test('#268: classifySocketStartError → fatal on a structured non-retryable code', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError({ data: { error: 'invalid_auth' } })).toBe('fatal')
+    expect(classifySocketStartError({ data: { error: 'account_inactive' } })).toBe('fatal')
+  })
+
+  test('#268: classifySocketStartError → fatal on a message-regex match (wrapped error)', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError(new Error('An API error occurred: token_revoked'))).toBe(
+      'fatal',
+    )
+    expect(classifySocketStartError(new Error('team_disabled'))).toBe('fatal')
+    // A plain error-like object (not an Error instance) carrying the fatal code
+    // only in its .message must still classify fatal, not "[object Object]" →
+    // retryable (Gemini review, PR #274).
+    expect(classifySocketStartError({ message: 'token_revoked' })).toBe('fatal')
+  })
+
+  test('#268: classifySocketStartError → retryable on transient errors (loop keeps trying)', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError(new Error('ECONNRESET'))).toBe('retryable')
+    expect(classifySocketStartError({ data: { error: 'service_unavailable' } })).toBe('retryable')
+    expect(classifySocketStartError('a bare string')).toBe('retryable')
+  })
+
+  test('#268: nextSocketStartBackoffMs doubles then caps at 60s', async () => {
+    const { nextSocketStartBackoffMs, SOCKET_START_BACKOFF_CAP_MS } = await import('./lib.ts')
+    expect(nextSocketStartBackoffMs(2_000)).toBe(4_000)
+    expect(nextSocketStartBackoffMs(30_000)).toBe(60_000)
+    expect(nextSocketStartBackoffMs(40_000)).toBe(60_000) // min(80k, cap)
+    expect(SOCKET_START_BACKOFF_CAP_MS).toBe(60_000)
+  })
+
+  test('ccsc-x0t.3: assertManifestIdentityResolved fails closed on every invalid identity', async () => {
+    const { assertManifestIdentityResolved, MANIFEST_IDENTITY_UNRESOLVED_MSG } = await import(
+      './lib.ts'
+    )
+    // Empty, nullable, and whitespace-only identities are all invalid — a
+    // security guard must fail closed on each, not just the exact '' (Gemini
+    // review, PR #274).
+    expect(() => assertManifestIdentityResolved('')).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+    expect(() => assertManifestIdentityResolved(null)).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+    expect(() => assertManifestIdentityResolved(undefined)).toThrow(
+      MANIFEST_IDENTITY_UNRESOLVED_MSG,
+    )
+    expect(() => assertManifestIdentityResolved('   ')).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+  })
+
+  test('ccsc-x0t.3: assertManifestIdentityResolved does not throw once identity is resolved', async () => {
+    const { assertManifestIdentityResolved } = await import('./lib.ts')
+    expect(() => assertManifestIdentityResolved('U0BOT')).not.toThrow()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getChannelPolicy — one fail-closed channel-policy accessor (ccsc-x0t.8).
+// Every gate/read routes through it; a bare access.channels[id] index would
+// read inherited Object.prototype members for prototype-key ids.
+// ---------------------------------------------------------------------------
+
+describe('getChannelPolicy (ccsc-x0t.8)', () => {
+  test('returns the policy for an own channel id', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const policy = { requireMention: false, allowFrom: [] }
+    const access = makeAccess({ channels: { C_OPT: policy } })
+    expect(getChannelPolicy(access, 'C_OPT')).toBe(policy)
+  })
+
+  test('returns undefined for a missing channel id', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const access = makeAccess({ channels: { C_OPT: { requireMention: false, allowFrom: [] } } })
+    expect(getChannelPolicy(access, 'C_MISSING')).toBeUndefined()
+  })
+
+  test('fails closed on prototype-key ids (never reads off the prototype chain)', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const access = makeAccess({ channels: {} })
+    // A bare access.channels['constructor'] would return Object's constructor
+    // (a truthy function) and could slip past a truthiness gate. hasOwn refuses.
+    for (const key of ['constructor', 'toString', 'hasOwnProperty', '__proto__', 'valueOf']) {
+      expect(getChannelPolicy(access, key)).toBeUndefined()
+    }
+  })
+
+  test('fails closed (does not throw) when access.channels is absent', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    // Loaded-from-disk Access can lack `channels` (the pre-x0t.8 admin site
+    // used `channels?.[id]`). Object.hasOwn(undefined, …) would throw — the
+    // helper must return undefined instead (Gemini review, PR #275).
+    const access = { ...makeAccess(), channels: undefined } as unknown as Access
+    expect(() => getChannelPolicy(access, 'C_ANY')).not.toThrow()
+    expect(getChannelPolicy(access, 'C_ANY')).toBeUndefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Delivery poller — drainOutbox (ccsc-o7x.2.2)
 // ---------------------------------------------------------------------------
 
@@ -6774,6 +7512,201 @@ describe('createDeliverySendDeps — Slack adapter (ccsc-o7x.3)', () => {
   })
 })
 
+// ---------------------------------------------------------------------------
+// Slack file adapter — createFileSendDeps (ccsc-o7x.5 part 2). read-once
+// readAndGuard (exfil guard on the bytes that will be sent), (filename,size)
+// dedup scan, filesUploadV2 upload. The production FileUploadDeps consumed by the
+// inline path AND the poller.
+// ---------------------------------------------------------------------------
+
+describe('createFileSendDeps — Slack file adapter (ccsc-o7x.5)', () => {
+  const fileOb = {
+    id: 'r-1:file:0',
+    channel: 'C1',
+    thread: 'T1',
+    payload: '',
+    attempts: 0,
+    state: 'pending' as const,
+    createdAt: 1,
+    upload: { path: '/inbox/a.png', filename: 'a.png' },
+  }
+
+  function makeDeps(
+    opts: {
+      threadFiles?: Array<{ id?: string; name?: string; size?: number }>
+      threadTs?: string
+      uploadResult?: unknown
+      sendableErr?: Error
+      contentErr?: Error
+      filenameErr?: Error
+      readBytes?: Uint8Array
+      size?: number
+      sizeThrows?: boolean
+    } = {},
+  ) {
+    const journaled: string[] = []
+    const uploadCalls: Array<Record<string, unknown>> = []
+    const repliesCalls: Array<Record<string, unknown>> = []
+    const client = {
+      conversations: {
+        replies: async (args: Record<string, unknown>) => {
+          repliesCalls.push(args)
+          // ts default is well after fileOb.createdAt (1) so the (filename,size)
+          // scan's delivery-window filter passes unless a test overrides it.
+          return {
+            messages: [{ ts: opts.threadTs ?? '1700000000.000200', files: opts.threadFiles ?? [] }],
+          }
+        },
+      },
+      filesUploadV2: async (args: Record<string, unknown>) => {
+        uploadCalls.push(args)
+        return opts.uploadResult ?? { files: [{ id: 'F-new' }] }
+      },
+    }
+    const deps = createFileSendDeps({
+      client: client as unknown as Parameters<typeof createFileSendDeps>[0]['client'],
+      assertSendable: () => {
+        if (opts.sendableErr) throw opts.sendableErr
+      },
+      // The guard is called on the latin1 content first, then the filename — tell
+      // them apart by the argument so a test can target either.
+      assertNoSecretValues: (t) => {
+        if (t === fileOb.upload.filename) {
+          if (opts.filenameErr) throw opts.filenameErr
+        } else if (opts.contentErr) {
+          throw opts.contentErr
+        }
+      },
+      journalExfilBlock: (reason) => journaled.push(reason),
+      readFile: () => opts.readBytes ?? new Uint8Array([1, 2, 3]),
+      fileSize: () => {
+        if (opts.sizeThrows) throw new Error('ENOENT')
+        return opts.size ?? 3
+      },
+    })
+    return { deps, journaled, uploadCalls, repliesCalls }
+  }
+
+  test('readAndGuard reads once, runs guards, returns the bytes', async () => {
+    const { deps } = makeDeps({ readBytes: new Uint8Array([9, 9]) })
+    expect(
+      Array.from(await deps.readAndGuard({ path: '/inbox/a.png', filename: 'a.png' })),
+    ).toEqual([9, 9])
+  })
+
+  test('readAndGuard: assertSendable block → journals exfil.block + throws ExfilBlockedError', async () => {
+    const { deps, journaled } = makeDeps({ sendableErr: new Error('state-dir denied') })
+    await expect(
+      deps.readAndGuard({ path: '/state/access.json', filename: 'access.json' }),
+    ).rejects.toBeInstanceOf(ExfilBlockedError)
+    expect(journaled).toEqual(['state-dir denied'])
+  })
+
+  test('readAndGuard: secret in content → ExfilBlockedError + journaled', async () => {
+    const { deps, journaled } = makeDeps({ contentErr: new Error('secret value in payload') })
+    await expect(
+      deps.readAndGuard({ path: '/inbox/a.png', filename: 'a.png' }),
+    ).rejects.toBeInstanceOf(ExfilBlockedError)
+    expect(journaled).toEqual(['secret value in payload'])
+  })
+
+  test('readAndGuard: secret in filename → ExfilBlockedError + journaled', async () => {
+    const { deps, journaled } = makeDeps({ filenameErr: new Error('secret in filename') })
+    await expect(
+      deps.readAndGuard({ path: '/inbox/a.png', filename: 'a.png' }),
+    ).rejects.toBeInstanceOf(ExfilBlockedError)
+    expect(journaled).toEqual(['secret in filename'])
+  })
+
+  test('findUploaded: recorded uploadedFileId match is exact and NOT time-scoped', async () => {
+    // Even a file shared BEFORE the obligation's createdAt matches by recorded id
+    // (the id is definitive proof this obligation already uploaded).
+    const { deps } = makeDeps({
+      threadFiles: [{ id: 'F-prev', name: 'x', size: 1 }],
+      threadTs: '1700000000.400',
+    })
+    expect(
+      await deps.findUploaded({
+        ...fileOb,
+        uploadedFileId: 'F-prev',
+        createdAt: 1_700_000_000_500,
+      }),
+    ).toBe('F-prev')
+  })
+
+  test('findUploaded: (filename, size) scan match within the delivery window → returns the file id', async () => {
+    const { deps } = makeDeps({
+      threadFiles: [{ id: 'F-match', name: 'a.png', size: 3 }],
+      size: 3,
+    })
+    expect(await deps.findUploaded(fileOb)).toBe('F-match')
+  })
+
+  test('findUploaded: a STALE older file (same name+size, shared before createdAt) is NOT matched — no false dedup/drop', async () => {
+    // The thread holds an older file with the SAME name + size from a previous
+    // turn; without the delivery-window filter this would falsely dedup and DROP
+    // the new upload (the loss bug). The message ts is before the obligation's
+    // createdAt, so it must not match.
+    const { deps } = makeDeps({
+      threadFiles: [{ id: 'F-stale', name: 'a.png', size: 3 }],
+      threadTs: '1700000000.400',
+      size: 3,
+    })
+    expect(await deps.findUploaded({ ...fileOb, createdAt: 1_700_000_000_500 })).toBeNull()
+  })
+
+  test('findUploaded: no match → null', async () => {
+    const { deps } = makeDeps({
+      threadFiles: [{ id: 'F-other', name: 'b.png', size: 99 }],
+      size: 3,
+    })
+    expect(await deps.findUploaded(fileOb)).toBeNull()
+  })
+
+  test('findUploaded: no thread → null without an API call', async () => {
+    const { deps, repliesCalls } = makeDeps({})
+    expect(await deps.findUploaded({ ...fileOb, thread: '' })).toBeNull()
+    expect(repliesCalls).toHaveLength(0)
+  })
+
+  test('findUploaded: a fileSize error degrades to no (filename,size) match', async () => {
+    const { deps } = makeDeps({
+      threadFiles: [{ id: 'F', name: 'a.png', size: 3 }],
+      sizeThrows: true,
+    })
+    expect(await deps.findUploaded(fileOb)).toBeNull()
+  })
+
+  test('upload sends the guarded bytes via filesUploadV2 and returns the new file id', async () => {
+    const { deps, uploadCalls } = makeDeps({})
+    const id = await deps.upload(
+      { ...fileOb, upload: { path: '/inbox/a.png', filename: 'a.png', comment: 'see attached' } },
+      new Uint8Array([7, 7]),
+    )
+    expect(id).toBe('F-new')
+    expect(uploadCalls[0]).toMatchObject({
+      channel_id: 'C1',
+      filename: 'a.png',
+      thread_ts: 'T1',
+      initial_comment: 'see attached',
+    })
+  })
+
+  test('upload extracts a nested file id shape, and tolerates none (empty string)', async () => {
+    const nested = makeDeps({ uploadResult: { files: [{ files: [{ id: 'F-nested' }] }] } })
+    expect(await nested.deps.upload(fileOb, new Uint8Array([1]))).toBe('F-nested')
+    const none = makeDeps({ uploadResult: { files: [{}] } })
+    expect(await none.deps.upload(fileOb, new Uint8Array([1]))).toBe('')
+  })
+
+  test('upload throws when the obligation has no upload descriptor', async () => {
+    const { deps } = makeDeps({})
+    await expect(
+      deps.upload({ ...fileOb, upload: undefined }, new Uint8Array([1])),
+    ).rejects.toThrow(/no upload descriptor/)
+  })
+})
+
 describe('outbox poller × Slack adapter end-to-end (ccsc-o7x.3)', () => {
   let rawRoot: string
   let tmpRoot: string
@@ -6824,6 +7757,36 @@ describe('outbox poller × Slack adapter end-to-end (ccsc-o7x.3)', () => {
     })
     const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
     expect(reloaded.outbox?.[0]?.state).toBe('delivered')
+  })
+
+  test('drainOutbox dead-letters an ExfilBlockedError on the FIRST failure (no retry to maxAttempts)', async () => {
+    // ccsc-o7x.5 — a file (re)upload that fails the exfil guard is permanent: the
+    // poller must dead-letter immediately, not burn maxAttempts retrying bytes
+    // that will never pass.
+    const seed = makeSupervisor()
+    const h = await seed.activate(key, 'U')
+    await h.recordTerminalDelivery(h.lease!.token, {
+      id: 'x-1',
+      channel: key.channel,
+      thread: key.thread,
+      payload: 'x',
+    })
+
+    const sup = makeSupervisor()
+    let attempts = 0
+    const report = await sup.drainOutbox(async () => {
+      attempts++
+      throw new ExfilBlockedError('secret value in payload')
+    })
+
+    expect(report.deadLettered).toEqual([{ id: 'x-1', error: 'secret value in payload' }])
+    expect(attempts).toBe(1) // dead-lettered on the first failure, NOT retried
+    const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
+    expect(reloaded.outbox?.[0]).toMatchObject({
+      state: 'dead',
+      attempts: 1,
+      lastError: 'secret value in payload',
+    })
   })
 
   test('ack-loss recovery: a pending obligation whose post already landed is deduped, not re-posted', async () => {
@@ -7155,6 +8118,371 @@ describe('deliverChunkedReplyDurably (ccsc-o7x.4)', () => {
 
     expect(result).toEqual({ status: 'delivered', ts: 'ts-0', sent: 1 })
     expect(calls).toEqual([{ id: 'r-1:0', key: 'ccsc-reply:r-1:0', text: 'only' }])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Durable streaming reply finalize — beginDurableStream (ccsc-o7x.6). A stream
+// records ONE full-text obligation up front; completing marks it delivered, an
+// in-process failure marks it dead, and a process crash (neither mark called)
+// leaves it pending so the poller redelivers the final message. (ADR-002
+// addendum.)
+// ---------------------------------------------------------------------------
+
+describe('beginDurableStream (ccsc-o7x.6)', () => {
+  let rawRoot: string
+  let tmpRoot: string
+  let nowValue: number
+  const key = { channel: 'C_STREAM', thread: 'T1' }
+
+  beforeEach(() => {
+    rawRoot = mkdtempSync(join(tmpdir(), 'supervisor-stream-'))
+    tmpRoot = realpathSync.native(rawRoot)
+    nowValue = 1_700_000_000_000
+  })
+  afterEach(() => {
+    rmSync(rawRoot, { recursive: true, force: true })
+  })
+
+  function makeSupervisor() {
+    return createSessionSupervisor({
+      stateRoot: tmpRoot,
+      log: () => {},
+      clock: () => nowValue,
+      leaseTtlMs: 1000,
+      ownerId: 'OWNER-1',
+    })
+  }
+
+  /** Pre-create the session file so the owner-less activate resolves it from
+   *  disk (mirrors a session the inbound message created). */
+  async function seedSession() {
+    const seed = makeSupervisor()
+    await seed.activate(key, 'U')
+  }
+
+  const reply = { id: 's-1', channel: 'C_STREAM', thread: 'T1', text: 'the full streamed reply' }
+
+  test('records ONE pending obligation carrying the FULL text before returning', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+
+    await beginDurableStream({ supervisor: sup }, reply)
+
+    const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
+    expect(reloaded.outbox).toHaveLength(1)
+    // Full text as the payload — a stream-finalize obligation, NOT a chunk.
+    expect(reloaded.outbox?.[0]).toMatchObject({
+      id: 's-1',
+      state: 'pending',
+      payload: 'the full streamed reply',
+    })
+    // Pending → a crash here means the poller redelivers the final message.
+    expect((await sup.pendingDeliveries()).map((o) => o.id)).toEqual(['s-1'])
+  })
+
+  test('markDelivered: stream completed → obligation delivered, nothing pending', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const handle = await beginDurableStream({ supervisor: sup }, reply)
+
+    await handle.markDelivered()
+
+    const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
+    expect(reloaded.outbox?.[0]).toMatchObject({ id: 's-1', state: 'delivered', attempts: 1 })
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
+  })
+
+  test('markDead: in-process stream failure → obligation dead with the reason, nothing pending', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const handle = await beginDurableStream({ supervisor: sup }, reply)
+
+    await handle.markDead('failed mid-stream: channel removed')
+
+    const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
+    expect(reloaded.outbox?.[0]).toMatchObject({
+      id: 's-1',
+      state: 'dead',
+      attempts: 1,
+      lastError: 'failed mid-stream: channel removed',
+    })
+    // Dead, not pending → the poller never auto-redelivers a gate-rejected stream.
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
+  })
+
+  test('crash mid-stream (neither mark called) leaves the obligation pending across a restart', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    // Begin, then "crash": never call markDelivered/markDead.
+    await beginDurableStream({ supervisor: sup }, reply)
+
+    // A fresh supervisor (simulating a restart) still sees the pending obligation
+    // — the boot-drain / poller redelivers the full text.
+    const afterRestart = makeSupervisor()
+    expect((await afterRestart.pendingDeliveries()).map((o) => o.id)).toEqual(['s-1'])
+  })
+
+  test('throws DurableUnavailableError (records nothing) when the session cannot be activated', async () => {
+    // No seedSession() — the session file does not exist and the owner-less
+    // activate rejects, so nothing is recorded.
+    const sup = makeSupervisor()
+
+    await expect(beginDurableStream({ supervisor: sup }, reply)).rejects.toBeInstanceOf(
+      DurableUnavailableError,
+    )
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Durable file-upload reply delivery — sendFileObligation + deliverFileReplyDurably
+// (ccsc-o7x.5). dedup → guard → upload, with the exfil guard re-run on EVERY
+// upload; the files-bearing sibling of deliverChunkedReplyDurably.
+// ---------------------------------------------------------------------------
+
+describe('sendFileObligation (ccsc-o7x.5)', () => {
+  function makeFileDeps(opts: { found?: string | null; uploadId?: string; guardErr?: Error }) {
+    const calls: string[] = []
+    const deps: FileUploadDeps = {
+      readAndGuard: async (u) => {
+        calls.push(`readAndGuard:${u.filename}`)
+        if (opts.guardErr) throw opts.guardErr
+        return new Uint8Array([1, 2, 3])
+      },
+      findUploaded: async () => {
+        calls.push('findUploaded')
+        return opts.found ?? null
+      },
+      upload: async () => {
+        calls.push('upload')
+        return opts.uploadId ?? 'F123'
+      },
+    }
+    return { deps, calls }
+  }
+
+  const fileOb = {
+    id: 'r-1:file:0',
+    channel: 'C',
+    thread: 'T',
+    payload: '',
+    attempts: 0,
+    state: 'pending' as const,
+    createdAt: 0,
+    upload: { path: '/inbox/a.png', filename: 'a.png' },
+  }
+
+  test('dedup hit: returns the existing file id WITHOUT guarding or uploading', async () => {
+    const { deps, calls } = makeFileDeps({ found: 'F-existing' })
+    const id = await sendFileObligation(deps, fileOb)
+    expect(id).toBe('F-existing')
+    expect(calls).toEqual(['findUploaded']) // no guard, no upload on a dedup hit
+  })
+
+  test('dedup miss: guards BEFORE uploading, returns the new file id', async () => {
+    const { deps, calls } = makeFileDeps({ found: null, uploadId: 'F-new' })
+    const id = await sendFileObligation(deps, fileOb)
+    expect(id).toBe('F-new')
+    // Order proves read+guard ran before the upload (re-validate, then send the
+    // same bytes).
+    expect(calls).toEqual(['findUploaded', 'readAndGuard:a.png', 'upload'])
+  })
+
+  test('guard block: throws ExfilBlockedError and NEVER uploads', async () => {
+    const { deps, calls } = makeFileDeps({
+      found: null,
+      guardErr: new ExfilBlockedError('secret in file'),
+    })
+    await expect(sendFileObligation(deps, fileOb)).rejects.toBeInstanceOf(ExfilBlockedError)
+    expect(calls).toEqual(['findUploaded', 'readAndGuard:a.png']) // upload never reached
+  })
+
+  test('throws when the obligation has no upload descriptor', async () => {
+    const { deps } = makeFileDeps({})
+    await expect(sendFileObligation(deps, { ...fileOb, upload: undefined })).rejects.toThrow(
+      /no upload descriptor/,
+    )
+  })
+})
+
+describe('deliverFileReplyDurably (ccsc-o7x.5)', () => {
+  let rawRoot: string
+  let tmpRoot: string
+  let nowValue: number
+  const key = { channel: 'C_FILE', thread: 'T1' }
+
+  beforeEach(() => {
+    rawRoot = mkdtempSync(join(tmpdir(), 'supervisor-file-'))
+    tmpRoot = realpathSync.native(rawRoot)
+    nowValue = 1_700_000_000_000
+  })
+  afterEach(() => {
+    rmSync(rawRoot, { recursive: true, force: true })
+  })
+
+  function makeSupervisor() {
+    return createSessionSupervisor({
+      stateRoot: tmpRoot,
+      log: () => {},
+      clock: () => nowValue,
+      leaseTtlMs: 1000,
+      ownerId: 'OWNER-1',
+    })
+  }
+  async function seedSession() {
+    const seed = makeSupervisor()
+    await seed.activate(key, 'U')
+  }
+  function slackError(code: string): Error {
+    return Object.assign(new Error(`slack: ${code}`), { data: { ok: false, error: code } })
+  }
+  function makePoster(behavior: 'ok' | Error, ts = 'ts-0') {
+    const calls: string[] = []
+    const poster: ReplyPoster = async (ob) => {
+      calls.push(ob.id)
+      if (behavior !== 'ok') throw behavior
+      return ts
+    }
+    return { poster, calls }
+  }
+  function makeFileDeps(opts: { found?: string | null; uploadErr?: Error; guardErr?: Error } = {}) {
+    const uploads: string[] = []
+    let n = 0
+    const deps: FileUploadDeps = {
+      readAndGuard: async () => {
+        if (opts.guardErr) throw opts.guardErr
+        return new Uint8Array([1, 2, 3])
+      },
+      findUploaded: async () => opts.found ?? null,
+      upload: async (ob) => {
+        if (opts.uploadErr) throw opts.uploadErr
+        uploads.push(ob.id)
+        return `F-${n++}`
+      },
+    }
+    return { deps, uploads }
+  }
+
+  const base = {
+    id: 'r-1',
+    channel: 'C_FILE',
+    thread: 'T1',
+    chunks: ['the message'],
+    files: [{ path: '/inbox/a.png', filename: 'a.png' }],
+  }
+
+  test('text + file all deliver: each marked delivered, file carries uploadedFileId, nothing pending', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok', 'ts-9')
+    const { deps, uploads } = makeFileDeps()
+
+    const result = await deliverFileReplyDurably(
+      { supervisor: sup, post: poster, files: deps },
+      base,
+    )
+
+    expect(result).toEqual({ status: 'delivered', ts: 'ts-9', messagesSent: 1, filesSent: 1 })
+    expect(uploads).toEqual(['r-1:file:0'])
+    const obs = (await loadSession(tmpRoot, sessionPath(tmpRoot, key))).outbox ?? []
+    expect(obs.find((o) => o.id === 'r-1:0')).toMatchObject({ state: 'delivered' })
+    expect(obs.find((o) => o.id === 'r-1:file:0')).toMatchObject({
+      state: 'delivered',
+      uploadedFileId: 'F-0',
+    })
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
+  })
+
+  test('records ALL obligations (text + file) before any send', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    let pendingAtFirstSend = -1
+    const poster: ReplyPoster = async () => {
+      pendingAtFirstSend = (await makeSupervisor().pendingDeliveries()).length
+      return 'ts-0'
+    }
+    const { deps } = makeFileDeps()
+    await deliverFileReplyDurably({ supervisor: sup, post: poster, files: deps }, base)
+    expect(pendingAtFirstSend).toBe(2) // text + file both durable before the first post
+  })
+
+  test('dedup: an already-uploaded file is not re-uploaded, still marked delivered', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok')
+    const { deps, uploads } = makeFileDeps({ found: 'F-existing' })
+
+    const result = await deliverFileReplyDurably(
+      { supervisor: sup, post: poster, files: deps },
+      base,
+    )
+
+    expect(result.status).toBe('delivered')
+    expect(uploads).toHaveLength(0) // dedup hit → no upload
+    const obs = (await loadSession(tmpRoot, sessionPath(tmpRoot, key))).outbox ?? []
+    expect(obs.find((o) => o.id === 'r-1:file:0')).toMatchObject({
+      state: 'delivered',
+      uploadedFileId: 'F-existing',
+    })
+  })
+
+  test('exfil block on the file: marks it dead and rethrows (text already landed)', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok')
+    const { deps } = makeFileDeps({ guardErr: new ExfilBlockedError('secret in a.png') })
+
+    await expect(
+      deliverFileReplyDurably({ supervisor: sup, post: poster, files: deps }, base),
+    ).rejects.toBeInstanceOf(ExfilBlockedError)
+
+    const obs = (await loadSession(tmpRoot, sessionPath(tmpRoot, key))).outbox ?? []
+    expect(obs.find((o) => o.id === 'r-1:0')).toMatchObject({ state: 'delivered' })
+    // The blocked file is dead, never pending → the poller never redelivers it.
+    expect(obs.find((o) => o.id === 'r-1:file:0')).toMatchObject({ state: 'dead' })
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
+  })
+
+  test('non-retryable Slack error on the file: marks dead with the code, rethrows', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok')
+    const { deps } = makeFileDeps({ uploadErr: slackError('channel_not_found') })
+
+    await expect(
+      deliverFileReplyDurably({ supervisor: sup, post: poster, files: deps }, base),
+    ).rejects.toThrow(/channel_not_found/)
+    const obs = (await loadSession(tmpRoot, sessionPath(tmpRoot, key))).outbox ?? []
+    expect(obs.find((o) => o.id === 'r-1:file:0')).toMatchObject({
+      state: 'dead',
+      lastError: 'channel_not_found',
+    })
+  })
+
+  test('transient file upload error: marks pending + stops, returns queued (poller redelivers)', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok')
+    const { deps } = makeFileDeps({ uploadErr: slackError('rate_limited') })
+
+    const result = await deliverFileReplyDurably(
+      { supervisor: sup, post: poster, files: deps },
+      base,
+    )
+
+    expect(result).toEqual({ status: 'queued', delivered: 1, pending: 1 }) // text delivered, file pending
+    expect((await sup.pendingDeliveries()).map((o) => o.id)).toEqual(['r-1:file:0'])
+  })
+
+  test('throws DurableUnavailableError (records nothing) when the session cannot be activated', async () => {
+    const sup = makeSupervisor()
+    const { poster } = makePoster('ok')
+    const { deps } = makeFileDeps()
+    await expect(
+      deliverFileReplyDurably({ supervisor: sup, post: poster, files: deps }, base),
+    ).rejects.toBeInstanceOf(DurableUnavailableError)
+    expect(await sup.pendingDeliveries()).toHaveLength(0)
   })
 })
 
@@ -7798,10 +9126,12 @@ describe('JournalEvent', () => {
     // (ccsc-22l) + policy.deny.context_stripped (ccsc-06s) +
     // 5 admin.* kinds (ccsc-3w0) + system.stream_finalize (ccsc-ele) +
     // 4 admin.mute/unmute kinds (ccsc-gjm) + 2 session.recovery.* kinds
-    // (ccsc-o7x.1.2: session.recovery.requeued, session.recovery.orphaned).
+    // (ccsc-o7x.1.2: session.recovery.requeued, session.recovery.orphaned) +
+    // session.activate_rejected (ccsc-4e9bf backpressure).
     // If this number drifts, update the doc count in journal.ts's header
     // comment too.
-    expect(kinds).toHaveLength(36)
+    expect(kinds).toHaveLength(37)
+    expect(kinds).toContain('session.activate_rejected')
     expect(kinds).toContain('manifest.read')
     expect(kinds).toContain('manifest.read.cached')
     expect(kinds).toContain('manifest.publish')
@@ -9288,6 +10618,112 @@ describe('formatVerifyResult', () => {
     expect(out.text).not.toContain('expected:')
     expect(out.text).not.toContain('actual:')
   })
+
+  // ── eventsVerified floor (ccsc-x0t.9) ──────────────────────────────────
+  test('minEvents floor: a hash-clean log below the floor FAILS (wiped log ≠ clean)', async () => {
+    const { formatVerifyResult } = await loadLib()
+    // The x0t.9 case: verifyJournal(empty log) → { ok:true, eventsVerified:0 }.
+    const out = formatVerifyResult({ ok: true, eventsVerified: 0 }, '/tmp/audit.log', 5)
+    expect(out.exitCode).toBe(1)
+    expect(out.text).toContain('FAIL: audit journal too short')
+    expect(out.text).toContain('verified 0 event(s), expected at least 5')
+  })
+
+  test('minEvents floor: at or above the floor is OK', async () => {
+    const { formatVerifyResult } = await loadLib()
+    expect(formatVerifyResult({ ok: true, eventsVerified: 5 }, '/tmp/audit.log', 5).exitCode).toBe(
+      0,
+    )
+    expect(formatVerifyResult({ ok: true, eventsVerified: 9 }, '/tmp/audit.log', 5).exitCode).toBe(
+      0,
+    )
+  })
+
+  test('minEvents floor: omitting it preserves the prior behavior (0 events → OK exit 0)', async () => {
+    const { formatVerifyResult } = await loadLib()
+    const out = formatVerifyResult({ ok: true, eventsVerified: 0 }, '/tmp/audit.log')
+    expect(out.exitCode).toBe(0)
+    expect(out.text).toBe('OK: 0 event(s) verified in /tmp/audit.log')
+  })
+
+  test('minEvents floor: a genuinely-broken log still reports the break, not the floor', async () => {
+    const { formatVerifyResult } = await loadLib()
+    const out = formatVerifyResult(
+      {
+        ok: false,
+        eventsVerified: 2,
+        break: { lineNumber: 3, seq: 3, ts: null, reason: 'hash mismatch' },
+      },
+      '/tmp/audit.log',
+      10,
+    )
+    expect(out.exitCode).toBe(1)
+    expect(out.text).toContain('FAIL: audit journal broken') // the break wins over the floor message
+  })
+})
+
+describe('parseMinEventsArg (ccsc-x0t.9)', () => {
+  const loadLib = async () => await import('./lib.ts')
+
+  test('space form and equals form parse the integer', async () => {
+    const { parseMinEventsArg } = await loadLib()
+    expect(parseMinEventsArg(['--min-events', '5'])).toBe(5)
+    expect(parseMinEventsArg(['--min-events=12'])).toBe(12)
+    expect(parseMinEventsArg(['--min-events', '0'])).toBe(0)
+  })
+
+  test('absent flag → null (the floor is optional)', async () => {
+    const { parseMinEventsArg } = await loadLib()
+    expect(parseMinEventsArg(['--verify-audit-log', '/x'])).toBeNull()
+    expect(parseMinEventsArg([])).toBeNull()
+  })
+
+  test('present-but-malformed values THROW (fail closed — never silently disable the floor)', async () => {
+    // A typo like `--min-events 1OO` (letter O) must not silently no-op the very
+    // tamper-check the flag exists for (Gemini review, PR #277). The invariant
+    // that matters: a present-but-broken flag always throws, never returns null.
+    const { parseMinEventsArg } = await loadLib()
+    // Garbage values (incl. a negative number) → the accurate "invalid value".
+    expect(() => parseMinEventsArg(['--min-events', '1.5'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events', '1OO'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events', 'abc'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events='])).toThrow(/invalid --min-events/)
+    // A negative number routes to the value validator for the accurate error
+    // (Gemini review, PR #278) — a floor is non-negative by definition.
+    expect(() => parseMinEventsArg(['--min-events', '-3'])).toThrow(/invalid --min-events/)
+    // A genuinely-absent value or the NEXT flag → "missing value".
+    expect(() => parseMinEventsArg(['--min-events'])).toThrow(/missing value/)
+    expect(() => parseMinEventsArg(['--min-events', '--verify-audit-log'])).toThrow(/missing value/)
+  })
+})
+
+describe('parseV2FloorSeqArg + parseExpectedGenesisArg (ccsc-x0t.7)', () => {
+  const loadLib = async () => await import('./lib.ts')
+
+  test('parseV2FloorSeqArg: valid, absent, and fail-closed on malformed', async () => {
+    const { parseV2FloorSeqArg } = await loadLib()
+    expect(parseV2FloorSeqArg(['--v2-floor-seq', '42'])).toBe(42)
+    expect(parseV2FloorSeqArg(['--v2-floor-seq=7'])).toBe(7)
+    expect(parseV2FloorSeqArg([])).toBeNull()
+    expect(() => parseV2FloorSeqArg(['--v2-floor-seq', 'abc'])).toThrow(/invalid --v2-floor-seq/)
+    expect(() => parseV2FloorSeqArg(['--v2-floor-seq'])).toThrow(/missing value/)
+  })
+
+  test('parseExpectedGenesisArg: accepts a 64-hex value, absent → null, malformed → throw', async () => {
+    const { parseExpectedGenesisArg } = await loadLib()
+    const hex = 'a'.repeat(64)
+    expect(parseExpectedGenesisArg(['--expected-genesis-hash', hex])).toBe(hex)
+    expect(parseExpectedGenesisArg([`--expected-genesis-hash=${hex}`])).toBe(hex)
+    expect(parseExpectedGenesisArg([])).toBeNull()
+    // Too short / non-hex / uppercase all fail closed rather than disable the anchor.
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash', 'abc'])).toThrow(
+      /invalid --expected-genesis-hash/,
+    )
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash', 'A'.repeat(64)])).toThrow(
+      /invalid --expected-genesis-hash/,
+    )
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash'])).toThrow(/missing value/)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -9610,6 +11046,34 @@ describe('permission-route journal builders bind production code (ccsc-175)', ()
       const events = permissionRouteJournalEvents(route, ctx)
       expect(events.map((e) => e.kind as string)).toEqual(kinds)
     }
+  })
+
+  test('honest journaling (ccsc-x0t.5): a fail-safe failsafeReason survives into the policy.require event', async () => {
+    // server.ts merges decision.reason into the require input echo as
+    // `failsafeReason` when evaluate() fail-safed an indeterminate rule to a
+    // human. This binds that the builder preserves it — the audit chain must
+    // record WHY the human was asked, without a policy.allow ever being written.
+    const { permissionRouteJournalEvents } = await import('./policy-dispatch.ts')
+    const { INDETERMINATE_PREDICATE_REASON } = await import('./policy.ts')
+    const [ev] = permissionRouteJournalEvents(
+      { type: 'require_human', ruleId: 'deny-etc' },
+      {
+        sessionKey: { channel: 'C1', thread: 'T1' },
+        toolName: 'Bash',
+        input: {
+          tool: 'Bash',
+          channel: 'C1',
+          thread_ts: 'T1',
+          failsafeReason: INDETERMINATE_PREDICATE_REASON,
+        },
+        approversNeeded: 1,
+      },
+    )
+    expect(ev!.kind).toBe('policy.require')
+    expect(ev!.outcome).toBe('require')
+    expect((ev!.input as Record<string, unknown>).failsafeReason).toBe(
+      INDETERMINATE_PREDICATE_REASON,
+    )
   })
 
   test('auto_allow events carry the route ruleId and the ctx correlationId', async () => {
@@ -10011,6 +11475,278 @@ describe('detectBroadAutoApprove', () => {
       { id: 'bad-2', effect: 'auto_approve', match: { actor: 'session_owner' } },
     ])
     const warnings = detectBroadAutoApprove(rules)
+    expect(warnings.map((w) => w.ruleId).sort()).toEqual(['bad-1', 'bad-2'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Input-unavailable fail-safe (ccsc-x0t.5) — the crown-jewel fail-open fix.
+//
+// The sole production caller of evaluate() is the MCP permission_request
+// handler, which carries only a preview STRING (no structured args), so it
+// builds the ToolCall with input:{} and inputAvailable:false. Before this fix
+// a deny/require rule scoped by pathPrefix/argEquals silently NEVER FIRED at
+// that gate (empty input → no-match), and a later broad auto_approve swallowed
+// the call — a silent allow with no human in the loop. These tests bind the
+// fail-safe: revert policy.ts and every test in this block goes red.
+//
+// Design: 000-docs/policy-evaluation-flow.md § Input-unavailable fail-safe.
+// ---------------------------------------------------------------------------
+
+describe('input-unavailable fail-safe — evaluate() (ccsc-x0t.5)', () => {
+  const loadPolicy = async () => await import('./policy.ts')
+
+  const gateCall = (
+    tool: string,
+    overrides: Partial<import('./policy.ts').ToolCall> = {},
+  ): import('./policy.ts').ToolCall => ({
+    tool,
+    input: {},
+    inputAvailable: false, // the production permission_request condition
+    sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+    actor: 'claude_process',
+    ...overrides,
+  })
+
+  test('CROWN JEWEL: {deny, pathPrefix:/etc} under {auto_approve, tool:Bash} → require, NOT silent allow', async () => {
+    const {
+      evaluate,
+      parsePolicyRules,
+      INDETERMINATE_PREDICATE_REASON,
+      FAILSAFE_APPROVAL_TTL_MS,
+      FAILSAFE_APPROVAL_QUORUM,
+    } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    // The exact exploit from the risk ledger: a Bash call to /etc/shadow.
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    // Pre-fix this returned { kind: 'allow', rule: 'trust-bash' } — the
+    // fail-open. The indeterminate deny now preempts the broad auto_approve.
+    expect(decision).toEqual({
+      kind: 'require',
+      rule: 'deny-etc',
+      approver: 'human_approver',
+      ttlMs: FAILSAFE_APPROVAL_TTL_MS,
+      approvers: FAILSAFE_APPROVAL_QUORUM,
+      reason: INDETERMINATE_PREDICATE_REASON,
+    })
+  })
+
+  test('argEquals is also unevaluable at the gate → deny fails safe to require', async () => {
+    const { evaluate, parsePolicyRules, INDETERMINATE_PREDICATE_REASON } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-rm-rf',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { command: 'rm -rf /' } },
+        reason: 'no rm -rf',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    expect(decision.kind).toBe('require')
+    if (decision.kind === 'require') {
+      expect(decision.rule).toBe('deny-rm-rf')
+      expect(decision.reason).toBe(INDETERMINATE_PREDICATE_REASON)
+    }
+  })
+
+  test("indeterminate require_approval uses the RULE's own ttlMs/approvers (not the deny defaults)", async () => {
+    const { evaluate, parsePolicyRules, INDETERMINATE_PREDICATE_REASON } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'gate-secret',
+        effect: 'require_approval',
+        match: { pathPrefix: '/secret' },
+        ttlMs: 123_456,
+        approvers: 2,
+      },
+    ])
+    const decision = evaluate(gateCall('upload_file'), rules, 0)
+    expect(decision).toEqual({
+      kind: 'require',
+      rule: 'gate-secret',
+      approver: 'human_approver',
+      ttlMs: 123_456,
+      approvers: 2,
+      reason: INDETERMINATE_PREDICATE_REASON,
+    })
+  })
+
+  test('indeterminate auto_approve is SKIPPED — a later genuine deny still wins', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe-dir', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+      { id: 'deny-bash', effect: 'deny', match: { tool: 'Bash' }, reason: 'blocked' },
+    ])
+    // The auto_approve can't be confirmed (pathPrefix unevaluable) so it is
+    // skipped; evaluation continues to the deny, which fully matches on tool.
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    expect(decision).toEqual({ kind: 'deny', rule: 'deny-bash', reason: 'blocked' })
+  })
+
+  test('indeterminate auto_approve alone → falls through to default (rule did NOT fire)', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe-dir', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+    ])
+    // 'reply' is not in requireAuthoredPolicy → default allow with NO rule id,
+    // proving the auto_approve did not silently fire on an unconfirmable path.
+    const decision = evaluate(gateCall('reply'), rules, 0)
+    expect(decision).toEqual({ kind: 'allow' })
+  })
+
+  test('precise: a deny scoped to a DIFFERENT tool does NOT spuriously fail-safe', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      // pathPrefix present, but tool is 'Write' — an enforceable mismatch for
+      // a 'Bash' call short-circuits to no_match BEFORE the indeterminate path.
+      {
+        id: 'deny-write-etc',
+        effect: 'deny',
+        match: { tool: 'Write', pathPrefix: '/etc' },
+        reason: 'no writes to /etc',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    // The deny genuinely does not apply to a Bash call, so the auto_approve
+    // legitimately wins — the fail-safe is precise, not a blanket block.
+    expect(decision).toEqual({ kind: 'allow', rule: 'trust-bash' })
+  })
+
+  test('a fresh (rule, session) approval flips an indeterminate deny to allow', async () => {
+    const { evaluate, parsePolicyRules, approvalKey } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+    ])
+    const sessionKey = { channel: 'C_CHAN', thread: 'T1.0' }
+    const approvals = new Map([[approvalKey('deny-etc', sessionKey), { ttlExpires: 10_000 }]])
+    const decision = evaluate(gateCall('Bash', { sessionKey }), rules, 0, { approvals })
+    // Human already cleared this hold within the window → not re-prompted.
+    expect(decision).toEqual({ kind: 'allow', rule: 'deny-etc' })
+  })
+
+  // ── Backward compatibility: inputAvailable defaults true ────────────────
+
+  test('BACKWARD-COMPAT: omitting inputAvailable defaults true → argEquals evaluated normally', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-danger',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { danger: true } },
+        reason: 'dangerous',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const base = {
+      tool: 'Bash',
+      sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+      actor: 'claude_process' as const,
+      // inputAvailable intentionally OMITTED → defaults to true.
+    }
+    // danger:true → deny fires exactly as authored.
+    expect(evaluate({ ...base, input: { danger: true } }, rules, 0)).toEqual({
+      kind: 'deny',
+      rule: 'deny-danger',
+      reason: 'dangerous',
+    })
+    // danger:false → deny no-match, auto_approve allows. Unchanged pre/post fix.
+    expect(evaluate({ ...base, input: { danger: false } }, rules, 0)).toEqual({
+      kind: 'allow',
+      rule: 'trust-bash',
+    })
+  })
+
+  test('explicit inputAvailable:true behaves identically to omitting it', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-danger',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { danger: true } },
+        reason: 'dangerous',
+      },
+    ])
+    const call = {
+      tool: 'Bash',
+      input: { danger: true },
+      inputAvailable: true,
+      sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+      actor: 'claude_process' as const,
+    }
+    expect(evaluate(call, rules, 0)).toEqual({
+      kind: 'deny',
+      rule: 'deny-danger',
+      reason: 'dangerous',
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// detectUnenforceablePredicates() — boot honesty linter (ccsc-x0t.5)
+// ---------------------------------------------------------------------------
+
+describe('detectUnenforceablePredicates (ccsc-x0t.5)', () => {
+  const loadPolicy = async () => await import('./policy.ts')
+
+  test('warns on a deny+pathPrefix rule, naming FAIL-SAFE behavior', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.ruleId).toBe('deny-etc')
+    expect(warnings[0]!.predicates).toEqual(['pathPrefix'])
+    expect(warnings[0]!.message).toMatch(/FAILS SAFE to human approval/)
+  })
+
+  test('warns on an auto_approve+pathPrefix rule, naming SKIPPED behavior', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.message).toMatch(/is SKIPPED/)
+  })
+
+  test('warns on argEquals, and lists BOTH predicates when a rule has both', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'both',
+        effect: 'require_approval',
+        match: { pathPrefix: '/x', argEquals: { k: 'v' } },
+      },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.predicates.sort()).toEqual(['argEquals', 'pathPrefix'])
+  })
+
+  test('no warning for rules constrained only by enforceable fields', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'r1', effect: 'auto_approve', match: { tool: 'reply' } },
+      { id: 'r2', effect: 'deny', match: { channel: 'C0000000000' }, reason: 'x' },
+      { id: 'r3', effect: 'require_approval', match: { actor: 'claude_process' } },
+    ])
+    expect(detectUnenforceablePredicates(rules)).toEqual([])
+  })
+
+  test('flags every offender in one pass', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'ok', effect: 'auto_approve', match: { tool: 'reply' } },
+      { id: 'bad-1', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'x' },
+      { id: 'bad-2', effect: 'require_approval', match: { argEquals: { k: 'v' } } },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
     expect(warnings.map((w) => w.ruleId).sort()).toEqual(['bad-1', 'bad-2'])
   })
 })
@@ -10442,6 +12178,178 @@ describe('verifyJournal', () => {
       // expected.
       expect(result.break.lineNumber).toBe(3)
     }
+  })
+
+  test('detects head truncation: shearing the seq=1 event is caught by the genesis-seq pin', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(4)
+    const content = readFileSync(logPath, 'utf8')
+    const lines = content.split('\n').filter(Boolean)
+    // Delete the genesis event (seq=1). The surviving prefix (seq=2..4)
+    // chains cleanly among itself, and the new first event's prevHash is
+    // trusted as genesis — without the seq pin this would verify OK.
+    lines.splice(0, 1)
+    writeFileSync(logPath, `${lines.join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.break.lineNumber).toBe(1)
+      expect(result.break.seq).toBe(2)
+      expect(result.break.reason).toMatch(/head truncated/)
+    }
+  })
+
+  // ── ccsc-x0t.2 — known-limitation + scope proof ─────────────────────────
+  // The genesis-seq pin (above) catches a NAIVE head-shear (drop seq=1, leave
+  // survivors at seq=2..). But it defeats head-truncation only for SIGNED (v2)
+  // chains. On an UNSIGNED v1 chain the hash chain is a bare keyless SHA-256,
+  // so a writer-capable attacker shears the head, renumbers survivors to
+  // seq=1.., and recomputes the whole chain with no secret — verifying clean.
+  // These two tests bind that scope (the wording in journal.ts + the #264
+  // CHANGELOG entry now says "signed chains"; the full fix is a v2-floor
+  // anchor, ccsc-x0t.7).
+
+  test('KNOWN LIMITATION (ccsc-x0t.2): v1 head-truncation + renumber + rechain verifies clean (no secret needed)', async () => {
+    const { verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    await writeN(4) // keyless writer → unsigned v1 events, seq 1..4
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    // Shear the genesis event, then renumber survivors to seq 1.. and recompute
+    // the keyless chain exactly as the writer/verifier does. The first
+    // survivor's prevHash is trusted as the genesis anchor by the verifier.
+    expect(events.length).toBe(4) // assert setup before slicing (no unsafe `!`)
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, ...rest } = ev
+      // Build a fresh object rather than mutating `rest` in the map (Gemini
+      // review, #273). canonicalJson sorts keys, so the bytes are identical.
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash }
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath)
+    // THE LIMITATION: an unsigned v1 chain has no signatures, so the rechained
+    // sheared file verifies clean. This is why the pin is scoped to signed
+    // chains; the residual full fix is a pinned v2-floor anchor (ccsc-x0t.7).
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.eventsVerified).toBe(3)
+  })
+
+  test("SCOPE PROOF (ccsc-x0t.2): the SAME rechain on a SIGNED v2 chain is rejected (signatures can't be reforged)", async () => {
+    const { generateKeyPair } = await import('./crypto.ts')
+    const { JournalWriter, verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    const kp = generateKeyPair()
+    const w = await JournalWriter.open({ path: logPath, signingKey: kp, now: () => fixedNow })
+    for (let i = 0; i < 4; i++)
+      await w.writeEvent({ kind: 'session.activate', correlationId: `req-${i}` })
+    await w.close()
+
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    // Same shear + renumber + rechain — but the attacker holds no signing key,
+    // so it can only keep each survivor's ORIGINAL signature (over the old seq).
+    expect(events.length).toBe(4) // assert setup before slicing (no unsafe `!`)
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, signature, ...rest } = ev
+      // Fresh object, not a mutated `rest` (Gemini review, #273). Recompute the
+      // hash over the same bytes verify strips (no hash, no sig).
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash, signature } // stale signature over the old bytes
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath, { initialPublicKey: kp.publicKey })
+    // The hash check passes (attacker recomputed it), but the Ed25519 signature
+    // was over the pre-renumber bytes → verification fails. Signed chains resist
+    // the exact attack the v1 chain fell to.
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.break.reason).toMatch(/signature verification failed/)
+  })
+
+  // ── Verification anchors (ccsc-x0t.7) — close the x0t.2 residuals ────────
+
+  test('pinnedGenesisHash: a clean chain verifies with the correct anchor', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3) // genesis prevHash === stableAnchor (writeN's initialPrevHash)
+    expect((await verifyJournal(logPath, { pinnedGenesisHash: stableAnchor })).ok).toBe(true)
+  })
+
+  test('pinnedGenesisHash: a wrong anchor fails at genesis', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3)
+    const result = await verifyJournal(logPath, { pinnedGenesisHash: 'b'.repeat(64) })
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.break.reason).toMatch(/genesis prevHash does not match/)
+  })
+
+  test('pinnedGenesisHash: DEFEATS the v1 renumber+rechain that x0t.2 documented as residual', async () => {
+    const { verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    await writeN(4)
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    expect(events.length).toBe(4)
+    // The exact x0t.2 forgery: shear the genesis, renumber survivors, rechain.
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string // = original events[0].hash, NOT stableAnchor
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, ...rest } = ev
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash }
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+    // Unanchored: verifies clean (the documented x0t.2 residual).
+    expect((await verifyJournal(logPath)).ok).toBe(true)
+    // Anchored to the TRUE genesis: the forged genesis prevHash ≠ anchor → break.
+    const anchored = await verifyJournal(logPath, { pinnedGenesisHash: stableAnchor })
+    expect(anchored.ok).toBe(false)
+    if (!anchored.ok) expect(anchored.break.reason).toMatch(/genesis prevHash does not match/)
+  })
+
+  test('v2FloorSeq: a v1 event at/after the floor is a downgrade break', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3) // unsigned v1 events, seq 1..3
+    const result = await verifyJournal(logPath, { v2FloorSeq: 2 })
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.break.seq).toBe(2)
+      expect(result.break.reason).toMatch(/downgrade below v2 floor/)
+    }
+  })
+
+  test('v2FloorSeq: a floor above every seq leaves a v1 chain valid', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3)
+    expect((await verifyJournal(logPath, { v2FloorSeq: 10 })).ok).toBe(true)
+  })
+
+  test('v2FloorSeq: a fully-signed v2 chain passes its floor', async () => {
+    const { generateKeyPair } = await import('./crypto.ts')
+    const { JournalWriter, verifyJournal } = await import('./journal.ts')
+    const kp = generateKeyPair()
+    const w = await JournalWriter.open({ path: logPath, signingKey: kp, now: () => fixedNow })
+    for (let i = 0; i < 3; i++)
+      await w.writeEvent({ kind: 'session.activate', correlationId: `r${i}` })
+    await w.close()
+    expect(
+      (await verifyJournal(logPath, { initialPublicKey: kp.publicKey, v2FloorSeq: 1 })).ok,
+    ).toBe(true)
   })
 
   test('parse error: invalid JSON on a middle line is reported with line number', async () => {
@@ -14472,6 +16380,139 @@ describe('ccsc-3w0 — parseAdminCommand', () => {
     const { parseAdminCommand } = await import('./admin.ts')
     expect(parseAdminCommand('<@U_BOT> !clear', envelope)).toBeNull()
   })
+
+  test('parses !mute-status into AdminMuteStatusCommand (ccsc-yl6k9)', async () => {
+    const { parseAdminCommand } = await import('./admin.ts')
+    expect(parseAdminCommand('!mute-status', envelope)).toEqual({
+      kind: 'mute-status',
+      ...envelope,
+    })
+  })
+
+  test('parses !rate-limit into AdminRateLimitCommand (ccsc-yl6k9)', async () => {
+    const { parseAdminCommand } = await import('./admin.ts')
+    expect(parseAdminCommand('!rate-limit', envelope)).toEqual({ kind: 'rate-limit', ...envelope })
+  })
+
+  test('rejects !mute-status / !rate-limit with an argument (ccsc-yl6k9)', async () => {
+    const { parseAdminCommand } = await import('./admin.ts')
+    expect(parseAdminCommand('!mute-status foo', envelope)).toBeNull()
+    expect(parseAdminCommand('!rate-limit 5', envelope)).toBeNull()
+  })
+})
+
+describe('ccsc-yl6k9 — read-only admin verbs (mute-status / rate-limit)', () => {
+  const envelope = {
+    channelId: 'C_OPS',
+    requestedBy: 'U_ALICE',
+    threadTs: '1700000000.000100',
+    messageTs: '1700000000.000100',
+  }
+
+  function baseDeps(
+    overrides: Partial<import('./admin.ts').DispatchDeps> = {},
+  ): import('./admin.ts').DispatchDeps {
+    return {
+      isAllowed: () => true,
+      journalWrite: async () => undefined,
+      quiesceAndDeactivate: async () => {},
+      sendTmuxKeys: async () => {},
+      issueChallenge: async () => ({ nonce: 'x', expiresAt: 0 }),
+      verifyChallenge: () => ({ ok: false, reason: 'unknown' }),
+      postReaction: async () => {},
+      ...overrides,
+    }
+  }
+
+  test('!mute-status returns a status outcome listing active mutes', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const { createMuteStore } = await import('./mute-store.ts')
+    const store = createMuteStore()
+    store.mute('C_OPS', 'B_NOISY', 1_000_000 + 60_000, 'U_ALICE', 1_000_000)
+    const result = await dispatchAdminCommand(
+      { kind: 'mute-status', ...envelope },
+      baseDeps({ muteStore: store, now: () => 1_000_000 }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') {
+      expect(result.verb).toBe('mute-status')
+      expect(result.message).toContain('B_NOISY')
+    }
+  })
+
+  test('!mute-status reports no active mutes when the store is empty', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const { createMuteStore } = await import('./mute-store.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'mute-status', ...envelope },
+      baseDeps({ muteStore: createMuteStore(), now: () => 1_000_000 }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') expect(result.message).toMatch(/No active/i)
+  })
+
+  test('!rate-limit reports the effective per-bot + channel-breaker thresholds', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'rate-limit', ...envelope },
+      baseDeps({
+        getChannelRateLimits: () => ({
+          peerBot: { count: 10, windowMs: 60_000 },
+          channel: { count: 40, windowMs: 60_000 },
+        }),
+      }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') {
+      expect(result.message).toContain('10 msgs / 60s')
+      expect(result.message).toContain('40 msgs / 60s')
+    }
+  })
+
+  test('!rate-limit shows "disabled" when a limit is { count: 0 }', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'rate-limit', ...envelope },
+      baseDeps({
+        getChannelRateLimits: () => ({
+          peerBot: { count: 0, windowMs: 0 },
+          channel: { count: 40, windowMs: 60_000 },
+        }),
+      }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') expect(result.message).toContain('disabled')
+  })
+
+  test('!rate-limit degrades gracefully when the resolver returns undefined (ccsc-yl6k9)', async () => {
+    // Defensive against a malformed/missing config (Gemini, PR #249).
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'rate-limit', ...envelope },
+      baseDeps({ getChannelRateLimits: () => undefined as unknown as never }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') expect(result.message).toMatch(/unavailable/i)
+  })
+
+  test('read-only verbs are allowlist-gated — non-allowlisted user denied, not journaled', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const { createMuteStore } = await import('./mute-store.ts')
+    const journal: unknown[] = []
+    const result = await dispatchAdminCommand(
+      { kind: 'mute-status', ...envelope },
+      baseDeps({
+        isAllowed: () => false,
+        journalWrite: async (i) => {
+          journal.push(i)
+          return undefined
+        },
+        muteStore: createMuteStore(),
+      }),
+    )
+    expect(result.kind).toBe('denied')
+    expect(journal.length).toBe(0) // reads are not journaled
+  })
 })
 
 describe('ccsc-3w0 — stripBotMention (Gemini #1 from original PR #157)', () => {
@@ -15358,6 +17399,319 @@ describe('ccsc-ele — Gemini #181 review fixes', () => {
 // A→B→A runaway loops when multiple peer bots are opted into one
 // channel via allowBotIds.
 
+describe('ccsc-0k7x2 — channel-wide circuit breaker', () => {
+  test('checkChannel counts ALL bots together and trips at the threshold', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 3, windowMs: 60_000 }
+    // Three different senders, each well under any per-bot cap, together exhaust
+    // the channel aggregate: 3 allowed, the 4th (from any bot) trips the ring.
+    expect(store.checkChannel('C_OPS', 1_000_000, cfg)).toBe(true)
+    expect(store.checkChannel('C_OPS', 1_000_100, cfg)).toBe(true)
+    expect(store.checkChannel('C_OPS', 1_000_200, cfg)).toBe(true)
+    expect(store.checkChannel('C_OPS', 1_000_300, cfg)).toBe(false)
+  })
+
+  test('checkChannel is independent per channel', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 1, windowMs: 60_000 }
+    expect(store.checkChannel('C_A', 1_000_000, cfg)).toBe(true)
+    expect(store.checkChannel('C_A', 1_000_100, cfg)).toBe(false)
+    expect(store.checkChannel('C_B', 1_000_200, cfg)).toBe(true)
+  })
+
+  test('checkChannel resets after the window slides', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 1, windowMs: 60_000 }
+    expect(store.checkChannel('C_OPS', 1_000_000, cfg)).toBe(true)
+    expect(store.checkChannel('C_OPS', 1_000_100, cfg)).toBe(false)
+    // Past the window → old entry pruned, allowed again
+    expect(store.checkChannel('C_OPS', 1_000_000 + 60_001, cfg)).toBe(true)
+  })
+
+  test('checkChannel { count: 0 } disables (always allows)', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 0, windowMs: 0 }
+    for (let i = 0; i < 100; i++) {
+      expect(store.checkChannel('C_OPS', 1_000_000 + i, cfg)).toBe(true)
+    }
+  })
+
+  test('prune sweeps channel-aggregate buckets too', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 5, windowMs: 60_000 }
+    store.checkChannel('C_OPS', 1_000_000, cfg)
+    // Long after the window, prune removes the stale channel bucket.
+    expect(store.prune(1_000_000 + 120_000, 60_000)).toBeGreaterThanOrEqual(1)
+  })
+
+  test('gate trips an A→B→C→A ring with rate.channel_cycle though each bot is under its per-bot cap', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const { gate } = await import('./lib.ts')
+    const store = createPeerBotRateLimitStore()
+    const access: Access = {
+      dmPolicy: 'allowlist',
+      allowFrom: [],
+      channels: {
+        C_RING: {
+          requireMention: false,
+          allowFrom: [],
+          allowBotIds: ['U_A', 'U_B', 'U_C'],
+          peerBotRateLimit: { count: 100, windowMs: 60_000 }, // generous → per-bot never trips first
+          channelCircuitBreaker: { count: 5, windowMs: 60_000 },
+        },
+      },
+      pending: {},
+    }
+    let now = 1_000_000
+    const opts = {
+      access,
+      staticMode: true,
+      saveAccess: () => {},
+      botUserId: 'U_BRIDGE_BOT',
+      selfBotId: 'B_BRIDGE',
+      selfAppId: 'A_BRIDGE',
+      peerBotRateLimitStore: store,
+      now: () => now,
+    }
+    const ring = ['U_A', 'U_B', 'U_C', 'U_A', 'U_B'] // 5 messages, each sender ≤ 2
+    for (const user of ring) {
+      const r = await gate(
+        {
+          type: 'message',
+          channel: 'C_RING',
+          user,
+          bot_id: `B_${user}`,
+          text: 'looping',
+          ts: '1700000000.000100',
+        },
+        opts,
+      )
+      expect(r.action).not.toBe('drop')
+      now += 100
+    }
+    // 6th message: channel aggregate (5) is at threshold → breaker trips.
+    const tripped = await gate(
+      {
+        type: 'message',
+        channel: 'C_RING',
+        user: 'U_C',
+        bot_id: 'B_U_C',
+        text: 'looping',
+        ts: '1700000000.000100',
+      },
+      opts,
+    )
+    expect(tripped.action).toBe('drop')
+    expect(tripped.dropReason).toBe('rate.channel_cycle')
+  })
+
+  test('gate channelCircuitBreaker { count: 0 } disables the breaker', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const { gate } = await import('./lib.ts')
+    const store = createPeerBotRateLimitStore()
+    const access: Access = {
+      dmPolicy: 'allowlist',
+      allowFrom: [],
+      channels: {
+        C_RING: {
+          requireMention: false,
+          allowFrom: [],
+          allowBotIds: ['U_A'],
+          peerBotRateLimit: { count: 0, windowMs: 0 },
+          channelCircuitBreaker: { count: 0, windowMs: 0 },
+        },
+      },
+      pending: {},
+    }
+    const opts = {
+      access,
+      staticMode: true,
+      saveAccess: () => {},
+      botUserId: 'U_BRIDGE_BOT',
+      selfBotId: 'B_BRIDGE',
+      selfAppId: 'A_BRIDGE',
+      peerBotRateLimitStore: store,
+      now: () => 1_000_000,
+    }
+    for (let i = 0; i < 50; i++) {
+      const r = await gate(
+        {
+          type: 'message',
+          channel: 'C_RING',
+          user: 'U_A',
+          bot_id: 'B_A',
+          text: 'x',
+          ts: '1700000000.000100',
+        },
+        opts,
+      )
+      expect(r.dropReason).not.toBe('rate.channel_cycle')
+    }
+  })
+})
+
+describe('ccsc-4e9bf — backpressure + agents-online', () => {
+  test('resolveMaxConcurrentSessions parses a positive integer', async () => {
+    const { resolveMaxConcurrentSessions } = await import('./supervisor.ts')
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: '50' })).toBe(50)
+  })
+
+  test('resolveMaxConcurrentSessions → undefined for unset/empty/non-numeric/non-positive', async () => {
+    const { resolveMaxConcurrentSessions } = await import('./supervisor.ts')
+    expect(resolveMaxConcurrentSessions({})).toBeUndefined()
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: '' })).toBeUndefined()
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: 'abc' })).toBeUndefined()
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: '0' })).toBeUndefined()
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: '-5' })).toBeUndefined()
+  })
+
+  test('resolveMaxConcurrentSessions floors a float', async () => {
+    const { resolveMaxConcurrentSessions } = await import('./supervisor.ts')
+    expect(resolveMaxConcurrentSessions({ SLACK_MAX_CONCURRENT_SESSIONS: '3.9' })).toBe(3)
+  })
+
+  describe('supervisor cap', () => {
+    let rawRoot: string
+    let tmpRoot: string
+    const journalEvents: Array<{ kind: string; reason?: string }> = []
+    beforeEach(() => {
+      rawRoot = mkdtempSync(join(tmpdir(), 'bp-'))
+      tmpRoot = realpathSync.native(rawRoot)
+      journalEvents.length = 0
+    })
+    afterEach(() => rmSync(rawRoot, { recursive: true, force: true }))
+    function makeSup(maxConcurrentSessions?: number) {
+      return createSessionSupervisor({
+        stateRoot: tmpRoot,
+        log: () => {},
+        clock: () => 1_700_000_000_000,
+        maxConcurrentSessions,
+        journal: {
+          writeEvent: async (e: { kind: string; reason?: string }) => {
+            journalEvents.push(e)
+            return {}
+          },
+        } as unknown as import('./journal.ts').JournalWriter,
+      })
+    }
+
+    test('allows new sessions up to the cap, rejects the next new one', async () => {
+      const sup = makeSup(2)
+      await sup.activate({ channel: 'C1', thread: 'T1' }, 'U1')
+      await sup.activate({ channel: 'C2', thread: 'T2' }, 'U2')
+      await expect(sup.activate({ channel: 'C3', thread: 'T3' }, 'U3')).rejects.toThrow(
+        /maxConcurrentSessions/,
+      )
+    })
+
+    test('reactivating an already-live session is never capped', async () => {
+      const sup = makeSup(1)
+      const a = await sup.activate({ channel: 'C1', thread: 'T1' }, 'U1')
+      const again = await sup.activate({ channel: 'C1', thread: 'T1' }, 'U1')
+      expect(again).toBe(a)
+    })
+
+    test('the over-cap rejection is journaled as session.activate_rejected', async () => {
+      const sup = makeSup(1)
+      await sup.activate({ channel: 'C1', thread: 'T1' }, 'U1')
+      await expect(sup.activate({ channel: 'C2', thread: 'T2' }, 'U2')).rejects.toThrow()
+      await new Promise((r) => setTimeout(r, 0)) // flush the fire-and-forget journal write
+      const rej = journalEvents.find((e) => e.kind === 'session.activate_rejected')
+      expect(rej).toBeDefined()
+      expect(rej?.reason).toContain('maxConcurrentSessions')
+    })
+
+    test('undefined cap = unlimited (no rejection across many activations)', async () => {
+      const sup = makeSup(undefined)
+      for (let i = 0; i < 12; i++) {
+        await sup.activate({ channel: `C${i}`, thread: 'T' }, 'U')
+      }
+      expect(journalEvents.find((e) => e.kind === 'session.activate_rejected')).toBeUndefined()
+    })
+
+    test('cap counts DISTINCT sessions under concurrency — cap=2, 3 fired at once → 2 ok, 1 rejected', async () => {
+      // Guards the live∪activating double-count fix (Gemini, PR #250): a key
+      // briefly in both maps must not inflate the count.
+      const sup = makeSup(2)
+      const results = await Promise.allSettled([
+        sup.activate({ channel: 'C1', thread: 'T' }, 'U'),
+        sup.activate({ channel: 'C2', thread: 'T' }, 'U'),
+        sup.activate({ channel: 'C3', thread: 'T' }, 'U'),
+      ])
+      expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(2)
+      expect(results.filter((r) => r.status === 'rejected')).toHaveLength(1)
+    })
+  })
+
+  test('activeBots lists bots active within the window, excluding stale + other channels', async () => {
+    const { createPeerBotRateLimitStore } = await import('./peer-bot-rate-limit.ts')
+    const store = createPeerBotRateLimitStore()
+    const cfg = { count: 100, windowMs: 60_000 }
+    store.check('C_OPS', 'B_alice', 1_000_000, cfg)
+    store.check('C_OPS', 'B_bob', 1_000_000, cfg)
+    store.check('C_OTHER', 'B_carol', 1_000_000, cfg)
+    expect(store.activeBots('C_OPS', 1_002_000, 5_000).sort()).toEqual(['B_alice', 'B_bob'])
+    // After the window, none are active.
+    expect(store.activeBots('C_OPS', 1_000_000 + 10_000, 5_000)).toEqual([])
+  })
+
+  const envelope = {
+    channelId: 'C_OPS',
+    requestedBy: 'U_ALICE',
+    threadTs: '1700000000.000100',
+    messageTs: '1700000000.000100',
+  }
+  function adminDeps(
+    overrides: Partial<import('./admin.ts').DispatchDeps> = {},
+  ): import('./admin.ts').DispatchDeps {
+    return {
+      isAllowed: () => true,
+      journalWrite: async () => undefined,
+      quiesceAndDeactivate: async () => {},
+      sendTmuxKeys: async () => {},
+      issueChallenge: async () => ({ nonce: 'x', expiresAt: 0 }),
+      verifyChallenge: () => ({ ok: false, reason: 'unknown' }),
+      postReaction: async () => {},
+      ...overrides,
+    }
+  }
+
+  test('parses !agents; rejects !agents with an argument', async () => {
+    const { parseAdminCommand } = await import('./admin.ts')
+    expect(parseAdminCommand('!agents', envelope)).toEqual({ kind: 'agents', ...envelope })
+    expect(parseAdminCommand('!agents foo', envelope)).toBeNull()
+  })
+
+  test('!agents lists active peer agents', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'agents', ...envelope },
+      adminDeps({ getActiveAgents: () => ['B_alice', 'B_bob'] }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') {
+      expect(result.verb).toBe('agents')
+      expect(result.message).toContain('B_alice')
+      expect(result.message).toContain('B_bob')
+    }
+  })
+
+  test('!agents reports none when no agents active', async () => {
+    const { dispatchAdminCommand } = await import('./admin.ts')
+    const result = await dispatchAdminCommand(
+      { kind: 'agents', ...envelope },
+      adminDeps({ getActiveAgents: () => [] }),
+    )
+    expect(result.kind).toBe('status')
+    if (result.kind === 'status') expect(result.message).toMatch(/No peer agents/i)
+  })
+})
+
 describe('ccsc-gyt — createPeerBotRateLimitStore', () => {
   test('first message from a (channel, bot) pair is allowed', async () => {
     const { createPeerBotRateLimitStore, DEFAULT_PEER_BOT_RATE_LIMIT } = await import(
@@ -15745,7 +18099,9 @@ describe('ccsc-gjm — MuteStore', () => {
     store.mute('C1', 'B1', 1_000_100, 'U', 1_000_000)
     store.mute('C2', 'B2', 1_000_200, 'U', 1_000_000)
     store.mute('C3', 'B3', 9_999_999_999, 'U', 1_000_000)
-    expect(store.prune(1_500_000)).toBe(2)
+    // prune now returns the removed entries (ccsc-yl6k9) so the reaper can
+    // notify on auto-expiry; two of the three are past their TTL.
+    expect(store.prune(1_500_000).length).toBe(2)
     expect(store.size()).toBe(1)
   })
 
