@@ -4,15 +4,32 @@
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
+  "metadata": {
+    "description": "Bob's Big Brain — the installable governed second brain for Claude Code and Cowork. Cited (qmd://) recall + governed capture with a tamper-evident SHA-256 hash-chained audit trail. One plugin, two modes: local (in-process over your own files) or team (your team's single governed brain over the tailnet).",
+    "version": "1.2.0"
+  },
   "plugins": [
     {
       "name": "governed-second-brain",
       "source": ".",
-      "description": "A local-first governed second brain for Claude Code — turn your own files into cited (qmd://) memory, with every write run through deterministic governance and recorded in a tamper-evident, SHA-256 hash-chained audit trail. Runs in-process; no daemon, no network.",
-      "version": "0.1.6",
+      "description": "Bob's Big Brain \u2014 the governed team brain: cited recall, hash-chained receipts. ONE plugin, two modes. Local provisions two pinned native modules once, then runs in-process; team queries your shared governed brain over the tailnet.",
+      "version": "1.2.0",
       "category": "productivity",
-      "keywords": ["memory", "knowledge", "governance", "qmd", "citations", "local-first", "second-brain"],
-      "author": "Jeremy Longshore",
+      "keywords": [
+        "memory",
+        "knowledge",
+        "governance",
+        "qmd",
+        "citations",
+        "local-first",
+        "team",
+        "tailnet",
+        "second-brain"
+      ],
+      "author": {
+        "name": "Jeremy Longshore",
+        "email": "jeremy@intentsolutions.io"
+      },
       "license": "Apache-2.0"
     }
   ]
