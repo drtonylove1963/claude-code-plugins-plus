@@ -1,7 +1,7 @@
 # Publication Checklist
 
-Hermes Tweet is published as `hermes-tweet` on PyPI and currently released at
-`0.1.6`.
+Hermes Tweet is published as `hermes-tweet` on PyPI. Require PyPI and GitHub
+Releases to match protected source. Verify live versions before every release.
 
 ## Before GitHub Publication
 
@@ -14,6 +14,8 @@ Hermes Tweet is published as `hermes-tweet` on PyPI and currently released at
 ## Before PyPI Publication
 
 - [x] Add the PyPI trusted publisher for `Xquik-dev/hermes-tweet`.
+- [x] Restrict the `pypi` environment to release tags matching `v*`.
+- [x] Protect release tags from updates and deletion.
 - [x] Regenerate `hermes_tweet/catalog_data.json` from current Xquik OpenAPI.
 - [x] Run the full quality gate from `AGENTS.md`.
 - [x] Build from a clean working tree and run `twine check dist/*`.
@@ -26,8 +28,8 @@ Hermes Tweet is published as `hermes-tweet` on PyPI and currently released at
 ## After Publication
 
 - [x] Install from PyPI in a fresh environment.
-- [x] Run `hermes plugins enable hermes-tweet`.
-- [x] Confirm `tweet_explore`, `tweet_read`, `tweet_action`, `/xstatus`, and
+- [ ] Run `hermes plugins enable hermes-tweet`.
+- [ ] Confirm `tweet_explore`, `tweet_read`, `tweet_action`, `/xstatus`, and
   `/xtrends` load.
 - [x] Confirm `tweet_action` is blocked unless
   `HERMES_TWEET_ENABLE_ACTIONS=true`.
@@ -41,20 +43,30 @@ Hermes Tweet is published as `hermes-tweet` on PyPI and currently released at
 
 ## Release Gate
 
+Merge each version change through protected `master`. Then dispatch the
+`Publish` workflow from `master`. Set `release_ref` to the matching `v*` tag.
+
+The workflow creates a draft release and exact tag. It dispatches a tag-bound
+build for trusted publishing. It attaches signed assets before publication.
+GitHub locks the release only after every publication step succeeds.
+
+Never create or publish the GitHub release manually.
+
 Run these checks before any new package release:
 
 ```bash
-uv run --python 3.12 --extra dev ruff format --check .
-uv run --python 3.12 --extra dev ruff check .
-uv run --python 3.12 --extra dev basedpyright
-uv run --python 3.12 --extra dev pytest --cov=hermes_tweet --cov=tests --cov-report=term-missing --cov-fail-under=100
-uv run --python 3.12 --extra dev bandit -c pyproject.toml -r hermes_tweet scripts
-uv run --python 3.12 --extra dev python scripts/check_public_safety.py
-uv run --python 3.12 --extra dev pip-audit
-uv run --python 3.12 --extra dev python scripts/check_public_links.py
-uv run --python 3.12 --extra dev python scripts/check_hermes_agent_compat.py
-uv run --python 3.12 --extra dev python -m build
-uv run --python 3.12 --extra dev twine check dist/*
+uv run --python 3.12 --group dev ruff format --check .
+uv run --python 3.12 --group dev ruff check .
+uv run --python 3.12 --group dev basedpyright
+uv run --python 3.12 --group dev pytest --cov=hermes_tweet --cov=tests --cov-report=term-missing --cov-fail-under=100
+uv run --python 3.12 --group dev bandit -c pyproject.toml -r hermes_tweet scripts fuzz
+uv run --python 3.12 --group dev python scripts/check_public_safety.py
+uv run --python 3.12 --group dev pip-audit
+uv run --python 3.12 --group dev python scripts/check_public_links.py
+uv run --python 3.12 --group dev python scripts/check_hermes_agent_compat.py
+uv run --python 3.12 --group dev bash scripts/check_reproducible.sh
+uv run --python 3.12 --group dev python -m build
+uv run --python 3.12 --group dev twine check dist/*
 actionlint .github/workflows/*.yml
 ```
 
@@ -63,7 +75,7 @@ actionlint .github/workflows/*.yml
 Before changing plugin registration, manifests, install docs, or release
 metadata, verify the current official Hermes Agent plugin docs and source:
 
-- [Build a Hermes Plugin](https://hermes-agent.nousresearch.com/docs/guides/build-a-hermes-plugin/)
+- [Build a Hermes Plugin](https://hermes-agent.nousresearch.com/docs/developer-guide/plugins)
 - [Plugins feature guide](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins/)
 - [`hermes_cli/plugins.py`](https://github.com/NousResearch/hermes-agent/blob/main/hermes_cli/plugins.py)
 - [`tools/registry.py`](https://github.com/NousResearch/hermes-agent/blob/main/tools/registry.py)
@@ -73,16 +85,19 @@ Run the compatibility checker before release, outreach, or plugin-facing docs
 updates:
 
 ```bash
-uv run --python 3.12 --extra dev python scripts/check_hermes_agent_compat.py
+uv run --python 3.12 --group dev python scripts/check_hermes_agent_compat.py
 ```
 
 If a locked Hermes Agent source SHA changes, review the official diff first,
 then update Hermes Tweet runtime, docs, tests, and the checker lock together.
 
-Latest reviewed locks from June 29, 2026: `hermes_cli/plugins.py`
-`d343b077a7a3fdbd91b3cc62dc221992e7cba537`, `tools/registry.py`
-`09f8632e29ece8860b1371dc5ea95babf7d4ce0f`, and
-`hermes_cli/plugins_cmd.py` `0a5aa8c0fd03d6f4e34951e5242a469a2d07f331`.
+Latest reviewed locks from August 13, 2026: `hermes_cli/plugins.py`
+`947a6e990e71c9f1bdbda02a565f74c45e2c412c`, `tools/registry.py`
+`081040911499f8bb7e5a947e9c85b5e459fd3dd0`, and
+`hermes_cli/plugins_cmd.py` `1a8c41006c42ba1a5f83204f7292dc2b2c9ba5b9`.
+
+Reviewed changes preserve v1 manifests and registration APIs.
+They add v2 metadata, capability consent, bounded errors, and safer updates.
 
 Keep the runtime contract aligned with those sources:
 
@@ -126,5 +141,5 @@ Expected result:
 
 Keep optional signed-in submissions, local-secret smoke tests, pending outreach,
 duplicate checks, and maintainer-blocked directory routes in private operator
-notes. Do not commit those operational notes to the public repository. No
-package release blocker remains after the `0.1.6` release.
+notes. Do not commit those operational notes to the public repository. A new
+package release and post-publication checks remain.

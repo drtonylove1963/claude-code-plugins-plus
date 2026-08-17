@@ -6,48 +6,37 @@ Read this when:
 - `aomi tx sign` returns an AA error and you need to pick a flag.
 - The user explicitly requests `4337` or `7702`.
 
-## Execution Model
+## Execution Model (v0.4.2)
 
-The CLI uses **auto-detect** by default and always signs via AA unless `--eoa` is passed:
+**Local `aomi tx sign` is EOA-only.** AA execution moved to the backend lane and is rolling out. The CLI no longer attempts AA locally, and there is no local mode fallback.
 
-| User-side provider configured? | Flag | Result |
-|---|---|---|
-| Pimlico configured | `--aa-provider pimlico` | Pimlico BYOK (user-side credential) |
-| Alchemy configured | (none) | Alchemy BYOK (user-side credential) |
-| Nothing configured | (none) | **Alchemy proxy via the aomi backend — zero-config AA** |
-| Any | `--aa-provider`/`--aa-mode` | AA with explicit settings |
-| Any | `--eoa` | Direct EOA, skip AA |
+Requesting AA on the signing path is a hard error:
 
-There is **no silent EOA fallback**. If AA is selected and both AA modes fail, the CLI returns a hard error suggesting `--eoa`. The zero-config proxy path means the user does not need any provider credential of their own for AA to work.
+```
+$ aomi tx sign tx-1 --aa
+AA execution now runs in the backend lane (rolling out); use --eoa for local execution.
+```
 
-## Mode Fallback
+Any of these selects AA execution and therefore fails `aomi tx sign`:
 
-When using AA, the CLI tries modes in order:
+| Input | Effect |
+|---|---|
+| `--aa` | selects AA → `tx sign` errors |
+| `--aa-provider alchemy\|pimlico` | selects AA → `tx sign` errors |
+| `--aa-mode 4337\|7702` | selects AA → `tx sign` errors |
+| `AOMI_AA_PROVIDER` / `AOMI_AA_MODE` in the environment | same as the flags — **`tx sign` errors even with no flag passed** |
+| `--eoa` | plain EOA — the default, and the only local signing path |
+| (nothing) | plain EOA |
 
-1. Try preferred mode (default: 7702 for Ethereum, 4337 for L2s).
-2. If preferred mode fails, try the alternative mode (7702 ↔ 4337).
-3. If both modes fail, return error with suggestion: use `--eoa` to sign without AA.
+`--aa` and `--eoa` cannot be combined, and `--aa-provider` / `--aa-mode` cannot be combined with `--eoa`.
 
-## AA Configuration
+**If a user reports that every `aomi tx sign` fails with the backend-lane message and they passed no flags, check for `AOMI_AA_PROVIDER` / `AOMI_AA_MODE` in their environment and have them unset those.**
 
-AA is configured per-invocation via flags or by credentials the user has configured on their side. There is no persistent AA config file on the skill's side.
+## AA Preferences
 
-Priority chain for AA resolution: **flag > user-side credential > backend zero-config default**.
+`--aa-provider` and `--aa-mode` are *preferences synced to backend `user_state.evm.aa`* (as `{mode, provider}`), not local execution switches. The backend lane consumes them. The skill does not set these on its own initiative.
 
-## AA Providers
-
-| Provider | Flag                    | Notes                            |
-| -------- | ----------------------- | -------------------------------- |
-| Alchemy  | `--aa-provider alchemy` | 4337 (sponsored via gas policy), 7702 (EOA pays gas) |
-| Pimlico  | `--aa-provider pimlico` | 4337 (sponsored via dashboard policy) |
-
-Provider selection rules:
-
-- If the user explicitly selects a provider via flag, use it.
-- In auto-detect mode, the CLI picks whichever provider the user has configured on their side — the skill treats that choice as opaque.
-- If no AA provider is configured, auto-detect uses the zero-config path provided by the aomi backend.
-
-The skill never configures provider credentials itself. If `aomi tx sign` reports missing provider credentials, stop and ask the user to configure them before re-running.
+Local signing has no persistent AA config, and the skill never configures provider credentials itself.
 
 ## AA Modes
 
@@ -56,64 +45,51 @@ The skill never configures provider credentials itself. If `aomi tx sign` report
 | `4337` | `--aa-mode 4337` | Bundler + paymaster UserOperation via smart account. Gas sponsored by paymaster. | Paymaster pays |
 | `7702` | `--aa-mode 7702` | Native EIP-7702 type-4 transaction with delegation. EOA signs authorization + sends tx to self. | EOA pays |
 
-**7702 requires the signing EOA to have native gas tokens** (ETH, MATIC, etc.). There is no paymaster/sponsorship for 7702. Use 4337 for gasless execution.
+**7702 requires the signing EOA to have native gas tokens** (ETH, MATIC, etc.). There is no paymaster/sponsorship for 7702. 4337 is the gasless path.
 
-## Default Chain Modes
+## AA Providers
 
-| Chain    | ID    | Default AA Mode | Supported AA Modes |
-| -------- | ----- | --------------- | ------------------ |
-| Ethereum | 1     | 7702            | 4337, 7702         |
-| Polygon  | 137   | 4337            | 4337, 7702         |
-| Arbitrum | 42161 | 4337            | 4337, 7702         |
-| Base     | 8453  | 4337            | 4337, 7702         |
-| Optimism | 10    | 4337            | 4337, 7702         |
+| Provider | Value                   | Notes                            |
+| -------- | ----------------------- | -------------------------------- |
+| Alchemy  | `--aa-provider alchemy` | 4337 (sponsored via gas policy), 7702 (EOA pays gas) |
+| Pimlico  | `--aa-provider pimlico` | 4337 (sponsored via dashboard policy) |
 
-These match the live `aomi chain list` output in CLI v0.1.30.
+## Gas: the rule the skill must follow
 
-## Sponsorship
+Because local signing is EOA-only, **the signing EOA must hold native gas on the destination chain** — there is no local sponsorship path to fall back on.
 
-Sponsorship is available for **4337 mode only**. 7702 does not support sponsorship. Sponsorship policy is configured on the provider's side — the user's provider account decides whether a given UserOperation is sponsored. Once the user has configured their provider, `aomi tx sign` (with the appropriate AA flags if the user wants an explicit provider) will pick up the active policy automatically.
+Before signing on an L2, confirm the EOA has a small amount of native gas (~0.0005 ETH equivalent is enough). If the user is sending USDC-only to an L2 with no native gas, tell them signing will fail until they fund the EOA with native gas on that chain.
 
-### Sponsorship in practice (verified against v0.1.30)
-
-The "zero-config Alchemy proxy" path is not a guarantee of free gas. Empirically:
-
-- **Ethereum mainnet, default 7702**: works cleanly. Gas is paid out of the EOA's small ETH stash via the 7702 delegation contract (`0x6900...E139`). Verified across approve+swap, swap-back, and approve+bridge batches.
-- **Base, default 4337 with the zero-config proxy**: observed to **not** sponsor in CLI v0.1.30. Even with `--aa --aa-mode 4337` explicit, `aomi tx sign` returned `insufficient funds for transfer` from viem when the EOA had 0 native gas on Base. The call appeared to fall through to a direct EOA `eth_sendTransaction` rather than a sponsored UserOperation.
-
-**Practical rule the skill must follow**: before signing on an L2, confirm the EOA has a small amount of native gas on the destination chain (~0.0005 ETH equivalent is enough). If the user is sending USDC-only to an L2 with no native gas, warn them that signing on that L2 will fail unless they:
-
-1. fund the EOA with a tiny amount of native gas on that chain, **or**
-2. configure a real BYOK AA provider on their side (Alchemy with a Gas Manager policy attached, or Pimlico with a sponsorship policy on the dashboard — the user sets the credential in their own environment) and pass `--aa-provider alchemy|pimlico --aa-mode 4337` on `aomi tx sign`. The exact credential variable names are documented by `aomi --help`; the skill does not hard-code them.
-
-Do not promise the user "AA will pay for gas on L2s" without verifying the user's setup. The default proxy path may silently fall through.
-
-When the CLI emits a viem `insufficient funds for transfer` error followed by `Use --eoa to sign without account abstraction`, that is the failure signature. Do not re-run with `--eoa` blindly — `--eoa` will also fail if the EOA has 0 gas. Stop and tell the user to fund the destination chain or configure a sponsoring BYOK provider.
+Do not promise the user "AA will pay for gas". When the CLI emits a viem `insufficient funds for transfer` error, do not retry with different flags — stop and tell the user to fund the destination chain.
 
 ## Supported Chains
 
-| Chain         | ID       | AA available? |
-| ------------- | -------- | ------------- |
-| Ethereum      | 1        | Yes (4337, 7702; default 7702) |
-| Polygon       | 137      | Yes (4337, 7702; default 4337) |
-| Arbitrum One  | 42161    | Yes (4337, 7702; default 4337) |
-| Base          | 8453     | Yes (4337, 7702; default 4337) |
-| Optimism      | 10       | Yes (4337, 7702; default 4337) |
-| Sepolia       | 11155111 | No AA defaults — use `--eoa` |
-| Anvil (local) | 31337    | No AA defaults — local fork; use `--eoa` |
+Chains in the v0.4.2 CLI chain table:
 
-For Sepolia and Anvil, `aomi tx sign` without `--eoa` may fail. Pass `--eoa` explicitly when signing on these chains.
+| Chain                 | ID       | Notes |
+| --------------------- | -------- | ----- |
+| Ethereum              | 1        | |
+| Polygon               | 137      | |
+| Arbitrum              | 42161    | |
+| Base                  | 8453     | |
+| Base Sepolia          | 84532    | testnet |
+| Optimism              | 10       | |
+| Sepolia               | 11155111 | testnet |
+| Linea Mainnet         | 59144    | |
+| Linea Sepolia Testnet | 59141    | testnet |
+| Monad                 | 143      | |
+| Monad Testnet         | 10143    | testnet |
+| Robinhood Chain       | 4663     | |
+| MegaETH               | 4326     | |
+| Anvil (local)         | 31337    | local dev chain |
+
+Solana is supported for sign-only flows via `--solana-private-key` and `--cluster` (`mainnet-beta`, `devnet`, `testnet`, or the CAIP-2 forms `solana:mainnet` / `solana:devnet` / `solana:testnet`).
+
+Per-chain AA availability and default mode are reported by the backend through `aomi chain list` — read it there rather than assuming. Historically the backend defaulted to 7702 on Ethereum, Polygon, Arbitrum, Base, and Optimism, but this is backend state and can change independently of the CLI version.
 
 ## RPC Guidance By Chain
 
-Use an RPC that matches the pending transaction's chain:
-
-- Ethereum txs → Ethereum RPC
-- Polygon txs → Polygon RPC
-- Arbitrum txs → Arbitrum RPC
-- Base txs → Base RPC
-- Optimism txs → Optimism RPC
-- Sepolia txs → Sepolia RPC
+Use an RPC that matches the pending transaction's chain — Ethereum txs → Ethereum RPC, Base txs → Base RPC, and so on.
 
 Practical rule:
 
