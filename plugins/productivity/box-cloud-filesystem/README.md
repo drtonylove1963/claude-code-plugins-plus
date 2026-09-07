@@ -4,6 +4,8 @@ Transparent cloud filesystem for AI agents using the official [Box](https://www.
 
 **Compatible with:** Claude Code, Codex, Perplexity Computer, OpenClaw, and any agent platform that supports skills or system prompts.
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 ## Why
 
 Box CLI gives agents raw access to cloud storage. Raw access is not the same as useful access. Without guidance, agents guess at folder targets, create duplicates instead of versioning, default to public sharing, and have no sync pattern.

@@ -11,6 +11,8 @@ professional.
 - Local context management via Markdown files
 - Install via Claude Code plugin system (`/plugin install over-50s-health@ali5ter`)
 - Automatic context file creation on first run
+- Optional integration with [Personal Health Portal](https://github.com/ali5ter/personal-health-portal) — posts
+  session Insights back after a notable change (see below)
 
 ## Repository structure
 
@@ -27,6 +29,8 @@ context/
     CLIENT_PREFERENCES.md
     SESSION_NOTES.md
     SOURCES.md
+    SESSION_NOTES_ARCHIVE.md       # On-demand narrative history
+    METRICS_LOG.csv                # On-demand structured metrics for trend reports
   README.md
 .claude-plugin/
   plugin.json                      # Plugin manifest
@@ -34,6 +38,7 @@ hooks/
   hooks.json                       # SessionStart hook (template sync)
 hooks-handlers/
   sync-templates.sh                # Copies templates from plugin cache to ~/.claude/over-50s-health-advisor/templates/
+  guard-bash-scope.sh              # Agent-scoped PreToolUse hook: scopes the advisor's Bash access
 migrate                            # Migration script for v2.x users
 README.md
 LICENSE
@@ -44,11 +49,13 @@ After installation, your personal context files are stored at:
 ```text
 ~/.claude/over-50s-health-advisor/
     context/                       # Your personal context files (auto-created on first run)
-        ├── INITIAL_USER_INFORMATION.md
-        ├── CLIENT_HEALTH_CONTEXT.md
-        ├── CLIENT_PREFERENCES.md
-        ├── SESSION_NOTES.md
-        └── SOURCES.md
+        ├── INITIAL_USER_INFORMATION.md   # core — read every session
+        ├── CLIENT_HEALTH_CONTEXT.md      # core — read every session
+        ├── CLIENT_PREFERENCES.md         # core — read every session
+        ├── SESSION_NOTES.md              # core — read every session (last ~2 entries)
+        ├── SOURCES.md                    # core — read every session
+        ├── SESSION_NOTES_ARCHIVE.md      # history — read only on demand
+        └── METRICS_LOG.csv               # analysis — read only on demand
 ```
 
 ## Requirements
@@ -105,6 +112,42 @@ first conversation.
    and add high-quality evidence).
 4. Use the agent from any directory in Claude Code. The agent will read and update these context files automatically.
 5. Keep the "Last updated" dates accurate in each file.
+6. Ask for a "trend summary" or "how have I done this year" and the agent will read `METRICS_LOG.csv` — a
+   structured, append-only record of every metric it has logged — instead of re-reading a year of session
+   notes. See `context/README.md` for details on `METRICS_LOG.csv` and `SESSION_NOTES_ARCHIVE.md`.
+
+## Personal Health Portal integration (optional)
+
+The agent can post an Insight back to [Personal Health Portal](https://github.com/ali5ter/personal-health-portal)
+after a session that surfaces something genuinely new or notable — it then appears in Portal's Dashboard Weekly
+report lens automatically.
+
+This is entirely optional and gracefully skipped when not configured. To enable it, create
+`~/.claude/over-50s-health-advisor/.env` (**not** tracked by this repo — it lives alongside your personal context
+files, never committed) with:
+
+```text
+PORTAL_URL=https://your-portal-deployment.example.com
+INSIGHTS_TOKEN=<a token created from Portal Settings' Connected sources section>
+```
+
+Both values must be present or the `Stop` hook skips this step silently. The agent uses its own `Bash` tool to
+`curl` the request — no separate script or LaunchAgent is needed for this direction, unlike the read-side sync
+Portal itself runs on its schedule.
+
+## Bash access
+
+The agent has `Bash` for local analysis (reading `METRICS_LOG.csv`, running your own health export scripts) and
+for the Portal integration above. A `PreToolUse` hook (`hooks-handlers/guard-bash-scope.sh`, registered in
+`hooks/hooks.json`) scopes what it can actually run: destructive commands (`rm`, `mv`, `sudo`, `chmod`, `chown`,
+`dd`, force-pushes) and generic network egress (`wget`, `nc`) are denied outright, and `curl` is allowed only for
+the exact Personal Health Portal insights POST described above — everything else it denies or leaves to the
+normal permission prompt.
+
+Claude Code silently ignores `hooks:` set in a plugin agent's own frontmatter, so this hook (and the `Stop` hook
+above) are registered in the plugin's `hooks/hooks.json` instead, which applies plugin-wide rather than to one
+agent. Both hooks self-scope by checking the `agent_type` field Claude Code passes them and are a no-op outside
+an active `over-50s-health:advisor` session — they have no effect on your other Claude Code sessions.
 
 ## Invoking the Agent
 

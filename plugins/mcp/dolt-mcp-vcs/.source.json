@@ -4,14 +4,14 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-06-30T00:53:08.663Z",
+  "last_sync": "2026-09-07T06:27:36.101Z",
   "author": {
     "name": "Jeremy Longshore",
     "github": "jeremylongshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "Apache-2.0",
-  "files_synced": 29,
+  "files_synced": 31,
   "files": [
     ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
@@ -29,8 +29,10 @@
     "scripts/check-agent-safety.sh",
     "scripts/dep-graph.sh",
     "scripts/descriptor-to-mcp-args.py",
+    "scripts/dolt-detect.py",
     "scripts/dolt-idle-reaper.sh",
     "scripts/dolt-mcp-client.py",
+    "scripts/dolt-mcp-guard.py",
     "scripts/dolt-push-dolthub.sh",
     "scripts/epic-closure-audit.sh",
     "scripts/profile_sql.py",
