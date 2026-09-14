@@ -6,12 +6,24 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res, err2) => function __init() {
+  if (err2) throw err2[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err2 = [e], e;
+  }
+};
 var __commonJS = (cb, mod) => function __require() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   } catch (e) {
     throw mod = 0, e;
   }
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -505,18 +517,18 @@ var require_parseUtil = __commonJS({
         if (this.value !== "aborted")
           this.value = "aborted";
       }
-      static mergeArray(status, results) {
+      static mergeArray(status2, results) {
         const arrayValue = [];
         for (const s of results) {
           if (s.status === "aborted")
             return exports2.INVALID;
           if (s.status === "dirty")
-            status.dirty();
+            status2.dirty();
           arrayValue.push(s.value);
         }
-        return { status: status.value, value: arrayValue };
+        return { status: status2.value, value: arrayValue };
       }
-      static async mergeObjectAsync(status, pairs) {
+      static async mergeObjectAsync(status2, pairs) {
         const syncPairs = [];
         for (const pair of pairs) {
           const key = await pair.key;
@@ -526,9 +538,9 @@ var require_parseUtil = __commonJS({
             value
           });
         }
-        return _ParseStatus.mergeObjectSync(status, syncPairs);
+        return _ParseStatus.mergeObjectSync(status2, syncPairs);
       }
-      static mergeObjectSync(status, pairs) {
+      static mergeObjectSync(status2, pairs) {
         const finalObject = {};
         for (const pair of pairs) {
           const { key, value } = pair;
@@ -537,14 +549,14 @@ var require_parseUtil = __commonJS({
           if (value.status === "aborted")
             return exports2.INVALID;
           if (key.status === "dirty")
-            status.dirty();
+            status2.dirty();
           if (value.status === "dirty")
-            status.dirty();
+            status2.dirty();
           if (key.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
             finalObject[key.value] = value.value;
           }
         }
-        return { status: status.value, value: finalObject };
+        return { status: status2.value, value: finalObject };
       }
     };
     exports2.ParseStatus = ParseStatus;
@@ -1044,7 +1056,7 @@ var require_types = __commonJS({
           });
           return parseUtil_js_1.INVALID;
         }
-        const status = new parseUtil_js_1.ParseStatus();
+        const status2 = new parseUtil_js_1.ParseStatus();
         let ctx = void 0;
         for (const check of this._def.checks) {
           if (check.kind === "min") {
@@ -1058,7 +1070,7 @@ var require_types = __commonJS({
                 exact: false,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "max") {
             if (input.data.length > check.value) {
@@ -1071,7 +1083,7 @@ var require_types = __commonJS({
                 exact: false,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "length") {
             const tooBig = input.data.length > check.value;
@@ -1097,7 +1109,7 @@ var require_types = __commonJS({
                   message: check.message
                 });
               }
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "email") {
             if (!emailRegex.test(input.data)) {
@@ -1107,7 +1119,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "emoji") {
             if (!emojiRegex2) {
@@ -1120,7 +1132,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "uuid") {
             if (!uuidRegex.test(input.data)) {
@@ -1130,7 +1142,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "nanoid") {
             if (!nanoidRegex.test(input.data)) {
@@ -1140,7 +1152,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "cuid") {
             if (!cuidRegex.test(input.data)) {
@@ -1150,7 +1162,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "cuid2") {
             if (!cuid2Regex.test(input.data)) {
@@ -1160,7 +1172,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "ulid") {
             if (!ulidRegex.test(input.data)) {
@@ -1170,7 +1182,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "url") {
             try {
@@ -1182,7 +1194,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "regex") {
             check.regex.lastIndex = 0;
@@ -1194,7 +1206,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "trim") {
             input.data = input.data.trim();
@@ -1206,7 +1218,7 @@ var require_types = __commonJS({
                 validation: { includes: check.value, position: check.position },
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "toLowerCase") {
             input.data = input.data.toLowerCase();
@@ -1220,7 +1232,7 @@ var require_types = __commonJS({
                 validation: { startsWith: check.value },
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "endsWith") {
             if (!input.data.endsWith(check.value)) {
@@ -1230,7 +1242,7 @@ var require_types = __commonJS({
                 validation: { endsWith: check.value },
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "datetime") {
             const regex = datetimeRegex(check);
@@ -1241,7 +1253,7 @@ var require_types = __commonJS({
                 validation: "datetime",
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "date") {
             const regex = dateRegex;
@@ -1252,7 +1264,7 @@ var require_types = __commonJS({
                 validation: "date",
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "time") {
             const regex = timeRegex(check);
@@ -1263,7 +1275,7 @@ var require_types = __commonJS({
                 validation: "time",
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "duration") {
             if (!durationRegex.test(input.data)) {
@@ -1273,7 +1285,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "ip") {
             if (!isValidIP(input.data, check.version)) {
@@ -1283,7 +1295,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "jwt") {
             if (!isValidJWT(input.data, check.alg)) {
@@ -1293,7 +1305,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "cidr") {
             if (!isValidCidr(input.data, check.version)) {
@@ -1303,7 +1315,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "base64") {
             if (!base64Regex.test(input.data)) {
@@ -1313,7 +1325,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "base64url") {
             if (!base64urlRegex.test(input.data)) {
@@ -1323,13 +1335,13 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.invalid_string,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else {
             util_js_1.util.assertNever(check);
           }
         }
-        return { status: status.value, value: input.data };
+        return { status: status2.value, value: input.data };
       }
       _regex(regex, validation, message) {
         return this.refinement((data) => regex.test(data), {
@@ -1606,7 +1618,7 @@ var require_types = __commonJS({
           return parseUtil_js_1.INVALID;
         }
         let ctx = void 0;
-        const status = new parseUtil_js_1.ParseStatus();
+        const status2 = new parseUtil_js_1.ParseStatus();
         for (const check of this._def.checks) {
           if (check.kind === "int") {
             if (!util_js_1.util.isInteger(input.data)) {
@@ -1617,7 +1629,7 @@ var require_types = __commonJS({
                 received: "float",
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "min") {
             const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
@@ -1631,7 +1643,7 @@ var require_types = __commonJS({
                 exact: false,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "max") {
             const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
@@ -1645,7 +1657,7 @@ var require_types = __commonJS({
                 exact: false,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "multipleOf") {
             if (floatSafeRemainder(input.data, check.value) !== 0) {
@@ -1655,7 +1667,7 @@ var require_types = __commonJS({
                 multipleOf: check.value,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "finite") {
             if (!Number.isFinite(input.data)) {
@@ -1664,13 +1676,13 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.not_finite,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else {
             util_js_1.util.assertNever(check);
           }
         }
-        return { status: status.value, value: input.data };
+        return { status: status2.value, value: input.data };
       }
       gte(value, message) {
         return this.setLimit("min", value, true, errorUtil_js_1.errorUtil.toString(message));
@@ -1836,7 +1848,7 @@ var require_types = __commonJS({
           return this._getInvalidInput(input);
         }
         let ctx = void 0;
-        const status = new parseUtil_js_1.ParseStatus();
+        const status2 = new parseUtil_js_1.ParseStatus();
         for (const check of this._def.checks) {
           if (check.kind === "min") {
             const tooSmall = check.inclusive ? input.data < check.value : input.data <= check.value;
@@ -1849,7 +1861,7 @@ var require_types = __commonJS({
                 inclusive: check.inclusive,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "max") {
             const tooBig = check.inclusive ? input.data > check.value : input.data >= check.value;
@@ -1862,7 +1874,7 @@ var require_types = __commonJS({
                 inclusive: check.inclusive,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "multipleOf") {
             if (input.data % check.value !== BigInt(0)) {
@@ -1872,13 +1884,13 @@ var require_types = __commonJS({
                 multipleOf: check.value,
                 message: check.message
               });
-              status.dirty();
+              status2.dirty();
             }
           } else {
             util_js_1.util.assertNever(check);
           }
         }
-        return { status: status.value, value: input.data };
+        return { status: status2.value, value: input.data };
       }
       _getInvalidInput(input) {
         const ctx = this._getOrReturnCtx(input);
@@ -2038,7 +2050,7 @@ var require_types = __commonJS({
           });
           return parseUtil_js_1.INVALID;
         }
-        const status = new parseUtil_js_1.ParseStatus();
+        const status2 = new parseUtil_js_1.ParseStatus();
         let ctx = void 0;
         for (const check of this._def.checks) {
           if (check.kind === "min") {
@@ -2052,7 +2064,7 @@ var require_types = __commonJS({
                 minimum: check.value,
                 type: "date"
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (check.kind === "max") {
             if (input.data.getTime() > check.value) {
@@ -2065,14 +2077,14 @@ var require_types = __commonJS({
                 maximum: check.value,
                 type: "date"
               });
-              status.dirty();
+              status2.dirty();
             }
           } else {
             util_js_1.util.assertNever(check);
           }
         }
         return {
-          status: status.value,
+          status: status2.value,
           value: new Date(input.data.getTime())
         };
       }
@@ -2266,7 +2278,7 @@ var require_types = __commonJS({
     };
     var ZodArray = class _ZodArray extends ZodType {
       _parse(input) {
-        const { ctx, status } = this._processInputParams(input);
+        const { ctx, status: status2 } = this._processInputParams(input);
         const def = this._def;
         if (ctx.parsedType !== util_js_1.ZodParsedType.array) {
           (0, parseUtil_js_1.addIssueToContext)(ctx, {
@@ -2289,7 +2301,7 @@ var require_types = __commonJS({
               exact: true,
               message: def.exactLength.message
             });
-            status.dirty();
+            status2.dirty();
           }
         }
         if (def.minLength !== null) {
@@ -2302,7 +2314,7 @@ var require_types = __commonJS({
               exact: false,
               message: def.minLength.message
             });
-            status.dirty();
+            status2.dirty();
           }
         }
         if (def.maxLength !== null) {
@@ -2315,20 +2327,20 @@ var require_types = __commonJS({
               exact: false,
               message: def.maxLength.message
             });
-            status.dirty();
+            status2.dirty();
           }
         }
         if (ctx.common.async) {
           return Promise.all([...ctx.data].map((item, i) => {
             return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
           })).then((result2) => {
-            return parseUtil_js_1.ParseStatus.mergeArray(status, result2);
+            return parseUtil_js_1.ParseStatus.mergeArray(status2, result2);
           });
         }
         const result = [...ctx.data].map((item, i) => {
           return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
         });
-        return parseUtil_js_1.ParseStatus.mergeArray(status, result);
+        return parseUtil_js_1.ParseStatus.mergeArray(status2, result);
       }
       get element() {
         return this._def.type;
@@ -2418,7 +2430,7 @@ var require_types = __commonJS({
           });
           return parseUtil_js_1.INVALID;
         }
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         const { shape, keys: shapeKeys } = this._getCached();
         const extraKeys = [];
         if (!(this._def.catchall instanceof ZodNever && this._def.unknownKeys === "strip")) {
@@ -2453,7 +2465,7 @@ var require_types = __commonJS({
                 code: ZodError_js_1.ZodIssueCode.unrecognized_keys,
                 keys: extraKeys
               });
-              status.dirty();
+              status2.dirty();
             }
           } else if (unknownKeys === "strip") {
           } else {
@@ -2487,10 +2499,10 @@ var require_types = __commonJS({
             }
             return syncPairs;
           }).then((syncPairs) => {
-            return parseUtil_js_1.ParseStatus.mergeObjectSync(status, syncPairs);
+            return parseUtil_js_1.ParseStatus.mergeObjectSync(status2, syncPairs);
           });
         } else {
-          return parseUtil_js_1.ParseStatus.mergeObjectSync(status, pairs);
+          return parseUtil_js_1.ParseStatus.mergeObjectSync(status2, pairs);
         }
       }
       get shape() {
@@ -2971,7 +2983,7 @@ var require_types = __commonJS({
     }
     var ZodIntersection = class extends ZodType {
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         const handleParsed = (parsedLeft, parsedRight) => {
           if ((0, parseUtil_js_1.isAborted)(parsedLeft) || (0, parseUtil_js_1.isAborted)(parsedRight)) {
             return parseUtil_js_1.INVALID;
@@ -2984,9 +2996,9 @@ var require_types = __commonJS({
             return parseUtil_js_1.INVALID;
           }
           if ((0, parseUtil_js_1.isDirty)(parsedLeft) || (0, parseUtil_js_1.isDirty)(parsedRight)) {
-            status.dirty();
+            status2.dirty();
           }
-          return { status: status.value, value: merged.data };
+          return { status: status2.value, value: merged.data };
         };
         if (ctx.common.async) {
           return Promise.all([
@@ -3025,7 +3037,7 @@ var require_types = __commonJS({
     };
     var ZodTuple = class _ZodTuple extends ZodType {
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.array) {
           (0, parseUtil_js_1.addIssueToContext)(ctx, {
             code: ZodError_js_1.ZodIssueCode.invalid_type,
@@ -3053,7 +3065,7 @@ var require_types = __commonJS({
             exact: false,
             type: "array"
           });
-          status.dirty();
+          status2.dirty();
         }
         const items = [...ctx.data].map((item, itemIndex) => {
           const schema = this._def.items[itemIndex] || this._def.rest;
@@ -3063,10 +3075,10 @@ var require_types = __commonJS({
         }).filter((x) => !!x);
         if (ctx.common.async) {
           return Promise.all(items).then((results) => {
-            return parseUtil_js_1.ParseStatus.mergeArray(status, results);
+            return parseUtil_js_1.ParseStatus.mergeArray(status2, results);
           });
         } else {
-          return parseUtil_js_1.ParseStatus.mergeArray(status, items);
+          return parseUtil_js_1.ParseStatus.mergeArray(status2, items);
         }
       }
       get items() {
@@ -3099,7 +3111,7 @@ var require_types = __commonJS({
         return this._def.valueType;
       }
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.object) {
           (0, parseUtil_js_1.addIssueToContext)(ctx, {
             code: ZodError_js_1.ZodIssueCode.invalid_type,
@@ -3119,9 +3131,9 @@ var require_types = __commonJS({
           });
         }
         if (ctx.common.async) {
-          return parseUtil_js_1.ParseStatus.mergeObjectAsync(status, pairs);
+          return parseUtil_js_1.ParseStatus.mergeObjectAsync(status2, pairs);
         } else {
-          return parseUtil_js_1.ParseStatus.mergeObjectSync(status, pairs);
+          return parseUtil_js_1.ParseStatus.mergeObjectSync(status2, pairs);
         }
       }
       get element() {
@@ -3153,7 +3165,7 @@ var require_types = __commonJS({
         return this._def.valueType;
       }
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.map) {
           (0, parseUtil_js_1.addIssueToContext)(ctx, {
             code: ZodError_js_1.ZodIssueCode.invalid_type,
@@ -3180,11 +3192,11 @@ var require_types = __commonJS({
                 return parseUtil_js_1.INVALID;
               }
               if (key.status === "dirty" || value.status === "dirty") {
-                status.dirty();
+                status2.dirty();
               }
               finalMap.set(key.value, value.value);
             }
-            return { status: status.value, value: finalMap };
+            return { status: status2.value, value: finalMap };
           });
         } else {
           const finalMap = /* @__PURE__ */ new Map();
@@ -3195,11 +3207,11 @@ var require_types = __commonJS({
               return parseUtil_js_1.INVALID;
             }
             if (key.status === "dirty" || value.status === "dirty") {
-              status.dirty();
+              status2.dirty();
             }
             finalMap.set(key.value, value.value);
           }
-          return { status: status.value, value: finalMap };
+          return { status: status2.value, value: finalMap };
         }
       }
     };
@@ -3214,7 +3226,7 @@ var require_types = __commonJS({
     };
     var ZodSet = class _ZodSet extends ZodType {
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.set) {
           (0, parseUtil_js_1.addIssueToContext)(ctx, {
             code: ZodError_js_1.ZodIssueCode.invalid_type,
@@ -3234,7 +3246,7 @@ var require_types = __commonJS({
               exact: false,
               message: def.minSize.message
             });
-            status.dirty();
+            status2.dirty();
           }
         }
         if (def.maxSize !== null) {
@@ -3247,7 +3259,7 @@ var require_types = __commonJS({
               exact: false,
               message: def.maxSize.message
             });
-            status.dirty();
+            status2.dirty();
           }
         }
         const valueType = this._def.valueType;
@@ -3257,10 +3269,10 @@ var require_types = __commonJS({
             if (element.status === "aborted")
               return parseUtil_js_1.INVALID;
             if (element.status === "dirty")
-              status.dirty();
+              status2.dirty();
             parsedSet.add(element.value);
           }
-          return { status: status.value, value: parsedSet };
+          return { status: status2.value, value: parsedSet };
         }
         const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
         if (ctx.common.async) {
@@ -3598,15 +3610,15 @@ var require_types = __commonJS({
         return this._def.schema._def.typeName === ZodFirstPartyTypeKind4.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
       }
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         const effect = this._def.effect || null;
         const checkCtx = {
           addIssue: (arg) => {
             (0, parseUtil_js_1.addIssueToContext)(ctx, arg);
             if (arg.fatal) {
-              status.abort();
+              status2.abort();
             } else {
-              status.dirty();
+              status2.dirty();
             }
           },
           get path() {
@@ -3618,7 +3630,7 @@ var require_types = __commonJS({
           const processed = effect.transform(ctx.data, checkCtx);
           if (ctx.common.async) {
             return Promise.resolve(processed).then(async (processed2) => {
-              if (status.value === "aborted")
+              if (status2.value === "aborted")
                 return parseUtil_js_1.INVALID;
               const result = await this._def.schema._parseAsync({
                 data: processed2,
@@ -3629,12 +3641,12 @@ var require_types = __commonJS({
                 return parseUtil_js_1.INVALID;
               if (result.status === "dirty")
                 return (0, parseUtil_js_1.DIRTY)(result.value);
-              if (status.value === "dirty")
+              if (status2.value === "dirty")
                 return (0, parseUtil_js_1.DIRTY)(result.value);
               return result;
             });
           } else {
-            if (status.value === "aborted")
+            if (status2.value === "aborted")
               return parseUtil_js_1.INVALID;
             const result = this._def.schema._parseSync({
               data: processed,
@@ -3645,7 +3657,7 @@ var require_types = __commonJS({
               return parseUtil_js_1.INVALID;
             if (result.status === "dirty")
               return (0, parseUtil_js_1.DIRTY)(result.value);
-            if (status.value === "dirty")
+            if (status2.value === "dirty")
               return (0, parseUtil_js_1.DIRTY)(result.value);
             return result;
           }
@@ -3670,17 +3682,17 @@ var require_types = __commonJS({
             if (inner.status === "aborted")
               return parseUtil_js_1.INVALID;
             if (inner.status === "dirty")
-              status.dirty();
+              status2.dirty();
             executeRefinement(inner.value);
-            return { status: status.value, value: inner.value };
+            return { status: status2.value, value: inner.value };
           } else {
             return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
               if (inner.status === "aborted")
                 return parseUtil_js_1.INVALID;
               if (inner.status === "dirty")
-                status.dirty();
+                status2.dirty();
               return executeRefinement(inner.value).then(() => {
-                return { status: status.value, value: inner.value };
+                return { status: status2.value, value: inner.value };
               });
             });
           }
@@ -3698,13 +3710,13 @@ var require_types = __commonJS({
             if (result instanceof Promise) {
               throw new Error(`Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`);
             }
-            return { status: status.value, value: result };
+            return { status: status2.value, value: result };
           } else {
             return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
               if (!(0, parseUtil_js_1.isValid)(base))
                 return parseUtil_js_1.INVALID;
               return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-                status: status.value,
+                status: status2.value,
                 value: result
               }));
             });
@@ -3891,7 +3903,7 @@ var require_types = __commonJS({
     exports2.ZodBranded = ZodBranded;
     var ZodPipeline = class _ZodPipeline extends ZodType {
       _parse(input) {
-        const { status, ctx } = this._processInputParams(input);
+        const { status: status2, ctx } = this._processInputParams(input);
         if (ctx.common.async) {
           const handleAsync = async () => {
             const inResult = await this._def.in._parseAsync({
@@ -3902,7 +3914,7 @@ var require_types = __commonJS({
             if (inResult.status === "aborted")
               return parseUtil_js_1.INVALID;
             if (inResult.status === "dirty") {
-              status.dirty();
+              status2.dirty();
               return (0, parseUtil_js_1.DIRTY)(inResult.value);
             } else {
               return this._def.out._parseAsync({
@@ -3922,7 +3934,7 @@ var require_types = __commonJS({
           if (inResult.status === "aborted")
             return parseUtil_js_1.INVALID;
           if (inResult.status === "dirty") {
-            status.dirty();
+            status2.dirty();
             return {
               status: "dirty",
               value: inResult.value
@@ -4196,10 +4208,10 @@ var require_v3 = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.z = void 0;
-    var z17 = __importStar(require_external());
-    exports2.z = z17;
+    var z20 = __importStar(require_external());
+    exports2.z = z20;
     __exportStar(require_external(), exports2);
-    exports2.default = z17;
+    exports2.default = z20;
   }
 });
 
@@ -20011,9 +20023,160 @@ var require_v4_mini = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.z = void 0;
-    var z17 = __importStar(require_external2());
-    exports2.z = z17;
+    var z20 = __importStar(require_external2());
+    exports2.z = z20;
     __exportStar(require_external2(), exports2);
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+function isZ4Schema(s) {
+  const schema = s;
+  return !!schema._zod;
+}
+function objectFromShape(shape) {
+  const values = Object.values(shape);
+  if (values.length === 0)
+    return z4mini.object({});
+  const allV4 = values.every(isZ4Schema);
+  const allV3 = values.every((s) => !isZ4Schema(s));
+  if (allV4)
+    return z4mini.object(shape);
+  if (allV3)
+    return z3rt.object(shape);
+  throw new Error("Mixed Zod versions detected in object shape.");
+}
+function safeParse2(schema, data) {
+  if (isZ4Schema(schema)) {
+    const result2 = z4mini.safeParse(schema, data);
+    return result2;
+  }
+  const v3Schema = schema;
+  const result = v3Schema.safeParse(data);
+  return result;
+}
+async function safeParseAsync2(schema, data) {
+  if (isZ4Schema(schema)) {
+    const result2 = await z4mini.safeParseAsync(schema, data);
+    return result2;
+  }
+  const v3Schema = schema;
+  const result = await v3Schema.safeParseAsync(data);
+  return result;
+}
+function getObjectShape(schema) {
+  if (!schema)
+    return void 0;
+  let rawShape;
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    rawShape = v4Schema._zod?.def?.shape;
+  } else {
+    const v3Schema = schema;
+    rawShape = v3Schema.shape;
+  }
+  if (!rawShape)
+    return void 0;
+  if (typeof rawShape === "function") {
+    try {
+      return rawShape();
+    } catch {
+      return void 0;
+    }
+  }
+  return rawShape;
+}
+function normalizeObjectSchema(schema) {
+  if (!schema)
+    return void 0;
+  if (typeof schema === "object") {
+    const asV3 = schema;
+    const asV4 = schema;
+    if (!asV3._def && !asV4._zod) {
+      const values = Object.values(schema);
+      if (values.length > 0 && values.every((v) => typeof v === "object" && v !== null && (v._def !== void 0 || v._zod !== void 0 || typeof v.parse === "function"))) {
+        return objectFromShape(schema);
+      }
+    }
+  }
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    const def = v4Schema._zod?.def;
+    if (def && (def.type === "object" || def.shape !== void 0)) {
+      return schema;
+    }
+  } else {
+    const v3Schema = schema;
+    if (v3Schema.shape !== void 0) {
+      return schema;
+    }
+  }
+  return void 0;
+}
+function getParseErrorMessage(error) {
+  if (error && typeof error === "object") {
+    if ("message" in error && typeof error.message === "string") {
+      return error.message;
+    }
+    if ("issues" in error && Array.isArray(error.issues) && error.issues.length > 0) {
+      const firstIssue = error.issues[0];
+      if (firstIssue && typeof firstIssue === "object" && "message" in firstIssue) {
+        return String(firstIssue.message);
+      }
+    }
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+function getSchemaDescription(schema) {
+  return schema.description;
+}
+function isSchemaOptional(schema) {
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    return v4Schema._zod?.def?.type === "optional";
+  }
+  const v3Schema = schema;
+  if (typeof schema.isOptional === "function") {
+    return schema.isOptional();
+  }
+  return v3Schema._def?.typeName === "ZodOptional";
+}
+function getLiteralValue(schema) {
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    const def2 = v4Schema._zod?.def;
+    if (def2) {
+      if (def2.value !== void 0)
+        return def2.value;
+      if (Array.isArray(def2.values) && def2.values.length > 0) {
+        return def2.values[0];
+      }
+    }
+  }
+  const v3Schema = schema;
+  const def = v3Schema._def;
+  if (def) {
+    if (def.value !== void 0)
+      return def.value;
+    if (Array.isArray(def.values) && def.values.length > 0) {
+      return def.values[0];
+    }
+  }
+  const directValue = schema.value;
+  if (directValue !== void 0)
+    return directValue;
+  return void 0;
+}
+var z3rt, z4mini;
+var init_zod_compat = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js"() {
+    z3rt = __toESM(require_v3(), 1);
+    z4mini = __toESM(require_v4_mini(), 1);
   }
 });
 
@@ -21846,7 +22009,7 @@ var require_from_json_schema = __commonJS({
     var _checks = __importStar(require_checks3());
     var _iso = __importStar(require_iso2());
     var _schemas = __importStar(require_schemas3());
-    var z17 = {
+    var z20 = {
       ..._schemas,
       ..._checks,
       iso: _iso
@@ -21956,7 +22119,7 @@ var require_from_json_schema = __commonJS({
     function convertBaseSchema(schema, ctx) {
       if (schema.not !== void 0) {
         if (typeof schema.not === "object" && Object.keys(schema.not).length === 0) {
-          return z17.never();
+          return z20.never();
         }
         throw new Error("not is not supported in Zod (except { not: {} } for never)");
       }
@@ -21978,7 +22141,7 @@ var require_from_json_schema = __commonJS({
           return ctx.refs.get(refPath);
         }
         if (ctx.processing.has(refPath)) {
-          return z17.lazy(() => {
+          return z20.lazy(() => {
             if (!ctx.refs.has(refPath)) {
               throw new Error(`Circular reference not resolved: ${refPath}`);
             }
@@ -21995,25 +22158,25 @@ var require_from_json_schema = __commonJS({
       if (schema.enum !== void 0) {
         const enumValues = schema.enum;
         if (ctx.version === "openapi-3.0" && schema.nullable === true && enumValues.length === 1 && enumValues[0] === null) {
-          return z17.null();
+          return z20.null();
         }
         if (enumValues.length === 0) {
-          return z17.never();
+          return z20.never();
         }
         if (enumValues.length === 1) {
-          return z17.literal(enumValues[0]);
+          return z20.literal(enumValues[0]);
         }
         if (enumValues.every((v) => typeof v === "string")) {
-          return z17.enum(enumValues);
+          return z20.enum(enumValues);
         }
-        const literalSchemas = enumValues.map((v) => z17.literal(v));
+        const literalSchemas = enumValues.map((v) => z20.literal(v));
         if (literalSchemas.length < 2) {
           return literalSchemas[0];
         }
-        return z17.union([literalSchemas[0], literalSchemas[1], ...literalSchemas.slice(2)]);
+        return z20.union([literalSchemas[0], literalSchemas[1], ...literalSchemas.slice(2)]);
       }
       if (schema.const !== void 0) {
-        return z17.literal(schema.const);
+        return z20.literal(schema.const);
       }
       const type = schema.type;
       if (Array.isArray(type)) {
@@ -22022,68 +22185,68 @@ var require_from_json_schema = __commonJS({
           return convertBaseSchema(typeSchema, ctx);
         });
         if (typeSchemas.length === 0) {
-          return z17.never();
+          return z20.never();
         }
         if (typeSchemas.length === 1) {
           return typeSchemas[0];
         }
-        return z17.union(typeSchemas);
+        return z20.union(typeSchemas);
       }
       if (!type) {
-        return z17.any();
+        return z20.any();
       }
       let zodSchema;
       switch (type) {
         case "string": {
-          let stringSchema = z17.string();
+          let stringSchema = z20.string();
           if (schema.format) {
             const format = schema.format;
             if (format === "email") {
-              stringSchema = stringSchema.check(z17.email());
+              stringSchema = stringSchema.check(z20.email());
             } else if (format === "uri" || format === "uri-reference") {
-              stringSchema = stringSchema.check(z17.url());
+              stringSchema = stringSchema.check(z20.url());
             } else if (format === "uuid" || format === "guid") {
-              stringSchema = stringSchema.check(z17.uuid());
+              stringSchema = stringSchema.check(z20.uuid());
             } else if (format === "date-time") {
-              stringSchema = stringSchema.check(z17.iso.datetime());
+              stringSchema = stringSchema.check(z20.iso.datetime());
             } else if (format === "date") {
-              stringSchema = stringSchema.check(z17.iso.date());
+              stringSchema = stringSchema.check(z20.iso.date());
             } else if (format === "time") {
-              stringSchema = stringSchema.check(z17.iso.time());
+              stringSchema = stringSchema.check(z20.iso.time());
             } else if (format === "duration") {
-              stringSchema = stringSchema.check(z17.iso.duration());
+              stringSchema = stringSchema.check(z20.iso.duration());
             } else if (format === "ipv4") {
-              stringSchema = stringSchema.check(z17.ipv4());
+              stringSchema = stringSchema.check(z20.ipv4());
             } else if (format === "ipv6") {
-              stringSchema = stringSchema.check(z17.ipv6());
+              stringSchema = stringSchema.check(z20.ipv6());
             } else if (format === "mac") {
-              stringSchema = stringSchema.check(z17.mac());
+              stringSchema = stringSchema.check(z20.mac());
             } else if (format === "cidr") {
-              stringSchema = stringSchema.check(z17.cidrv4());
+              stringSchema = stringSchema.check(z20.cidrv4());
             } else if (format === "cidr-v6") {
-              stringSchema = stringSchema.check(z17.cidrv6());
+              stringSchema = stringSchema.check(z20.cidrv6());
             } else if (format === "base64") {
-              stringSchema = stringSchema.check(z17.base64());
+              stringSchema = stringSchema.check(z20.base64());
             } else if (format === "base64url") {
-              stringSchema = stringSchema.check(z17.base64url());
+              stringSchema = stringSchema.check(z20.base64url());
             } else if (format === "e164") {
-              stringSchema = stringSchema.check(z17.e164());
+              stringSchema = stringSchema.check(z20.e164());
             } else if (format === "jwt") {
-              stringSchema = stringSchema.check(z17.jwt());
+              stringSchema = stringSchema.check(z20.jwt());
             } else if (format === "emoji") {
-              stringSchema = stringSchema.check(z17.emoji());
+              stringSchema = stringSchema.check(z20.emoji());
             } else if (format === "nanoid") {
-              stringSchema = stringSchema.check(z17.nanoid());
+              stringSchema = stringSchema.check(z20.nanoid());
             } else if (format === "cuid") {
-              stringSchema = stringSchema.check(z17.cuid());
+              stringSchema = stringSchema.check(z20.cuid());
             } else if (format === "cuid2") {
-              stringSchema = stringSchema.check(z17.cuid2());
+              stringSchema = stringSchema.check(z20.cuid2());
             } else if (format === "ulid") {
-              stringSchema = stringSchema.check(z17.ulid());
+              stringSchema = stringSchema.check(z20.ulid());
             } else if (format === "xid") {
-              stringSchema = stringSchema.check(z17.xid());
+              stringSchema = stringSchema.check(z20.xid());
             } else if (format === "ksuid") {
-              stringSchema = stringSchema.check(z17.ksuid());
+              stringSchema = stringSchema.check(z20.ksuid());
             }
           }
           if (typeof schema.minLength === "number") {
@@ -22100,7 +22263,7 @@ var require_from_json_schema = __commonJS({
         }
         case "number":
         case "integer": {
-          let numberSchema = type === "integer" ? z17.number().int() : z17.number();
+          let numberSchema = type === "integer" ? z20.number().int() : z20.number();
           if (typeof schema.minimum === "number") {
             numberSchema = numberSchema.min(schema.minimum);
           }
@@ -22124,11 +22287,11 @@ var require_from_json_schema = __commonJS({
           break;
         }
         case "boolean": {
-          zodSchema = z17.boolean();
+          zodSchema = z20.boolean();
           break;
         }
         case "null": {
-          zodSchema = z17.null();
+          zodSchema = z20.null();
           break;
         }
         case "object": {
@@ -22141,14 +22304,14 @@ var require_from_json_schema = __commonJS({
           }
           if (schema.propertyNames) {
             const keySchema = convertSchema(schema.propertyNames, ctx);
-            const valueSchema = schema.additionalProperties && typeof schema.additionalProperties === "object" ? convertSchema(schema.additionalProperties, ctx) : z17.any();
+            const valueSchema = schema.additionalProperties && typeof schema.additionalProperties === "object" ? convertSchema(schema.additionalProperties, ctx) : z20.any();
             if (Object.keys(shape).length === 0) {
-              zodSchema = z17.record(keySchema, valueSchema);
+              zodSchema = z20.record(keySchema, valueSchema);
               break;
             }
-            const objectSchema2 = z17.object(shape).passthrough();
-            const recordSchema = z17.looseRecord(keySchema, valueSchema);
-            zodSchema = z17.intersection(objectSchema2, recordSchema);
+            const objectSchema2 = z20.object(shape).passthrough();
+            const recordSchema = z20.looseRecord(keySchema, valueSchema);
+            zodSchema = z20.intersection(objectSchema2, recordSchema);
             break;
           }
           if (schema.patternProperties) {
@@ -22157,28 +22320,28 @@ var require_from_json_schema = __commonJS({
             const looseRecords = [];
             for (const pattern of patternKeys) {
               const patternValue = convertSchema(patternProps[pattern], ctx);
-              const keySchema = z17.string().regex(new RegExp(pattern));
-              looseRecords.push(z17.looseRecord(keySchema, patternValue));
+              const keySchema = z20.string().regex(new RegExp(pattern));
+              looseRecords.push(z20.looseRecord(keySchema, patternValue));
             }
             const schemasToIntersect = [];
             if (Object.keys(shape).length > 0) {
-              schemasToIntersect.push(z17.object(shape).passthrough());
+              schemasToIntersect.push(z20.object(shape).passthrough());
             }
             schemasToIntersect.push(...looseRecords);
             if (schemasToIntersect.length === 0) {
-              zodSchema = z17.object({}).passthrough();
+              zodSchema = z20.object({}).passthrough();
             } else if (schemasToIntersect.length === 1) {
               zodSchema = schemasToIntersect[0];
             } else {
-              let result = z17.intersection(schemasToIntersect[0], schemasToIntersect[1]);
+              let result = z20.intersection(schemasToIntersect[0], schemasToIntersect[1]);
               for (let i = 2; i < schemasToIntersect.length; i++) {
-                result = z17.intersection(result, schemasToIntersect[i]);
+                result = z20.intersection(result, schemasToIntersect[i]);
               }
               zodSchema = result;
             }
             break;
           }
-          const objectSchema = z17.object(shape);
+          const objectSchema = z20.object(shape);
           if (schema.additionalProperties === false) {
             zodSchema = objectSchema.strict();
           } else if (typeof schema.additionalProperties === "object") {
@@ -22195,33 +22358,33 @@ var require_from_json_schema = __commonJS({
             const tupleItems = prefixItems.map((item) => convertSchema(item, ctx));
             const rest = items && typeof items === "object" && !Array.isArray(items) ? convertSchema(items, ctx) : void 0;
             if (rest) {
-              zodSchema = z17.tuple(tupleItems).rest(rest);
+              zodSchema = z20.tuple(tupleItems).rest(rest);
             } else {
-              zodSchema = z17.tuple(tupleItems);
+              zodSchema = z20.tuple(tupleItems);
             }
             if (typeof schema.minItems === "number") {
-              zodSchema = zodSchema.check(z17.minLength(schema.minItems));
+              zodSchema = zodSchema.check(z20.minLength(schema.minItems));
             }
             if (typeof schema.maxItems === "number") {
-              zodSchema = zodSchema.check(z17.maxLength(schema.maxItems));
+              zodSchema = zodSchema.check(z20.maxLength(schema.maxItems));
             }
           } else if (Array.isArray(items)) {
             const tupleItems = items.map((item) => convertSchema(item, ctx));
             const rest = schema.additionalItems && typeof schema.additionalItems === "object" ? convertSchema(schema.additionalItems, ctx) : void 0;
             if (rest) {
-              zodSchema = z17.tuple(tupleItems).rest(rest);
+              zodSchema = z20.tuple(tupleItems).rest(rest);
             } else {
-              zodSchema = z17.tuple(tupleItems);
+              zodSchema = z20.tuple(tupleItems);
             }
             if (typeof schema.minItems === "number") {
-              zodSchema = zodSchema.check(z17.minLength(schema.minItems));
+              zodSchema = zodSchema.check(z20.minLength(schema.minItems));
             }
             if (typeof schema.maxItems === "number") {
-              zodSchema = zodSchema.check(z17.maxLength(schema.maxItems));
+              zodSchema = zodSchema.check(z20.maxLength(schema.maxItems));
             }
           } else if (items !== void 0) {
             const element = convertSchema(items, ctx);
-            let arraySchema = z17.array(element);
+            let arraySchema = z20.array(element);
             if (typeof schema.minItems === "number") {
               arraySchema = arraySchema.min(schema.minItems);
             }
@@ -22230,7 +22393,7 @@ var require_from_json_schema = __commonJS({
             }
             zodSchema = arraySchema;
           } else {
-            zodSchema = z17.array(z17.any());
+            zodSchema = z20.array(z20.any());
           }
           break;
         }
@@ -22241,37 +22404,37 @@ var require_from_json_schema = __commonJS({
     }
     function convertSchema(schema, ctx) {
       if (typeof schema === "boolean") {
-        return schema ? z17.any() : z17.never();
+        return schema ? z20.any() : z20.never();
       }
       let baseSchema = convertBaseSchema(schema, ctx);
       const hasExplicitType = schema.type || schema.enum !== void 0 || schema.const !== void 0;
       if (schema.anyOf && Array.isArray(schema.anyOf)) {
         const options = schema.anyOf.map((s) => convertSchema(s, ctx));
-        const anyOfUnion = z17.union(options);
-        baseSchema = hasExplicitType ? z17.intersection(baseSchema, anyOfUnion) : anyOfUnion;
+        const anyOfUnion = z20.union(options);
+        baseSchema = hasExplicitType ? z20.intersection(baseSchema, anyOfUnion) : anyOfUnion;
       }
       if (schema.oneOf && Array.isArray(schema.oneOf)) {
         const options = schema.oneOf.map((s) => convertSchema(s, ctx));
-        const oneOfUnion = z17.xor(options);
-        baseSchema = hasExplicitType ? z17.intersection(baseSchema, oneOfUnion) : oneOfUnion;
+        const oneOfUnion = z20.xor(options);
+        baseSchema = hasExplicitType ? z20.intersection(baseSchema, oneOfUnion) : oneOfUnion;
       }
       if (schema.allOf && Array.isArray(schema.allOf)) {
         if (schema.allOf.length === 0) {
-          baseSchema = hasExplicitType ? baseSchema : z17.any();
+          baseSchema = hasExplicitType ? baseSchema : z20.any();
         } else {
           let result = hasExplicitType ? baseSchema : convertSchema(schema.allOf[0], ctx);
           const startIdx = hasExplicitType ? 0 : 1;
           for (let i = startIdx; i < schema.allOf.length; i++) {
-            result = z17.intersection(result, convertSchema(schema.allOf[i], ctx));
+            result = z20.intersection(result, convertSchema(schema.allOf[i], ctx));
           }
           baseSchema = result;
         }
       }
       if (schema.nullable === true && ctx.version === "openapi-3.0") {
-        baseSchema = z17.nullable(baseSchema);
+        baseSchema = z20.nullable(baseSchema);
       }
       if (schema.readOnly === true) {
-        baseSchema = z17.readonly(baseSchema);
+        baseSchema = z20.readonly(baseSchema);
       }
       if (schema.default !== void 0) {
         baseSchema = baseSchema.default(schema.default);
@@ -22304,7 +22467,7 @@ var require_from_json_schema = __commonJS({
     }
     function fromJSONSchema(schema, params) {
       if (typeof schema === "boolean") {
-        return schema ? z17.any() : z17.never();
+        return schema ? z20.any() : z20.never();
       }
       let normalized;
       try {
@@ -22541,10 +22704,10 @@ var require_classic = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.z = void 0;
-    var z17 = __importStar(require_external3());
-    exports2.z = z17;
+    var z20 = __importStar(require_external3());
+    exports2.z = z20;
     __exportStar(require_external3(), exports2);
-    exports2.default = z17;
+    exports2.default = z20;
   }
 });
 
@@ -22575,6 +22738,4139 @@ var require_v4 = __commonJS({
     var index_js_1 = __importDefault(require_classic());
     __exportStar(require_classic(), exports2);
     exports2.default = index_js_1.default;
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+function assertCompleteRequestPrompt(request) {
+  if (request.params.ref.type !== "ref/prompt") {
+    throw new TypeError(`Expected CompleteRequestPrompt, but got ${request.params.ref.type}`);
+  }
+  void request;
+}
+function assertCompleteRequestResourceTemplate(request) {
+  if (request.params.ref.type !== "ref/resource") {
+    throw new TypeError(`Expected CompleteRequestResourceTemplate, but got ${request.params.ref.type}`);
+  }
+  void request;
+}
+var z, LATEST_PROTOCOL_VERSION, SUPPORTED_PROTOCOL_VERSIONS, RELATED_TASK_META_KEY, JSONRPC_VERSION, AssertObjectSchema, ProgressTokenSchema, CursorSchema, TaskCreationParamsSchema, TaskMetadataSchema, RelatedTaskMetadataSchema, RequestMetaSchema, BaseRequestParamsSchema, TaskAugmentedRequestParamsSchema, isTaskAugmentedRequestParams, RequestSchema, NotificationsParamsSchema, NotificationSchema, ResultSchema, RequestIdSchema, JSONRPCRequestSchema, isJSONRPCRequest, JSONRPCNotificationSchema, isJSONRPCNotification, JSONRPCResultResponseSchema, isJSONRPCResultResponse, ErrorCode, JSONRPCErrorResponseSchema, isJSONRPCErrorResponse, JSONRPCMessageSchema, JSONRPCResponseSchema, EmptyResultSchema, CancelledNotificationParamsSchema, CancelledNotificationSchema, IconSchema, IconsSchema, BaseMetadataSchema, ImplementationSchema, FormElicitationCapabilitySchema, ElicitationCapabilitySchema, ClientTasksCapabilitySchema, ServerTasksCapabilitySchema, ClientCapabilitiesSchema, InitializeRequestParamsSchema, InitializeRequestSchema, ServerCapabilitiesSchema, InitializeResultSchema, InitializedNotificationSchema, PingRequestSchema, ProgressSchema, ProgressNotificationParamsSchema, ProgressNotificationSchema, PaginatedRequestParamsSchema, PaginatedRequestSchema, PaginatedResultSchema, TaskStatusSchema, TaskSchema, CreateTaskResultSchema, TaskStatusNotificationParamsSchema, TaskStatusNotificationSchema, GetTaskRequestSchema, GetTaskResultSchema, GetTaskPayloadRequestSchema, GetTaskPayloadResultSchema, ListTasksRequestSchema, ListTasksResultSchema, CancelTaskRequestSchema, CancelTaskResultSchema, ResourceContentsSchema, TextResourceContentsSchema, Base64Schema, BlobResourceContentsSchema, RoleSchema, AnnotationsSchema, ResourceSchema, ResourceTemplateSchema, ListResourcesRequestSchema, ListResourcesResultSchema, ListResourceTemplatesRequestSchema, ListResourceTemplatesResultSchema, ResourceRequestParamsSchema, ReadResourceRequestParamsSchema, ReadResourceRequestSchema, ReadResourceResultSchema, ResourceListChangedNotificationSchema, SubscribeRequestParamsSchema, SubscribeRequestSchema, UnsubscribeRequestParamsSchema, UnsubscribeRequestSchema, ResourceUpdatedNotificationParamsSchema, ResourceUpdatedNotificationSchema, PromptArgumentSchema, PromptSchema, ListPromptsRequestSchema, ListPromptsResultSchema, GetPromptRequestParamsSchema, GetPromptRequestSchema, TextContentSchema, ImageContentSchema, AudioContentSchema, ToolUseContentSchema, EmbeddedResourceSchema, ResourceLinkSchema, ContentBlockSchema, PromptMessageSchema, GetPromptResultSchema, PromptListChangedNotificationSchema, ToolAnnotationsSchema, ToolExecutionSchema, ToolSchema, ListToolsRequestSchema, ListToolsResultSchema, CallToolResultSchema, CompatibilityCallToolResultSchema, CallToolRequestParamsSchema, CallToolRequestSchema, ToolListChangedNotificationSchema, ListChangedOptionsBaseSchema, LoggingLevelSchema, SetLevelRequestParamsSchema, SetLevelRequestSchema, LoggingMessageNotificationParamsSchema, LoggingMessageNotificationSchema, ModelHintSchema, ModelPreferencesSchema, ToolChoiceSchema, ToolResultContentSchema, SamplingContentSchema, SamplingMessageContentBlockSchema, SamplingMessageSchema, CreateMessageRequestParamsSchema, CreateMessageRequestSchema, CreateMessageResultSchema, CreateMessageResultWithToolsSchema, BooleanSchemaSchema, StringSchemaSchema, NumberSchemaSchema, UntitledSingleSelectEnumSchemaSchema, TitledSingleSelectEnumSchemaSchema, LegacyTitledEnumSchemaSchema, SingleSelectEnumSchemaSchema, UntitledMultiSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema, MultiSelectEnumSchemaSchema, EnumSchemaSchema, PrimitiveSchemaDefinitionSchema, ElicitRequestFormParamsSchema, ElicitRequestURLParamsSchema, ElicitRequestParamsSchema, ElicitRequestSchema, ElicitationCompleteNotificationParamsSchema, ElicitationCompleteNotificationSchema, ElicitResultSchema, ResourceTemplateReferenceSchema, PromptReferenceSchema, CompleteRequestParamsSchema, CompleteRequestSchema, CompleteResultSchema, RootSchema, ListRootsRequestSchema, ListRootsResultSchema, RootsListChangedNotificationSchema, ClientRequestSchema, ClientNotificationSchema, ClientResultSchema, ServerRequestSchema, ServerNotificationSchema, ServerResultSchema, McpError, UrlElicitationRequiredError;
+var init_types = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js"() {
+    z = __toESM(require_v4(), 1);
+    LATEST_PROTOCOL_VERSION = "2025-11-25";
+    SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
+    RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
+    JSONRPC_VERSION = "2.0";
+    AssertObjectSchema = z.custom((v) => v !== null && (typeof v === "object" || typeof v === "function"));
+    ProgressTokenSchema = z.union([z.string(), z.number().int()]);
+    CursorSchema = z.string();
+    TaskCreationParamsSchema = z.looseObject({
+      /**
+       * Requested duration in milliseconds to retain task from creation.
+       */
+      ttl: z.number().optional(),
+      /**
+       * Time in milliseconds to wait between task status requests.
+       */
+      pollInterval: z.number().optional()
+    });
+    TaskMetadataSchema = z.object({
+      ttl: z.number().optional()
+    });
+    RelatedTaskMetadataSchema = z.object({
+      taskId: z.string()
+    });
+    RequestMetaSchema = z.looseObject({
+      /**
+       * If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+       */
+      progressToken: ProgressTokenSchema.optional(),
+      /**
+       * If specified, this request is related to the provided task.
+       */
+      [RELATED_TASK_META_KEY]: RelatedTaskMetadataSchema.optional()
+    });
+    BaseRequestParamsSchema = z.object({
+      /**
+       * See [General fields: `_meta`](/specification/draft/basic/index#meta) for notes on `_meta` usage.
+       */
+      _meta: RequestMetaSchema.optional()
+    });
+    TaskAugmentedRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * If specified, the caller is requesting task-augmented execution for this request.
+       * The request will return a CreateTaskResult immediately, and the actual result can be
+       * retrieved later via tasks/result.
+       *
+       * Task augmentation is subject to capability negotiation - receivers MUST declare support
+       * for task augmentation of specific request types in their capabilities.
+       */
+      task: TaskMetadataSchema.optional()
+    });
+    isTaskAugmentedRequestParams = (value) => TaskAugmentedRequestParamsSchema.safeParse(value).success;
+    RequestSchema = z.object({
+      method: z.string(),
+      params: BaseRequestParamsSchema.loose().optional()
+    });
+    NotificationsParamsSchema = z.object({
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: RequestMetaSchema.optional()
+    });
+    NotificationSchema = z.object({
+      method: z.string(),
+      params: NotificationsParamsSchema.loose().optional()
+    });
+    ResultSchema = z.looseObject({
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: RequestMetaSchema.optional()
+    });
+    RequestIdSchema = z.union([z.string(), z.number().int()]);
+    JSONRPCRequestSchema = z.object({
+      jsonrpc: z.literal(JSONRPC_VERSION),
+      id: RequestIdSchema,
+      ...RequestSchema.shape
+    }).strict();
+    isJSONRPCRequest = (value) => JSONRPCRequestSchema.safeParse(value).success;
+    JSONRPCNotificationSchema = z.object({
+      jsonrpc: z.literal(JSONRPC_VERSION),
+      ...NotificationSchema.shape
+    }).strict();
+    isJSONRPCNotification = (value) => JSONRPCNotificationSchema.safeParse(value).success;
+    JSONRPCResultResponseSchema = z.object({
+      jsonrpc: z.literal(JSONRPC_VERSION),
+      id: RequestIdSchema,
+      result: ResultSchema
+    }).strict();
+    isJSONRPCResultResponse = (value) => JSONRPCResultResponseSchema.safeParse(value).success;
+    (function(ErrorCode2) {
+      ErrorCode2[ErrorCode2["ConnectionClosed"] = -32e3] = "ConnectionClosed";
+      ErrorCode2[ErrorCode2["RequestTimeout"] = -32001] = "RequestTimeout";
+      ErrorCode2[ErrorCode2["ParseError"] = -32700] = "ParseError";
+      ErrorCode2[ErrorCode2["InvalidRequest"] = -32600] = "InvalidRequest";
+      ErrorCode2[ErrorCode2["MethodNotFound"] = -32601] = "MethodNotFound";
+      ErrorCode2[ErrorCode2["InvalidParams"] = -32602] = "InvalidParams";
+      ErrorCode2[ErrorCode2["InternalError"] = -32603] = "InternalError";
+      ErrorCode2[ErrorCode2["UrlElicitationRequired"] = -32042] = "UrlElicitationRequired";
+    })(ErrorCode || (ErrorCode = {}));
+    JSONRPCErrorResponseSchema = z.object({
+      jsonrpc: z.literal(JSONRPC_VERSION),
+      id: RequestIdSchema.optional(),
+      error: z.object({
+        /**
+         * The error type that occurred.
+         */
+        code: z.number().int(),
+        /**
+         * A short description of the error. The message SHOULD be limited to a concise single sentence.
+         */
+        message: z.string(),
+        /**
+         * Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+         */
+        data: z.unknown().optional()
+      })
+    }).strict();
+    isJSONRPCErrorResponse = (value) => JSONRPCErrorResponseSchema.safeParse(value).success;
+    JSONRPCMessageSchema = z.union([
+      JSONRPCRequestSchema,
+      JSONRPCNotificationSchema,
+      JSONRPCResultResponseSchema,
+      JSONRPCErrorResponseSchema
+    ]);
+    JSONRPCResponseSchema = z.union([JSONRPCResultResponseSchema, JSONRPCErrorResponseSchema]);
+    EmptyResultSchema = ResultSchema.strict();
+    CancelledNotificationParamsSchema = NotificationsParamsSchema.extend({
+      /**
+       * The ID of the request to cancel.
+       *
+       * This MUST correspond to the ID of a request previously issued in the same direction.
+       */
+      requestId: RequestIdSchema.optional(),
+      /**
+       * An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.
+       */
+      reason: z.string().optional()
+    });
+    CancelledNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/cancelled"),
+      params: CancelledNotificationParamsSchema
+    });
+    IconSchema = z.object({
+      /**
+       * URL or data URI for the icon.
+       */
+      src: z.string(),
+      /**
+       * Optional MIME type for the icon.
+       */
+      mimeType: z.string().optional(),
+      /**
+       * Optional array of strings that specify sizes at which the icon can be used.
+       * Each string should be in WxH format (e.g., `"48x48"`, `"96x96"`) or `"any"` for scalable formats like SVG.
+       *
+       * If not provided, the client should assume that the icon can be used at any size.
+       */
+      sizes: z.array(z.string()).optional(),
+      /**
+       * Optional specifier for the theme this icon is designed for. `light` indicates
+       * the icon is designed to be used with a light background, and `dark` indicates
+       * the icon is designed to be used with a dark background.
+       *
+       * If not provided, the client should assume the icon can be used with any theme.
+       */
+      theme: z.enum(["light", "dark"]).optional()
+    });
+    IconsSchema = z.object({
+      /**
+       * Optional set of sized icons that the client can display in a user interface.
+       *
+       * Clients that support rendering icons MUST support at least the following MIME types:
+       * - `image/png` - PNG images (safe, universal compatibility)
+       * - `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+       *
+       * Clients that support rendering icons SHOULD also support:
+       * - `image/svg+xml` - SVG images (scalable but requires security precautions)
+       * - `image/webp` - WebP images (modern, efficient format)
+       */
+      icons: z.array(IconSchema).optional()
+    });
+    BaseMetadataSchema = z.object({
+      /** Intended for programmatic or logical use, but used as a display name in past specs or fallback */
+      name: z.string(),
+      /**
+       * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+       * even by those unfamiliar with domain-specific terminology.
+       *
+       * If not provided, the name should be used for display (except for Tool,
+       * where `annotations.title` should be given precedence over using `name`,
+       * if present).
+       */
+      title: z.string().optional()
+    });
+    ImplementationSchema = BaseMetadataSchema.extend({
+      ...BaseMetadataSchema.shape,
+      ...IconsSchema.shape,
+      version: z.string(),
+      /**
+       * An optional URL of the website for this implementation.
+       */
+      websiteUrl: z.string().optional(),
+      /**
+       * An optional human-readable description of what this implementation does.
+       *
+       * This can be used by clients or servers to provide context about their purpose
+       * and capabilities. For example, a server might describe the types of resources
+       * or tools it provides, while a client might describe its intended use case.
+       */
+      description: z.string().optional()
+    });
+    FormElicitationCapabilitySchema = z.intersection(z.object({
+      applyDefaults: z.boolean().optional()
+    }), z.record(z.string(), z.unknown()));
+    ElicitationCapabilitySchema = z.preprocess((value) => {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        if (Object.keys(value).length === 0) {
+          return { form: {} };
+        }
+      }
+      return value;
+    }, z.intersection(z.object({
+      form: FormElicitationCapabilitySchema.optional(),
+      url: AssertObjectSchema.optional()
+    }), z.record(z.string(), z.unknown()).optional()));
+    ClientTasksCapabilitySchema = z.looseObject({
+      /**
+       * Present if the client supports listing tasks.
+       */
+      list: AssertObjectSchema.optional(),
+      /**
+       * Present if the client supports cancelling tasks.
+       */
+      cancel: AssertObjectSchema.optional(),
+      /**
+       * Capabilities for task creation on specific request types.
+       */
+      requests: z.looseObject({
+        /**
+         * Task support for sampling requests.
+         */
+        sampling: z.looseObject({
+          createMessage: AssertObjectSchema.optional()
+        }).optional(),
+        /**
+         * Task support for elicitation requests.
+         */
+        elicitation: z.looseObject({
+          create: AssertObjectSchema.optional()
+        }).optional()
+      }).optional()
+    });
+    ServerTasksCapabilitySchema = z.looseObject({
+      /**
+       * Present if the server supports listing tasks.
+       */
+      list: AssertObjectSchema.optional(),
+      /**
+       * Present if the server supports cancelling tasks.
+       */
+      cancel: AssertObjectSchema.optional(),
+      /**
+       * Capabilities for task creation on specific request types.
+       */
+      requests: z.looseObject({
+        /**
+         * Task support for tool requests.
+         */
+        tools: z.looseObject({
+          call: AssertObjectSchema.optional()
+        }).optional()
+      }).optional()
+    });
+    ClientCapabilitiesSchema = z.object({
+      /**
+       * Experimental, non-standard capabilities that the client supports.
+       */
+      experimental: z.record(z.string(), AssertObjectSchema).optional(),
+      /**
+       * Present if the client supports sampling from an LLM.
+       */
+      sampling: z.object({
+        /**
+         * Present if the client supports context inclusion via includeContext parameter.
+         * If not declared, servers SHOULD only use `includeContext: "none"` (or omit it).
+         */
+        context: AssertObjectSchema.optional(),
+        /**
+         * Present if the client supports tool use via tools and toolChoice parameters.
+         */
+        tools: AssertObjectSchema.optional()
+      }).optional(),
+      /**
+       * Present if the client supports eliciting user input.
+       */
+      elicitation: ElicitationCapabilitySchema.optional(),
+      /**
+       * Present if the client supports listing roots.
+       */
+      roots: z.object({
+        /**
+         * Whether the client supports issuing notifications for changes to the roots list.
+         */
+        listChanged: z.boolean().optional()
+      }).optional(),
+      /**
+       * Present if the client supports task creation.
+       */
+      tasks: ClientTasksCapabilitySchema.optional(),
+      /**
+       * Extensions that the client supports. Keys are extension identifiers (vendor-prefix/extension-name).
+       */
+      extensions: z.record(z.string(), AssertObjectSchema).optional()
+    });
+    InitializeRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * The latest version of the Model Context Protocol that the client supports. The client MAY decide to support older versions as well.
+       */
+      protocolVersion: z.string(),
+      capabilities: ClientCapabilitiesSchema,
+      clientInfo: ImplementationSchema
+    });
+    InitializeRequestSchema = RequestSchema.extend({
+      method: z.literal("initialize"),
+      params: InitializeRequestParamsSchema
+    });
+    ServerCapabilitiesSchema = z.object({
+      /**
+       * Experimental, non-standard capabilities that the server supports.
+       */
+      experimental: z.record(z.string(), AssertObjectSchema).optional(),
+      /**
+       * Present if the server supports sending log messages to the client.
+       */
+      logging: AssertObjectSchema.optional(),
+      /**
+       * Present if the server supports sending completions to the client.
+       */
+      completions: AssertObjectSchema.optional(),
+      /**
+       * Present if the server offers any prompt templates.
+       */
+      prompts: z.object({
+        /**
+         * Whether this server supports issuing notifications for changes to the prompt list.
+         */
+        listChanged: z.boolean().optional()
+      }).optional(),
+      /**
+       * Present if the server offers any resources to read.
+       */
+      resources: z.object({
+        /**
+         * Whether this server supports clients subscribing to resource updates.
+         */
+        subscribe: z.boolean().optional(),
+        /**
+         * Whether this server supports issuing notifications for changes to the resource list.
+         */
+        listChanged: z.boolean().optional()
+      }).optional(),
+      /**
+       * Present if the server offers any tools to call.
+       */
+      tools: z.object({
+        /**
+         * Whether this server supports issuing notifications for changes to the tool list.
+         */
+        listChanged: z.boolean().optional()
+      }).optional(),
+      /**
+       * Present if the server supports task creation.
+       */
+      tasks: ServerTasksCapabilitySchema.optional(),
+      /**
+       * Extensions that the server supports. Keys are extension identifiers (vendor-prefix/extension-name).
+       */
+      extensions: z.record(z.string(), AssertObjectSchema).optional()
+    });
+    InitializeResultSchema = ResultSchema.extend({
+      /**
+       * The version of the Model Context Protocol that the server wants to use. This may not match the version that the client requested. If the client cannot support this version, it MUST disconnect.
+       */
+      protocolVersion: z.string(),
+      capabilities: ServerCapabilitiesSchema,
+      serverInfo: ImplementationSchema,
+      /**
+       * Instructions describing how to use the server and its features.
+       *
+       * This can be used by clients to improve the LLM's understanding of available tools, resources, etc. It can be thought of like a "hint" to the model. For example, this information MAY be added to the system prompt.
+       */
+      instructions: z.string().optional()
+    });
+    InitializedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/initialized"),
+      params: NotificationsParamsSchema.optional()
+    });
+    PingRequestSchema = RequestSchema.extend({
+      method: z.literal("ping"),
+      params: BaseRequestParamsSchema.optional()
+    });
+    ProgressSchema = z.object({
+      /**
+       * The progress thus far. This should increase every time progress is made, even if the total is unknown.
+       */
+      progress: z.number(),
+      /**
+       * Total number of items to process (or total progress required), if known.
+       */
+      total: z.optional(z.number()),
+      /**
+       * An optional message describing the current progress.
+       */
+      message: z.optional(z.string())
+    });
+    ProgressNotificationParamsSchema = z.object({
+      ...NotificationsParamsSchema.shape,
+      ...ProgressSchema.shape,
+      /**
+       * The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.
+       */
+      progressToken: ProgressTokenSchema
+    });
+    ProgressNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/progress"),
+      params: ProgressNotificationParamsSchema
+    });
+    PaginatedRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * An opaque token representing the current pagination position.
+       * If provided, the server should return results starting after this cursor.
+       */
+      cursor: CursorSchema.optional()
+    });
+    PaginatedRequestSchema = RequestSchema.extend({
+      params: PaginatedRequestParamsSchema.optional()
+    });
+    PaginatedResultSchema = ResultSchema.extend({
+      /**
+       * An opaque token representing the pagination position after the last returned result.
+       * If present, there may be more results available.
+       */
+      nextCursor: CursorSchema.optional()
+    });
+    TaskStatusSchema = z.enum(["working", "input_required", "completed", "failed", "cancelled"]);
+    TaskSchema = z.object({
+      taskId: z.string(),
+      status: TaskStatusSchema,
+      /**
+       * Time in milliseconds to keep task results available after completion.
+       * If null, the task has unlimited lifetime until manually cleaned up.
+       */
+      ttl: z.union([z.number(), z.null()]),
+      /**
+       * ISO 8601 timestamp when the task was created.
+       */
+      createdAt: z.string(),
+      /**
+       * ISO 8601 timestamp when the task was last updated.
+       */
+      lastUpdatedAt: z.string(),
+      pollInterval: z.optional(z.number()),
+      /**
+       * Optional diagnostic message for failed tasks or other status information.
+       */
+      statusMessage: z.optional(z.string())
+    });
+    CreateTaskResultSchema = ResultSchema.extend({
+      task: TaskSchema
+    });
+    TaskStatusNotificationParamsSchema = NotificationsParamsSchema.merge(TaskSchema);
+    TaskStatusNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/tasks/status"),
+      params: TaskStatusNotificationParamsSchema
+    });
+    GetTaskRequestSchema = RequestSchema.extend({
+      method: z.literal("tasks/get"),
+      params: BaseRequestParamsSchema.extend({
+        taskId: z.string()
+      })
+    });
+    GetTaskResultSchema = ResultSchema.merge(TaskSchema);
+    GetTaskPayloadRequestSchema = RequestSchema.extend({
+      method: z.literal("tasks/result"),
+      params: BaseRequestParamsSchema.extend({
+        taskId: z.string()
+      })
+    });
+    GetTaskPayloadResultSchema = ResultSchema.loose();
+    ListTasksRequestSchema = PaginatedRequestSchema.extend({
+      method: z.literal("tasks/list")
+    });
+    ListTasksResultSchema = PaginatedResultSchema.extend({
+      tasks: z.array(TaskSchema)
+    });
+    CancelTaskRequestSchema = RequestSchema.extend({
+      method: z.literal("tasks/cancel"),
+      params: BaseRequestParamsSchema.extend({
+        taskId: z.string()
+      })
+    });
+    CancelTaskResultSchema = ResultSchema.merge(TaskSchema);
+    ResourceContentsSchema = z.object({
+      /**
+       * The URI of this resource.
+       */
+      uri: z.string(),
+      /**
+       * The MIME type of this resource, if known.
+       */
+      mimeType: z.optional(z.string()),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    TextResourceContentsSchema = ResourceContentsSchema.extend({
+      /**
+       * The text of the item. This must only be set if the item can actually be represented as text (not binary data).
+       */
+      text: z.string()
+    });
+    Base64Schema = z.string().refine((val) => {
+      try {
+        atob(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, { message: "Invalid Base64 string" });
+    BlobResourceContentsSchema = ResourceContentsSchema.extend({
+      /**
+       * A base64-encoded string representing the binary data of the item.
+       */
+      blob: Base64Schema
+    });
+    RoleSchema = z.enum(["user", "assistant"]);
+    AnnotationsSchema = z.object({
+      /**
+       * Intended audience(s) for the resource.
+       */
+      audience: z.array(RoleSchema).optional(),
+      /**
+       * Importance hint for the resource, from 0 (least) to 1 (most).
+       */
+      priority: z.number().min(0).max(1).optional(),
+      /**
+       * ISO 8601 timestamp for the most recent modification.
+       */
+      lastModified: z.iso.datetime({ offset: true }).optional()
+    });
+    ResourceSchema = z.object({
+      ...BaseMetadataSchema.shape,
+      ...IconsSchema.shape,
+      /**
+       * The URI of this resource.
+       */
+      uri: z.string(),
+      /**
+       * A description of what this resource represents.
+       *
+       * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
+       */
+      description: z.optional(z.string()),
+      /**
+       * The MIME type of this resource, if known.
+       */
+      mimeType: z.optional(z.string()),
+      /**
+       * The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
+       *
+       * This can be used by Hosts to display file sizes and estimate context window usage.
+       */
+      size: z.optional(z.number()),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.optional(z.looseObject({}))
+    });
+    ResourceTemplateSchema = z.object({
+      ...BaseMetadataSchema.shape,
+      ...IconsSchema.shape,
+      /**
+       * A URI template (according to RFC 6570) that can be used to construct resource URIs.
+       */
+      uriTemplate: z.string(),
+      /**
+       * A description of what this template is for.
+       *
+       * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
+       */
+      description: z.optional(z.string()),
+      /**
+       * The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
+       */
+      mimeType: z.optional(z.string()),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.optional(z.looseObject({}))
+    });
+    ListResourcesRequestSchema = PaginatedRequestSchema.extend({
+      method: z.literal("resources/list")
+    });
+    ListResourcesResultSchema = PaginatedResultSchema.extend({
+      resources: z.array(ResourceSchema)
+    });
+    ListResourceTemplatesRequestSchema = PaginatedRequestSchema.extend({
+      method: z.literal("resources/templates/list")
+    });
+    ListResourceTemplatesResultSchema = PaginatedResultSchema.extend({
+      resourceTemplates: z.array(ResourceTemplateSchema)
+    });
+    ResourceRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * The URI of the resource to read. The URI can use any protocol; it is up to the server how to interpret it.
+       *
+       * @format uri
+       */
+      uri: z.string()
+    });
+    ReadResourceRequestParamsSchema = ResourceRequestParamsSchema;
+    ReadResourceRequestSchema = RequestSchema.extend({
+      method: z.literal("resources/read"),
+      params: ReadResourceRequestParamsSchema
+    });
+    ReadResourceResultSchema = ResultSchema.extend({
+      contents: z.array(z.union([TextResourceContentsSchema, BlobResourceContentsSchema]))
+    });
+    ResourceListChangedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/resources/list_changed"),
+      params: NotificationsParamsSchema.optional()
+    });
+    SubscribeRequestParamsSchema = ResourceRequestParamsSchema;
+    SubscribeRequestSchema = RequestSchema.extend({
+      method: z.literal("resources/subscribe"),
+      params: SubscribeRequestParamsSchema
+    });
+    UnsubscribeRequestParamsSchema = ResourceRequestParamsSchema;
+    UnsubscribeRequestSchema = RequestSchema.extend({
+      method: z.literal("resources/unsubscribe"),
+      params: UnsubscribeRequestParamsSchema
+    });
+    ResourceUpdatedNotificationParamsSchema = NotificationsParamsSchema.extend({
+      /**
+       * The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.
+       */
+      uri: z.string()
+    });
+    ResourceUpdatedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/resources/updated"),
+      params: ResourceUpdatedNotificationParamsSchema
+    });
+    PromptArgumentSchema = z.object({
+      /**
+       * The name of the argument.
+       */
+      name: z.string(),
+      /**
+       * A human-readable description of the argument.
+       */
+      description: z.optional(z.string()),
+      /**
+       * Whether this argument must be provided.
+       */
+      required: z.optional(z.boolean())
+    });
+    PromptSchema = z.object({
+      ...BaseMetadataSchema.shape,
+      ...IconsSchema.shape,
+      /**
+       * An optional description of what this prompt provides
+       */
+      description: z.optional(z.string()),
+      /**
+       * A list of arguments to use for templating the prompt.
+       */
+      arguments: z.optional(z.array(PromptArgumentSchema)),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.optional(z.looseObject({}))
+    });
+    ListPromptsRequestSchema = PaginatedRequestSchema.extend({
+      method: z.literal("prompts/list")
+    });
+    ListPromptsResultSchema = PaginatedResultSchema.extend({
+      prompts: z.array(PromptSchema)
+    });
+    GetPromptRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * The name of the prompt or prompt template.
+       */
+      name: z.string(),
+      /**
+       * Arguments to use for templating the prompt.
+       */
+      arguments: z.record(z.string(), z.string()).optional()
+    });
+    GetPromptRequestSchema = RequestSchema.extend({
+      method: z.literal("prompts/get"),
+      params: GetPromptRequestParamsSchema
+    });
+    TextContentSchema = z.object({
+      type: z.literal("text"),
+      /**
+       * The text content of the message.
+       */
+      text: z.string(),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    ImageContentSchema = z.object({
+      type: z.literal("image"),
+      /**
+       * The base64-encoded image data.
+       */
+      data: Base64Schema,
+      /**
+       * The MIME type of the image. Different providers may support different image types.
+       */
+      mimeType: z.string(),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    AudioContentSchema = z.object({
+      type: z.literal("audio"),
+      /**
+       * The base64-encoded audio data.
+       */
+      data: Base64Schema,
+      /**
+       * The MIME type of the audio. Different providers may support different audio types.
+       */
+      mimeType: z.string(),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    ToolUseContentSchema = z.object({
+      type: z.literal("tool_use"),
+      /**
+       * The name of the tool to invoke.
+       * Must match a tool name from the request's tools array.
+       */
+      name: z.string(),
+      /**
+       * Unique identifier for this tool call.
+       * Used to correlate with ToolResultContent in subsequent messages.
+       */
+      id: z.string(),
+      /**
+       * Arguments to pass to the tool.
+       * Must conform to the tool's inputSchema.
+       */
+      input: z.record(z.string(), z.unknown()),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    EmbeddedResourceSchema = z.object({
+      type: z.literal("resource"),
+      resource: z.union([TextResourceContentsSchema, BlobResourceContentsSchema]),
+      /**
+       * Optional annotations for the client.
+       */
+      annotations: AnnotationsSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    ResourceLinkSchema = ResourceSchema.extend({
+      type: z.literal("resource_link")
+    });
+    ContentBlockSchema = z.union([
+      TextContentSchema,
+      ImageContentSchema,
+      AudioContentSchema,
+      ResourceLinkSchema,
+      EmbeddedResourceSchema
+    ]);
+    PromptMessageSchema = z.object({
+      role: RoleSchema,
+      content: ContentBlockSchema
+    });
+    GetPromptResultSchema = ResultSchema.extend({
+      /**
+       * An optional description for the prompt.
+       */
+      description: z.string().optional(),
+      messages: z.array(PromptMessageSchema)
+    });
+    PromptListChangedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/prompts/list_changed"),
+      params: NotificationsParamsSchema.optional()
+    });
+    ToolAnnotationsSchema = z.object({
+      /**
+       * A human-readable title for the tool.
+       */
+      title: z.string().optional(),
+      /**
+       * If true, the tool does not modify its environment.
+       *
+       * Default: false
+       */
+      readOnlyHint: z.boolean().optional(),
+      /**
+       * If true, the tool may perform destructive updates to its environment.
+       * If false, the tool performs only additive updates.
+       *
+       * (This property is meaningful only when `readOnlyHint == false`)
+       *
+       * Default: true
+       */
+      destructiveHint: z.boolean().optional(),
+      /**
+       * If true, calling the tool repeatedly with the same arguments
+       * will have no additional effect on the its environment.
+       *
+       * (This property is meaningful only when `readOnlyHint == false`)
+       *
+       * Default: false
+       */
+      idempotentHint: z.boolean().optional(),
+      /**
+       * If true, this tool may interact with an "open world" of external
+       * entities. If false, the tool's domain of interaction is closed.
+       * For example, the world of a web search tool is open, whereas that
+       * of a memory tool is not.
+       *
+       * Default: true
+       */
+      openWorldHint: z.boolean().optional()
+    });
+    ToolExecutionSchema = z.object({
+      /**
+       * Indicates the tool's preference for task-augmented execution.
+       * - "required": Clients MUST invoke the tool as a task
+       * - "optional": Clients MAY invoke the tool as a task or normal request
+       * - "forbidden": Clients MUST NOT attempt to invoke the tool as a task
+       *
+       * If not present, defaults to "forbidden".
+       */
+      taskSupport: z.enum(["required", "optional", "forbidden"]).optional()
+    });
+    ToolSchema = z.object({
+      ...BaseMetadataSchema.shape,
+      ...IconsSchema.shape,
+      /**
+       * A human-readable description of the tool.
+       */
+      description: z.string().optional(),
+      /**
+       * A JSON Schema 2020-12 object defining the expected parameters for the tool.
+       * Must have type: 'object' at the root level per MCP spec.
+       */
+      inputSchema: z.object({
+        type: z.literal("object"),
+        properties: z.record(z.string(), AssertObjectSchema).optional(),
+        required: z.array(z.string()).optional()
+      }).catchall(z.unknown()),
+      /**
+       * An optional JSON Schema 2020-12 object defining the structure of the tool's output
+       * returned in the structuredContent field of a CallToolResult.
+       * Must have type: 'object' at the root level per MCP spec.
+       */
+      outputSchema: z.object({
+        type: z.literal("object"),
+        properties: z.record(z.string(), AssertObjectSchema).optional(),
+        required: z.array(z.string()).optional()
+      }).catchall(z.unknown()).optional(),
+      /**
+       * Optional additional tool information.
+       */
+      annotations: ToolAnnotationsSchema.optional(),
+      /**
+       * Execution-related properties for this tool.
+       */
+      execution: ToolExecutionSchema.optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    ListToolsRequestSchema = PaginatedRequestSchema.extend({
+      method: z.literal("tools/list")
+    });
+    ListToolsResultSchema = PaginatedResultSchema.extend({
+      tools: z.array(ToolSchema)
+    });
+    CallToolResultSchema = ResultSchema.extend({
+      /**
+       * A list of content objects that represent the result of the tool call.
+       *
+       * If the Tool does not define an outputSchema, this field MUST be present in the result.
+       * For backwards compatibility, this field is always present, but it may be empty.
+       */
+      content: z.array(ContentBlockSchema).default([]),
+      /**
+       * An object containing structured tool output.
+       *
+       * If the Tool defines an outputSchema, this field MUST be present in the result, and contain a JSON object that matches the schema.
+       */
+      structuredContent: z.record(z.string(), z.unknown()).optional(),
+      /**
+       * Whether the tool call ended in an error.
+       *
+       * If not set, this is assumed to be false (the call was successful).
+       *
+       * Any errors that originate from the tool SHOULD be reported inside the result
+       * object, with `isError` set to true, _not_ as an MCP protocol-level error
+       * response. Otherwise, the LLM would not be able to see that an error occurred
+       * and self-correct.
+       *
+       * However, any errors in _finding_ the tool, an error indicating that the
+       * server does not support tool calls, or any other exceptional conditions,
+       * should be reported as an MCP error response.
+       */
+      isError: z.boolean().optional()
+    });
+    CompatibilityCallToolResultSchema = CallToolResultSchema.or(ResultSchema.extend({
+      toolResult: z.unknown()
+    }));
+    CallToolRequestParamsSchema = TaskAugmentedRequestParamsSchema.extend({
+      /**
+       * The name of the tool to call.
+       */
+      name: z.string(),
+      /**
+       * Arguments to pass to the tool.
+       */
+      arguments: z.record(z.string(), z.unknown()).optional()
+    });
+    CallToolRequestSchema = RequestSchema.extend({
+      method: z.literal("tools/call"),
+      params: CallToolRequestParamsSchema
+    });
+    ToolListChangedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/tools/list_changed"),
+      params: NotificationsParamsSchema.optional()
+    });
+    ListChangedOptionsBaseSchema = z.object({
+      /**
+       * If true, the list will be refreshed automatically when a list changed notification is received.
+       * The callback will be called with the updated list.
+       *
+       * If false, the callback will be called with null items, allowing manual refresh.
+       *
+       * @default true
+       */
+      autoRefresh: z.boolean().default(true),
+      /**
+       * Debounce time in milliseconds for list changed notification processing.
+       *
+       * Multiple notifications received within this timeframe will only trigger one refresh.
+       * Set to 0 to disable debouncing.
+       *
+       * @default 300
+       */
+      debounceMs: z.number().int().nonnegative().default(300)
+    });
+    LoggingLevelSchema = z.enum(["debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"]);
+    SetLevelRequestParamsSchema = BaseRequestParamsSchema.extend({
+      /**
+       * The level of logging that the client wants to receive from the server. The server should send all logs at this level and higher (i.e., more severe) to the client as notifications/logging/message.
+       */
+      level: LoggingLevelSchema
+    });
+    SetLevelRequestSchema = RequestSchema.extend({
+      method: z.literal("logging/setLevel"),
+      params: SetLevelRequestParamsSchema
+    });
+    LoggingMessageNotificationParamsSchema = NotificationsParamsSchema.extend({
+      /**
+       * The severity of this log message.
+       */
+      level: LoggingLevelSchema,
+      /**
+       * An optional name of the logger issuing this message.
+       */
+      logger: z.string().optional(),
+      /**
+       * The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
+       */
+      data: z.unknown()
+    });
+    LoggingMessageNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/message"),
+      params: LoggingMessageNotificationParamsSchema
+    });
+    ModelHintSchema = z.object({
+      /**
+       * A hint for a model name.
+       */
+      name: z.string().optional()
+    });
+    ModelPreferencesSchema = z.object({
+      /**
+       * Optional hints to use for model selection.
+       */
+      hints: z.array(ModelHintSchema).optional(),
+      /**
+       * How much to prioritize cost when selecting a model.
+       */
+      costPriority: z.number().min(0).max(1).optional(),
+      /**
+       * How much to prioritize sampling speed (latency) when selecting a model.
+       */
+      speedPriority: z.number().min(0).max(1).optional(),
+      /**
+       * How much to prioritize intelligence and capabilities when selecting a model.
+       */
+      intelligencePriority: z.number().min(0).max(1).optional()
+    });
+    ToolChoiceSchema = z.object({
+      /**
+       * Controls when tools are used:
+       * - "auto": Model decides whether to use tools (default)
+       * - "required": Model MUST use at least one tool before completing
+       * - "none": Model MUST NOT use any tools
+       */
+      mode: z.enum(["auto", "required", "none"]).optional()
+    });
+    ToolResultContentSchema = z.object({
+      type: z.literal("tool_result"),
+      toolUseId: z.string().describe("The unique identifier for the corresponding tool call."),
+      content: z.array(ContentBlockSchema).default([]),
+      structuredContent: z.object({}).loose().optional(),
+      isError: z.boolean().optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    SamplingContentSchema = z.discriminatedUnion("type", [TextContentSchema, ImageContentSchema, AudioContentSchema]);
+    SamplingMessageContentBlockSchema = z.discriminatedUnion("type", [
+      TextContentSchema,
+      ImageContentSchema,
+      AudioContentSchema,
+      ToolUseContentSchema,
+      ToolResultContentSchema
+    ]);
+    SamplingMessageSchema = z.object({
+      role: RoleSchema,
+      content: z.union([SamplingMessageContentBlockSchema, z.array(SamplingMessageContentBlockSchema)]),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    CreateMessageRequestParamsSchema = TaskAugmentedRequestParamsSchema.extend({
+      messages: z.array(SamplingMessageSchema),
+      /**
+       * The server's preferences for which model to select. The client MAY modify or omit this request.
+       */
+      modelPreferences: ModelPreferencesSchema.optional(),
+      /**
+       * An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.
+       */
+      systemPrompt: z.string().optional(),
+      /**
+       * A request to include context from one or more MCP servers (including the caller), to be attached to the prompt.
+       * The client MAY ignore this request.
+       *
+       * Default is "none". Values "thisServer" and "allServers" are soft-deprecated. Servers SHOULD only use these values if the client
+       * declares ClientCapabilities.sampling.context. These values may be removed in future spec releases.
+       */
+      includeContext: z.enum(["none", "thisServer", "allServers"]).optional(),
+      temperature: z.number().optional(),
+      /**
+       * The requested maximum number of tokens to sample (to prevent runaway completions).
+       *
+       * The client MAY choose to sample fewer tokens than the requested maximum.
+       */
+      maxTokens: z.number().int(),
+      stopSequences: z.array(z.string()).optional(),
+      /**
+       * Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.
+       */
+      metadata: AssertObjectSchema.optional(),
+      /**
+       * Tools that the model may use during generation.
+       * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
+       */
+      tools: z.array(ToolSchema).optional(),
+      /**
+       * Controls how the model uses tools.
+       * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
+       * Default is `{ mode: "auto" }`.
+       */
+      toolChoice: ToolChoiceSchema.optional()
+    });
+    CreateMessageRequestSchema = RequestSchema.extend({
+      method: z.literal("sampling/createMessage"),
+      params: CreateMessageRequestParamsSchema
+    });
+    CreateMessageResultSchema = ResultSchema.extend({
+      /**
+       * The name of the model that generated the message.
+       */
+      model: z.string(),
+      /**
+       * The reason why sampling stopped, if known.
+       *
+       * Standard values:
+       * - "endTurn": Natural end of the assistant's turn
+       * - "stopSequence": A stop sequence was encountered
+       * - "maxTokens": Maximum token limit was reached
+       *
+       * This field is an open string to allow for provider-specific stop reasons.
+       */
+      stopReason: z.optional(z.enum(["endTurn", "stopSequence", "maxTokens"]).or(z.string())),
+      role: RoleSchema,
+      /**
+       * Response content. Single content block (text, image, or audio).
+       */
+      content: SamplingContentSchema
+    });
+    CreateMessageResultWithToolsSchema = ResultSchema.extend({
+      /**
+       * The name of the model that generated the message.
+       */
+      model: z.string(),
+      /**
+       * The reason why sampling stopped, if known.
+       *
+       * Standard values:
+       * - "endTurn": Natural end of the assistant's turn
+       * - "stopSequence": A stop sequence was encountered
+       * - "maxTokens": Maximum token limit was reached
+       * - "toolUse": The model wants to use one or more tools
+       *
+       * This field is an open string to allow for provider-specific stop reasons.
+       */
+      stopReason: z.optional(z.enum(["endTurn", "stopSequence", "maxTokens", "toolUse"]).or(z.string())),
+      role: RoleSchema,
+      /**
+       * Response content. May be a single block or array. May include ToolUseContent if stopReason is "toolUse".
+       */
+      content: z.union([SamplingMessageContentBlockSchema, z.array(SamplingMessageContentBlockSchema)])
+    });
+    BooleanSchemaSchema = z.object({
+      type: z.literal("boolean"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      default: z.boolean().optional()
+    });
+    StringSchemaSchema = z.object({
+      type: z.literal("string"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      minLength: z.number().optional(),
+      maxLength: z.number().optional(),
+      format: z.enum(["email", "uri", "date", "date-time"]).optional(),
+      default: z.string().optional()
+    });
+    NumberSchemaSchema = z.object({
+      type: z.enum(["number", "integer"]),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      minimum: z.number().optional(),
+      maximum: z.number().optional(),
+      default: z.number().optional()
+    });
+    UntitledSingleSelectEnumSchemaSchema = z.object({
+      type: z.literal("string"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()),
+      default: z.string().optional()
+    });
+    TitledSingleSelectEnumSchemaSchema = z.object({
+      type: z.literal("string"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      oneOf: z.array(z.object({
+        const: z.string(),
+        title: z.string()
+      })),
+      default: z.string().optional()
+    });
+    LegacyTitledEnumSchemaSchema = z.object({
+      type: z.literal("string"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()),
+      enumNames: z.array(z.string()).optional(),
+      default: z.string().optional()
+    });
+    SingleSelectEnumSchemaSchema = z.union([UntitledSingleSelectEnumSchemaSchema, TitledSingleSelectEnumSchemaSchema]);
+    UntitledMultiSelectEnumSchemaSchema = z.object({
+      type: z.literal("array"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      minItems: z.number().optional(),
+      maxItems: z.number().optional(),
+      items: z.object({
+        type: z.literal("string"),
+        enum: z.array(z.string())
+      }),
+      default: z.array(z.string()).optional()
+    });
+    TitledMultiSelectEnumSchemaSchema = z.object({
+      type: z.literal("array"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      minItems: z.number().optional(),
+      maxItems: z.number().optional(),
+      items: z.object({
+        anyOf: z.array(z.object({
+          const: z.string(),
+          title: z.string()
+        }))
+      }),
+      default: z.array(z.string()).optional()
+    });
+    MultiSelectEnumSchemaSchema = z.union([UntitledMultiSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema]);
+    EnumSchemaSchema = z.union([LegacyTitledEnumSchemaSchema, SingleSelectEnumSchemaSchema, MultiSelectEnumSchemaSchema]);
+    PrimitiveSchemaDefinitionSchema = z.union([EnumSchemaSchema, BooleanSchemaSchema, StringSchemaSchema, NumberSchemaSchema]);
+    ElicitRequestFormParamsSchema = TaskAugmentedRequestParamsSchema.extend({
+      /**
+       * The elicitation mode.
+       *
+       * Optional for backward compatibility. Clients MUST treat missing mode as "form".
+       */
+      mode: z.literal("form").optional(),
+      /**
+       * The message to present to the user describing what information is being requested.
+       */
+      message: z.string(),
+      /**
+       * A restricted subset of JSON Schema.
+       * Only top-level properties are allowed, without nesting.
+       */
+      requestedSchema: z.object({
+        type: z.literal("object"),
+        properties: z.record(z.string(), PrimitiveSchemaDefinitionSchema),
+        required: z.array(z.string()).optional()
+      })
+    });
+    ElicitRequestURLParamsSchema = TaskAugmentedRequestParamsSchema.extend({
+      /**
+       * The elicitation mode.
+       */
+      mode: z.literal("url"),
+      /**
+       * The message to present to the user explaining why the interaction is needed.
+       */
+      message: z.string(),
+      /**
+       * The ID of the elicitation, which must be unique within the context of the server.
+       * The client MUST treat this ID as an opaque value.
+       */
+      elicitationId: z.string(),
+      /**
+       * The URL that the user should navigate to.
+       */
+      url: z.string().url()
+    });
+    ElicitRequestParamsSchema = z.union([ElicitRequestFormParamsSchema, ElicitRequestURLParamsSchema]);
+    ElicitRequestSchema = RequestSchema.extend({
+      method: z.literal("elicitation/create"),
+      params: ElicitRequestParamsSchema
+    });
+    ElicitationCompleteNotificationParamsSchema = NotificationsParamsSchema.extend({
+      /**
+       * The ID of the elicitation that completed.
+       */
+      elicitationId: z.string()
+    });
+    ElicitationCompleteNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/elicitation/complete"),
+      params: ElicitationCompleteNotificationParamsSchema
+    });
+    ElicitResultSchema = ResultSchema.extend({
+      /**
+       * The user action in response to the elicitation.
+       * - "accept": User submitted the form/confirmed the action
+       * - "decline": User explicitly decline the action
+       * - "cancel": User dismissed without making an explicit choice
+       */
+      action: z.enum(["accept", "decline", "cancel"]),
+      /**
+       * The submitted form data, only present when action is "accept".
+       * Contains values matching the requested schema.
+       * Per MCP spec, content is "typically omitted" for decline/cancel actions.
+       * We normalize null to undefined for leniency while maintaining type compatibility.
+       */
+      content: z.preprocess((val) => val === null ? void 0 : val, z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).optional())
+    });
+    ResourceTemplateReferenceSchema = z.object({
+      type: z.literal("ref/resource"),
+      /**
+       * The URI or URI template of the resource.
+       */
+      uri: z.string()
+    });
+    PromptReferenceSchema = z.object({
+      type: z.literal("ref/prompt"),
+      /**
+       * The name of the prompt or prompt template
+       */
+      name: z.string()
+    });
+    CompleteRequestParamsSchema = BaseRequestParamsSchema.extend({
+      ref: z.union([PromptReferenceSchema, ResourceTemplateReferenceSchema]),
+      /**
+       * The argument's information
+       */
+      argument: z.object({
+        /**
+         * The name of the argument
+         */
+        name: z.string(),
+        /**
+         * The value of the argument to use for completion matching.
+         */
+        value: z.string()
+      }),
+      context: z.object({
+        /**
+         * Previously-resolved variables in a URI template or prompt.
+         */
+        arguments: z.record(z.string(), z.string()).optional()
+      }).optional()
+    });
+    CompleteRequestSchema = RequestSchema.extend({
+      method: z.literal("completion/complete"),
+      params: CompleteRequestParamsSchema
+    });
+    CompleteResultSchema = ResultSchema.extend({
+      completion: z.looseObject({
+        /**
+         * An array of completion values. Must not exceed 100 items.
+         */
+        values: z.array(z.string()).max(100),
+        /**
+         * The total number of completion options available. This can exceed the number of values actually sent in the response.
+         */
+        total: z.optional(z.number().int()),
+        /**
+         * Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.
+         */
+        hasMore: z.optional(z.boolean())
+      })
+    });
+    RootSchema = z.object({
+      /**
+       * The URI identifying the root. This *must* start with file:// for now.
+       */
+      uri: z.string().startsWith("file://"),
+      /**
+       * An optional name for the root.
+       */
+      name: z.string().optional(),
+      /**
+       * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
+       * for notes on _meta usage.
+       */
+      _meta: z.record(z.string(), z.unknown()).optional()
+    });
+    ListRootsRequestSchema = RequestSchema.extend({
+      method: z.literal("roots/list"),
+      params: BaseRequestParamsSchema.optional()
+    });
+    ListRootsResultSchema = ResultSchema.extend({
+      roots: z.array(RootSchema)
+    });
+    RootsListChangedNotificationSchema = NotificationSchema.extend({
+      method: z.literal("notifications/roots/list_changed"),
+      params: NotificationsParamsSchema.optional()
+    });
+    ClientRequestSchema = z.union([
+      PingRequestSchema,
+      InitializeRequestSchema,
+      CompleteRequestSchema,
+      SetLevelRequestSchema,
+      GetPromptRequestSchema,
+      ListPromptsRequestSchema,
+      ListResourcesRequestSchema,
+      ListResourceTemplatesRequestSchema,
+      ReadResourceRequestSchema,
+      SubscribeRequestSchema,
+      UnsubscribeRequestSchema,
+      CallToolRequestSchema,
+      ListToolsRequestSchema,
+      GetTaskRequestSchema,
+      GetTaskPayloadRequestSchema,
+      ListTasksRequestSchema,
+      CancelTaskRequestSchema
+    ]);
+    ClientNotificationSchema = z.union([
+      CancelledNotificationSchema,
+      ProgressNotificationSchema,
+      InitializedNotificationSchema,
+      RootsListChangedNotificationSchema,
+      TaskStatusNotificationSchema
+    ]);
+    ClientResultSchema = z.union([
+      EmptyResultSchema,
+      CreateMessageResultSchema,
+      CreateMessageResultWithToolsSchema,
+      ElicitResultSchema,
+      ListRootsResultSchema,
+      GetTaskResultSchema,
+      ListTasksResultSchema,
+      CreateTaskResultSchema
+    ]);
+    ServerRequestSchema = z.union([
+      PingRequestSchema,
+      CreateMessageRequestSchema,
+      ElicitRequestSchema,
+      ListRootsRequestSchema,
+      GetTaskRequestSchema,
+      GetTaskPayloadRequestSchema,
+      ListTasksRequestSchema,
+      CancelTaskRequestSchema
+    ]);
+    ServerNotificationSchema = z.union([
+      CancelledNotificationSchema,
+      ProgressNotificationSchema,
+      LoggingMessageNotificationSchema,
+      ResourceUpdatedNotificationSchema,
+      ResourceListChangedNotificationSchema,
+      ToolListChangedNotificationSchema,
+      PromptListChangedNotificationSchema,
+      TaskStatusNotificationSchema,
+      ElicitationCompleteNotificationSchema
+    ]);
+    ServerResultSchema = z.union([
+      EmptyResultSchema,
+      InitializeResultSchema,
+      CompleteResultSchema,
+      GetPromptResultSchema,
+      ListPromptsResultSchema,
+      ListResourcesResultSchema,
+      ListResourceTemplatesResultSchema,
+      ReadResourceResultSchema,
+      CallToolResultSchema,
+      ListToolsResultSchema,
+      GetTaskResultSchema,
+      ListTasksResultSchema,
+      CreateTaskResultSchema
+    ]);
+    McpError = class _McpError extends Error {
+      constructor(code, message, data) {
+        super(`MCP error ${code}: ${message}`);
+        this.code = code;
+        this.data = data;
+        this.name = "McpError";
+      }
+      /**
+       * Factory method to create the appropriate error type based on the error code and data
+       */
+      static fromError(code, message, data) {
+        if (code === ErrorCode.UrlElicitationRequired && data) {
+          const errorData = data;
+          if (errorData.elicitations) {
+            return new UrlElicitationRequiredError(errorData.elicitations, message);
+          }
+        }
+        return new _McpError(code, message, data);
+      }
+    };
+    UrlElicitationRequiredError = class extends McpError {
+      constructor(elicitations, message = `URL elicitation${elicitations.length > 1 ? "s" : ""} required`) {
+        super(ErrorCode.UrlElicitationRequired, message, {
+          elicitations
+        });
+      }
+      get elicitations() {
+        return this.data?.elicitations ?? [];
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+function isTerminal(status2) {
+  return status2 === "completed" || status2 === "failed" || status2 === "cancelled";
+}
+var init_interfaces = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Options.js
+var ignoreOverride, defaultOptions, getDefaultOptions;
+var init_Options = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Options.js"() {
+    ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
+    defaultOptions = {
+      name: void 0,
+      $refStrategy: "root",
+      basePath: ["#"],
+      effectStrategy: "input",
+      pipeStrategy: "all",
+      dateStrategy: "format:date-time",
+      mapStrategy: "entries",
+      removeAdditionalStrategy: "passthrough",
+      allowedAdditionalProperties: true,
+      rejectedAdditionalProperties: false,
+      definitionPath: "definitions",
+      target: "jsonSchema7",
+      strictUnions: false,
+      definitions: {},
+      errorMessages: false,
+      markdownDescription: false,
+      patternStrategy: "escape",
+      applyRegexFlags: false,
+      emailStrategy: "format:email",
+      base64Strategy: "contentEncoding:base64",
+      nameStrategy: "ref",
+      openAiAnyTypeName: "OpenAiAnyType"
+    };
+    getDefaultOptions = (options) => typeof options === "string" ? {
+      ...defaultOptions,
+      name: options
+    } : {
+      ...defaultOptions,
+      ...options
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Refs.js
+var getRefs;
+var init_Refs = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Refs.js"() {
+    init_Options();
+    getRefs = (options) => {
+      const _options = getDefaultOptions(options);
+      const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
+      return {
+        ..._options,
+        flags: { hasReferencedOpenAiAnyType: false },
+        currentPath,
+        propertyPath: void 0,
+        seen: new Map(Object.entries(_options.definitions).map(([name, def]) => [
+          def._def,
+          {
+            def: def._def,
+            path: [..._options.basePath, _options.definitionPath, name],
+            // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
+            jsonSchema: void 0
+          }
+        ]))
+      };
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+function addErrorMessage(res, key, errorMessage, refs) {
+  if (!refs?.errorMessages)
+    return;
+  if (errorMessage) {
+    res.errorMessage = {
+      ...res.errorMessage,
+      [key]: errorMessage
+    };
+  }
+}
+function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
+  res[key] = value;
+  addErrorMessage(res, key, errorMessage, refs);
+}
+var init_errorMessages = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/errorMessages.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+var getRelativePath;
+var init_getRelativePath = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js"() {
+    getRelativePath = (pathA, pathB) => {
+      let i = 0;
+      for (; i < pathA.length && i < pathB.length; i++) {
+        if (pathA[i] !== pathB[i])
+          break;
+      }
+      return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+function parseAnyDef(refs) {
+  if (refs.target !== "openAi") {
+    return {};
+  }
+  const anyDefinitionPath = [
+    ...refs.basePath,
+    refs.definitionPath,
+    refs.openAiAnyTypeName
+  ];
+  refs.flags.hasReferencedOpenAiAnyType = true;
+  return {
+    $ref: refs.$refStrategy === "relative" ? getRelativePath(anyDefinitionPath, refs.currentPath) : anyDefinitionPath.join("/")
+  };
+}
+var init_any = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/any.js"() {
+    init_getRelativePath();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+function parseArrayDef(def, refs) {
+  const res = {
+    type: "array"
+  };
+  if (def.type?._def && def.type?._def?.typeName !== import_v3.ZodFirstPartyTypeKind.ZodAny) {
+    res.items = parseDef(def.type._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    });
+  }
+  if (def.minLength) {
+    setResponseValueAndErrors(res, "minItems", def.minLength.value, def.minLength.message, refs);
+  }
+  if (def.maxLength) {
+    setResponseValueAndErrors(res, "maxItems", def.maxLength.value, def.maxLength.message, refs);
+  }
+  if (def.exactLength) {
+    setResponseValueAndErrors(res, "minItems", def.exactLength.value, def.exactLength.message, refs);
+    setResponseValueAndErrors(res, "maxItems", def.exactLength.value, def.exactLength.message, refs);
+  }
+  return res;
+}
+var import_v3;
+var init_array = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/array.js"() {
+    import_v3 = __toESM(require_v3(), 1);
+    init_errorMessages();
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+function parseBigintDef(def, refs) {
+  const res = {
+    type: "integer",
+    format: "int64"
+  };
+  if (!def.checks)
+    return res;
+  for (const check of def.checks) {
+    switch (check.kind) {
+      case "min":
+        if (refs.target === "jsonSchema7") {
+          if (check.inclusive) {
+            setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
+          } else {
+            setResponseValueAndErrors(res, "exclusiveMinimum", check.value, check.message, refs);
+          }
+        } else {
+          if (!check.inclusive) {
+            res.exclusiveMinimum = true;
+          }
+          setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
+        }
+        break;
+      case "max":
+        if (refs.target === "jsonSchema7") {
+          if (check.inclusive) {
+            setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
+          } else {
+            setResponseValueAndErrors(res, "exclusiveMaximum", check.value, check.message, refs);
+          }
+        } else {
+          if (!check.inclusive) {
+            res.exclusiveMaximum = true;
+          }
+          setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
+        }
+        break;
+      case "multipleOf":
+        setResponseValueAndErrors(res, "multipleOf", check.value, check.message, refs);
+        break;
+    }
+  }
+  return res;
+}
+var init_bigint = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js"() {
+    init_errorMessages();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+function parseBooleanDef() {
+  return {
+    type: "boolean"
+  };
+}
+var init_boolean = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+function parseBrandedDef(_def, refs) {
+  return parseDef(_def.type._def, refs);
+}
+var init_branded = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js"() {
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+var parseCatchDef;
+var init_catch = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js"() {
+    init_parseDef();
+    parseCatchDef = (def, refs) => {
+      return parseDef(def.innerType._def, refs);
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+function parseDateDef(def, refs, overrideDateStrategy) {
+  const strategy = overrideDateStrategy ?? refs.dateStrategy;
+  if (Array.isArray(strategy)) {
+    return {
+      anyOf: strategy.map((item, i) => parseDateDef(def, refs, item))
+    };
+  }
+  switch (strategy) {
+    case "string":
+    case "format:date-time":
+      return {
+        type: "string",
+        format: "date-time"
+      };
+    case "format:date":
+      return {
+        type: "string",
+        format: "date"
+      };
+    case "integer":
+      return integerDateParser(def, refs);
+  }
+}
+var integerDateParser;
+var init_date = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/date.js"() {
+    init_errorMessages();
+    integerDateParser = (def, refs) => {
+      const res = {
+        type: "integer",
+        format: "unix-time"
+      };
+      if (refs.target === "openApi3") {
+        return res;
+      }
+      for (const check of def.checks) {
+        switch (check.kind) {
+          case "min":
+            setResponseValueAndErrors(
+              res,
+              "minimum",
+              check.value,
+              // This is in milliseconds
+              check.message,
+              refs
+            );
+            break;
+          case "max":
+            setResponseValueAndErrors(
+              res,
+              "maximum",
+              check.value,
+              // This is in milliseconds
+              check.message,
+              refs
+            );
+            break;
+        }
+      }
+      return res;
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+function parseDefaultDef(_def, refs) {
+  return {
+    ...parseDef(_def.innerType._def, refs),
+    default: _def.defaultValue()
+  };
+}
+var init_default = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/default.js"() {
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+function parseEffectsDef(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
+}
+var init_effects = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js"() {
+    init_parseDef();
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+function parseEnumDef(def) {
+  return {
+    type: "string",
+    enum: Array.from(def.values)
+  };
+}
+var init_enum = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+function parseIntersectionDef(def, refs) {
+  const allOf = [
+    parseDef(def.left._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "0"]
+    }),
+    parseDef(def.right._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "1"]
+    })
+  ].filter((x) => !!x);
+  let unevaluatedProperties = refs.target === "jsonSchema2019-09" ? { unevaluatedProperties: false } : void 0;
+  const mergedAllOf = [];
+  allOf.forEach((schema) => {
+    if (isJsonSchema7AllOfType(schema)) {
+      mergedAllOf.push(...schema.allOf);
+      if (schema.unevaluatedProperties === void 0) {
+        unevaluatedProperties = void 0;
+      }
+    } else {
+      let nestedSchema = schema;
+      if ("additionalProperties" in schema && schema.additionalProperties === false) {
+        const { additionalProperties, ...rest } = schema;
+        nestedSchema = rest;
+      } else {
+        unevaluatedProperties = void 0;
+      }
+      mergedAllOf.push(nestedSchema);
+    }
+  });
+  return mergedAllOf.length ? {
+    allOf: mergedAllOf,
+    ...unevaluatedProperties
+  } : void 0;
+}
+var isJsonSchema7AllOfType;
+var init_intersection = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js"() {
+    init_parseDef();
+    isJsonSchema7AllOfType = (type) => {
+      if ("type" in type && type.type === "string")
+        return false;
+      return "allOf" in type;
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+function parseLiteralDef(def, refs) {
+  const parsedType = typeof def.value;
+  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
+    return {
+      type: Array.isArray(def.value) ? "array" : "object"
+    };
+  }
+  if (refs.target === "openApi3") {
+    return {
+      type: parsedType === "bigint" ? "integer" : parsedType,
+      enum: [def.value]
+    };
+  }
+  return {
+    type: parsedType === "bigint" ? "integer" : parsedType,
+    const: def.value
+  };
+}
+var init_literal = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+function parseStringDef(def, refs) {
+  const res = {
+    type: "string"
+  };
+  if (def.checks) {
+    for (const check of def.checks) {
+      switch (check.kind) {
+        case "min":
+          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value, check.message, refs);
+          break;
+        case "max":
+          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value, check.message, refs);
+          break;
+        case "email":
+          switch (refs.emailStrategy) {
+            case "format:email":
+              addFormat(res, "email", check.message, refs);
+              break;
+            case "format:idn-email":
+              addFormat(res, "idn-email", check.message, refs);
+              break;
+            case "pattern:zod":
+              addPattern(res, zodPatterns.email, check.message, refs);
+              break;
+          }
+          break;
+        case "url":
+          addFormat(res, "uri", check.message, refs);
+          break;
+        case "uuid":
+          addFormat(res, "uuid", check.message, refs);
+          break;
+        case "regex":
+          addPattern(res, check.regex, check.message, refs);
+          break;
+        case "cuid":
+          addPattern(res, zodPatterns.cuid, check.message, refs);
+          break;
+        case "cuid2":
+          addPattern(res, zodPatterns.cuid2, check.message, refs);
+          break;
+        case "startsWith":
+          addPattern(res, RegExp(`^${escapeLiteralCheckValue(check.value, refs)}`), check.message, refs);
+          break;
+        case "endsWith":
+          addPattern(res, RegExp(`${escapeLiteralCheckValue(check.value, refs)}$`), check.message, refs);
+          break;
+        case "datetime":
+          addFormat(res, "date-time", check.message, refs);
+          break;
+        case "date":
+          addFormat(res, "date", check.message, refs);
+          break;
+        case "time":
+          addFormat(res, "time", check.message, refs);
+          break;
+        case "duration":
+          addFormat(res, "duration", check.message, refs);
+          break;
+        case "length":
+          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value, check.message, refs);
+          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value, check.message, refs);
+          break;
+        case "includes": {
+          addPattern(res, RegExp(escapeLiteralCheckValue(check.value, refs)), check.message, refs);
+          break;
+        }
+        case "ip": {
+          if (check.version !== "v6") {
+            addFormat(res, "ipv4", check.message, refs);
+          }
+          if (check.version !== "v4") {
+            addFormat(res, "ipv6", check.message, refs);
+          }
+          break;
+        }
+        case "base64url":
+          addPattern(res, zodPatterns.base64url, check.message, refs);
+          break;
+        case "jwt":
+          addPattern(res, zodPatterns.jwt, check.message, refs);
+          break;
+        case "cidr": {
+          if (check.version !== "v6") {
+            addPattern(res, zodPatterns.ipv4Cidr, check.message, refs);
+          }
+          if (check.version !== "v4") {
+            addPattern(res, zodPatterns.ipv6Cidr, check.message, refs);
+          }
+          break;
+        }
+        case "emoji":
+          addPattern(res, zodPatterns.emoji(), check.message, refs);
+          break;
+        case "ulid": {
+          addPattern(res, zodPatterns.ulid, check.message, refs);
+          break;
+        }
+        case "base64": {
+          switch (refs.base64Strategy) {
+            case "format:binary": {
+              addFormat(res, "binary", check.message, refs);
+              break;
+            }
+            case "contentEncoding:base64": {
+              setResponseValueAndErrors(res, "contentEncoding", "base64", check.message, refs);
+              break;
+            }
+            case "pattern:zod": {
+              addPattern(res, zodPatterns.base64, check.message, refs);
+              break;
+            }
+          }
+          break;
+        }
+        case "nanoid": {
+          addPattern(res, zodPatterns.nanoid, check.message, refs);
+        }
+        case "toLowerCase":
+        case "toUpperCase":
+        case "trim":
+          break;
+        default:
+          /* @__PURE__ */ ((_) => {
+          })(check);
+      }
+    }
+  }
+  return res;
+}
+function escapeLiteralCheckValue(literal2, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric(literal2) : literal2;
+}
+function escapeNonAlphaNumeric(source) {
+  let result = "";
+  for (let i = 0; i < source.length; i++) {
+    if (!ALPHA_NUMERIC.has(source[i])) {
+      result += "\\";
+    }
+    result += source[i];
+  }
+  return result;
+}
+function addFormat(schema, value, message, refs) {
+  if (schema.format || schema.anyOf?.some((x) => x.format)) {
+    if (!schema.anyOf) {
+      schema.anyOf = [];
+    }
+    if (schema.format) {
+      schema.anyOf.push({
+        format: schema.format,
+        ...schema.errorMessage && refs.errorMessages && {
+          errorMessage: { format: schema.errorMessage.format }
+        }
+      });
+      delete schema.format;
+      if (schema.errorMessage) {
+        delete schema.errorMessage.format;
+        if (Object.keys(schema.errorMessage).length === 0) {
+          delete schema.errorMessage;
+        }
+      }
+    }
+    schema.anyOf.push({
+      format: value,
+      ...message && refs.errorMessages && { errorMessage: { format: message } }
+    });
+  } else {
+    setResponseValueAndErrors(schema, "format", value, message, refs);
+  }
+}
+function addPattern(schema, regex, message, refs) {
+  if (schema.pattern || schema.allOf?.some((x) => x.pattern)) {
+    if (!schema.allOf) {
+      schema.allOf = [];
+    }
+    if (schema.pattern) {
+      schema.allOf.push({
+        pattern: schema.pattern,
+        ...schema.errorMessage && refs.errorMessages && {
+          errorMessage: { pattern: schema.errorMessage.pattern }
+        }
+      });
+      delete schema.pattern;
+      if (schema.errorMessage) {
+        delete schema.errorMessage.pattern;
+        if (Object.keys(schema.errorMessage).length === 0) {
+          delete schema.errorMessage;
+        }
+      }
+    }
+    schema.allOf.push({
+      pattern: stringifyRegExpWithFlags(regex, refs),
+      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
+    });
+  } else {
+    setResponseValueAndErrors(schema, "pattern", stringifyRegExpWithFlags(regex, refs), message, refs);
+  }
+}
+function stringifyRegExpWithFlags(regex, refs) {
+  if (!refs.applyRegexFlags || !regex.flags) {
+    return regex.source;
+  }
+  const flags = {
+    i: regex.flags.includes("i"),
+    m: regex.flags.includes("m"),
+    s: regex.flags.includes("s")
+    // `.` matches newlines
+  };
+  const source = flags.i ? regex.source.toLowerCase() : regex.source;
+  let pattern = "";
+  let isEscaped = false;
+  let inCharGroup = false;
+  let inCharRange = false;
+  for (let i = 0; i < source.length; i++) {
+    if (isEscaped) {
+      pattern += source[i];
+      isEscaped = false;
+      continue;
+    }
+    if (flags.i) {
+      if (inCharGroup) {
+        if (source[i].match(/[a-z]/)) {
+          if (inCharRange) {
+            pattern += source[i];
+            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
+            inCharRange = false;
+          } else if (source[i + 1] === "-" && source[i + 2]?.match(/[a-z]/)) {
+            pattern += source[i];
+            inCharRange = true;
+          } else {
+            pattern += `${source[i]}${source[i].toUpperCase()}`;
+          }
+          continue;
+        }
+      } else if (source[i].match(/[a-z]/)) {
+        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+        continue;
+      }
+    }
+    if (flags.m) {
+      if (source[i] === "^") {
+        pattern += `(^|(?<=[\r
+]))`;
+        continue;
+      } else if (source[i] === "$") {
+        pattern += `($|(?=[\r
+]))`;
+        continue;
+      }
+    }
+    if (flags.s && source[i] === ".") {
+      pattern += inCharGroup ? `${source[i]}\r
+` : `[${source[i]}\r
+]`;
+      continue;
+    }
+    pattern += source[i];
+    if (source[i] === "\\") {
+      isEscaped = true;
+    } else if (inCharGroup && source[i] === "]") {
+      inCharGroup = false;
+    } else if (!inCharGroup && source[i] === "[") {
+      inCharGroup = true;
+    }
+  }
+  try {
+    new RegExp(pattern);
+  } catch {
+    console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`);
+    return regex.source;
+  }
+  return pattern;
+}
+var emojiRegex, zodPatterns, ALPHA_NUMERIC;
+var init_string = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/string.js"() {
+    init_errorMessages();
+    emojiRegex = void 0;
+    zodPatterns = {
+      /**
+       * `c` was changed to `[cC]` to replicate /i flag
+       */
+      cuid: /^[cC][^\s-]{8,}$/,
+      cuid2: /^[0-9a-z]+$/,
+      ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
+      /**
+       * `a-z` was added to replicate /i flag
+       */
+      email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
+      /**
+       * Constructed a valid Unicode RegExp
+       *
+       * Lazily instantiate since this type of regex isn't supported
+       * in all envs (e.g. React Native).
+       *
+       * See:
+       * https://github.com/colinhacks/zod/issues/2433
+       * Fix in Zod:
+       * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
+       */
+      emoji: () => {
+        if (emojiRegex === void 0) {
+          emojiRegex = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
+        }
+        return emojiRegex;
+      },
+      /**
+       * Unused
+       */
+      uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+      /**
+       * Unused
+       */
+      ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
+      ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
+      /**
+       * Unused
+       */
+      ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
+      ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
+      base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+      base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
+      nanoid: /^[a-zA-Z0-9_-]{21}$/,
+      jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+    };
+    ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+function parseRecordDef(def, refs) {
+  if (refs.target === "openAi") {
+    console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
+  }
+  if (refs.target === "openApi3" && def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodEnum) {
+    return {
+      type: "object",
+      required: def.keyType._def.values,
+      properties: def.keyType._def.values.reduce((acc, key) => ({
+        ...acc,
+        [key]: parseDef(def.valueType._def, {
+          ...refs,
+          currentPath: [...refs.currentPath, "properties", key]
+        }) ?? parseAnyDef(refs)
+      }), {}),
+      additionalProperties: refs.rejectedAdditionalProperties
+    };
+  }
+  const schema = {
+    type: "object",
+    additionalProperties: parseDef(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    }) ?? refs.allowedAdditionalProperties
+  };
+  if (refs.target === "openApi3") {
+    return schema;
+  }
+  if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodString && def.keyType._def.checks?.length) {
+    const { type, ...keyType } = parseStringDef(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  } else if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodEnum) {
+    return {
+      ...schema,
+      propertyNames: {
+        enum: def.keyType._def.values
+      }
+    };
+  } else if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodString && def.keyType._def.type._def.checks?.length) {
+    const { type, ...keyType } = parseBrandedDef(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  }
+  return schema;
+}
+var import_v32;
+var init_record = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/record.js"() {
+    import_v32 = __toESM(require_v3(), 1);
+    init_parseDef();
+    init_string();
+    init_branded();
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+function parseMapDef(def, refs) {
+  if (refs.mapStrategy === "record") {
+    return parseRecordDef(def, refs);
+  }
+  const keys = parseDef(def.keyType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "0"]
+  }) || parseAnyDef(refs);
+  const values = parseDef(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "1"]
+  }) || parseAnyDef(refs);
+  return {
+    type: "array",
+    maxItems: 125,
+    items: {
+      type: "array",
+      items: [keys, values],
+      minItems: 2,
+      maxItems: 2
+    }
+  };
+}
+var init_map = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/map.js"() {
+    init_parseDef();
+    init_record();
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+function parseNativeEnumDef(def) {
+  const object4 = def.values;
+  const actualKeys = Object.keys(def.values).filter((key) => {
+    return typeof object4[object4[key]] !== "number";
+  });
+  const actualValues = actualKeys.map((key) => object4[key]);
+  const parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
+  return {
+    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
+    enum: actualValues
+  };
+}
+var init_nativeEnum = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+function parseNeverDef(refs) {
+  return refs.target === "openAi" ? void 0 : {
+    not: parseAnyDef({
+      ...refs,
+      currentPath: [...refs.currentPath, "not"]
+    })
+  };
+}
+var init_never = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/never.js"() {
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+function parseNullDef(refs) {
+  return refs.target === "openApi3" ? {
+    enum: ["null"],
+    nullable: true
+  } : {
+    type: "null"
+  };
+}
+var init_null = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/null.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+function parseUnionDef(def, refs) {
+  if (refs.target === "openApi3")
+    return asAnyOf(def, refs);
+  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
+  if (options.every((x) => x._def.typeName in primitiveMappings && (!x._def.checks || !x._def.checks.length))) {
+    const types = options.reduce((types2, x) => {
+      const type = primitiveMappings[x._def.typeName];
+      return type && !types2.includes(type) ? [...types2, type] : types2;
+    }, []);
+    return {
+      type: types.length > 1 ? types : types[0]
+    };
+  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
+    const types = options.reduce((acc, x) => {
+      const type = typeof x._def.value;
+      switch (type) {
+        case "string":
+        case "number":
+        case "boolean":
+          return [...acc, type];
+        case "bigint":
+          return [...acc, "integer"];
+        case "object":
+          if (x._def.value === null)
+            return [...acc, "null"];
+        case "symbol":
+        case "undefined":
+        case "function":
+        default:
+          return acc;
+      }
+    }, []);
+    if (types.length === options.length) {
+      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      return {
+        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
+        enum: options.reduce((acc, x) => {
+          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
+        }, [])
+      };
+    }
+  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
+    return {
+      type: "string",
+      enum: options.reduce((acc, x) => [
+        ...acc,
+        ...x._def.values.filter((x2) => !acc.includes(x2))
+      ], [])
+    };
+  }
+  return asAnyOf(def, refs);
+}
+var primitiveMappings, asAnyOf;
+var init_union = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/union.js"() {
+    init_parseDef();
+    primitiveMappings = {
+      ZodString: "string",
+      ZodNumber: "number",
+      ZodBigInt: "integer",
+      ZodBoolean: "boolean",
+      ZodNull: "null"
+    };
+    asAnyOf = (def, refs) => {
+      const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "anyOf", `${i}`]
+      })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
+      return anyOf.length ? { anyOf } : void 0;
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+function parseNullableDef(def, refs) {
+  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
+    if (refs.target === "openApi3") {
+      return {
+        type: primitiveMappings[def.innerType._def.typeName],
+        nullable: true
+      };
+    }
+    return {
+      type: [
+        primitiveMappings[def.innerType._def.typeName],
+        "null"
+      ]
+    };
+  }
+  if (refs.target === "openApi3") {
+    const base2 = parseDef(def.innerType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath]
+    });
+    if (base2 && "$ref" in base2)
+      return { allOf: [base2], nullable: true };
+    return base2 && { ...base2, nullable: true };
+  }
+  const base = parseDef(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "0"]
+  });
+  return base && { anyOf: [base, { type: "null" }] };
+}
+var init_nullable = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js"() {
+    init_parseDef();
+    init_union();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+function parseNumberDef(def, refs) {
+  const res = {
+    type: "number"
+  };
+  if (!def.checks)
+    return res;
+  for (const check of def.checks) {
+    switch (check.kind) {
+      case "int":
+        res.type = "integer";
+        addErrorMessage(res, "type", check.message, refs);
+        break;
+      case "min":
+        if (refs.target === "jsonSchema7") {
+          if (check.inclusive) {
+            setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
+          } else {
+            setResponseValueAndErrors(res, "exclusiveMinimum", check.value, check.message, refs);
+          }
+        } else {
+          if (!check.inclusive) {
+            res.exclusiveMinimum = true;
+          }
+          setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
+        }
+        break;
+      case "max":
+        if (refs.target === "jsonSchema7") {
+          if (check.inclusive) {
+            setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
+          } else {
+            setResponseValueAndErrors(res, "exclusiveMaximum", check.value, check.message, refs);
+          }
+        } else {
+          if (!check.inclusive) {
+            res.exclusiveMaximum = true;
+          }
+          setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
+        }
+        break;
+      case "multipleOf":
+        setResponseValueAndErrors(res, "multipleOf", check.value, check.message, refs);
+        break;
+    }
+  }
+  return res;
+}
+var init_number = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/number.js"() {
+    init_errorMessages();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+function parseObjectDef(def, refs) {
+  const forceOptionalIntoNullable = refs.target === "openAi";
+  const result = {
+    type: "object",
+    properties: {}
+  };
+  const required = [];
+  const shape = def.shape();
+  for (const propName in shape) {
+    let propDef = shape[propName];
+    if (propDef === void 0 || propDef._def === void 0) {
+      continue;
+    }
+    let propOptional = safeIsOptional(propDef);
+    if (propOptional && forceOptionalIntoNullable) {
+      if (propDef._def.typeName === "ZodOptional") {
+        propDef = propDef._def.innerType;
+      }
+      if (!propDef.isNullable()) {
+        propDef = propDef.nullable();
+      }
+      propOptional = false;
+    }
+    const parsedDef = parseDef(propDef._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "properties", propName],
+      propertyPath: [...refs.currentPath, "properties", propName]
+    });
+    if (parsedDef === void 0) {
+      continue;
+    }
+    result.properties[propName] = parsedDef;
+    if (!propOptional) {
+      required.push(propName);
+    }
+  }
+  if (required.length) {
+    result.required = required;
+  }
+  const additionalProperties = decideAdditionalProperties(def, refs);
+  if (additionalProperties !== void 0) {
+    result.additionalProperties = additionalProperties;
+  }
+  return result;
+}
+function decideAdditionalProperties(def, refs) {
+  if (def.catchall._def.typeName !== "ZodNever") {
+    return parseDef(def.catchall._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    });
+  }
+  switch (def.unknownKeys) {
+    case "passthrough":
+      return refs.allowedAdditionalProperties;
+    case "strict":
+      return refs.rejectedAdditionalProperties;
+    case "strip":
+      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
+  }
+}
+function safeIsOptional(schema) {
+  try {
+    return schema.isOptional();
+  } catch {
+    return true;
+  }
+}
+var init_object = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/object.js"() {
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+var parseOptionalDef;
+var init_optional = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js"() {
+    init_parseDef();
+    init_any();
+    parseOptionalDef = (def, refs) => {
+      if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
+        return parseDef(def.innerType._def, refs);
+      }
+      const innerSchema = parseDef(def.innerType._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "anyOf", "1"]
+      });
+      return innerSchema ? {
+        anyOf: [
+          {
+            not: parseAnyDef(refs)
+          },
+          innerSchema
+        ]
+      } : parseAnyDef(refs);
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+var parsePipelineDef;
+var init_pipeline = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js"() {
+    init_parseDef();
+    parsePipelineDef = (def, refs) => {
+      if (refs.pipeStrategy === "input") {
+        return parseDef(def.in._def, refs);
+      } else if (refs.pipeStrategy === "output") {
+        return parseDef(def.out._def, refs);
+      }
+      const a = parseDef(def.in._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "allOf", "0"]
+      });
+      const b = parseDef(def.out._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
+      });
+      return {
+        allOf: [a, b].filter((x) => x !== void 0)
+      };
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+function parsePromiseDef(def, refs) {
+  return parseDef(def.type._def, refs);
+}
+var init_promise = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js"() {
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+function parseSetDef(def, refs) {
+  const items = parseDef(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items"]
+  });
+  const schema = {
+    type: "array",
+    uniqueItems: true,
+    items
+  };
+  if (def.minSize) {
+    setResponseValueAndErrors(schema, "minItems", def.minSize.value, def.minSize.message, refs);
+  }
+  if (def.maxSize) {
+    setResponseValueAndErrors(schema, "maxItems", def.maxSize.value, def.maxSize.message, refs);
+  }
+  return schema;
+}
+var init_set = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/set.js"() {
+    init_errorMessages();
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+function parseTupleDef(def, refs) {
+  if (def.rest) {
+    return {
+      type: "array",
+      minItems: def.items.length,
+      items: def.items.map((x, i) => parseDef(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
+      additionalItems: parseDef(def.rest._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "additionalItems"]
+      })
+    };
+  } else {
+    return {
+      type: "array",
+      minItems: def.items.length,
+      maxItems: def.items.length,
+      items: def.items.map((x, i) => parseDef(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
+    };
+  }
+}
+var init_tuple = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js"() {
+    init_parseDef();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+function parseUndefinedDef(refs) {
+  return {
+    not: parseAnyDef(refs)
+  };
+}
+var init_undefined = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js"() {
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+function parseUnknownDef(refs) {
+  return parseAnyDef(refs);
+}
+var init_unknown = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js"() {
+    init_any();
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+var parseReadonlyDef;
+var init_readonly = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js"() {
+    init_parseDef();
+    parseReadonlyDef = (def, refs) => {
+      return parseDef(def.innerType._def, refs);
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/selectParser.js
+var import_v33, selectParser;
+var init_selectParser = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/selectParser.js"() {
+    import_v33 = __toESM(require_v3(), 1);
+    init_any();
+    init_array();
+    init_bigint();
+    init_boolean();
+    init_branded();
+    init_catch();
+    init_date();
+    init_default();
+    init_effects();
+    init_enum();
+    init_intersection();
+    init_literal();
+    init_map();
+    init_nativeEnum();
+    init_never();
+    init_null();
+    init_nullable();
+    init_number();
+    init_object();
+    init_optional();
+    init_pipeline();
+    init_promise();
+    init_record();
+    init_set();
+    init_string();
+    init_tuple();
+    init_undefined();
+    init_union();
+    init_unknown();
+    init_readonly();
+    selectParser = (def, typeName, refs) => {
+      switch (typeName) {
+        case import_v33.ZodFirstPartyTypeKind.ZodString:
+          return parseStringDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodNumber:
+          return parseNumberDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodObject:
+          return parseObjectDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodBigInt:
+          return parseBigintDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodBoolean:
+          return parseBooleanDef();
+        case import_v33.ZodFirstPartyTypeKind.ZodDate:
+          return parseDateDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodUndefined:
+          return parseUndefinedDef(refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodNull:
+          return parseNullDef(refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodArray:
+          return parseArrayDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodUnion:
+        case import_v33.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
+          return parseUnionDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodIntersection:
+          return parseIntersectionDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodTuple:
+          return parseTupleDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodRecord:
+          return parseRecordDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodLiteral:
+          return parseLiteralDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodEnum:
+          return parseEnumDef(def);
+        case import_v33.ZodFirstPartyTypeKind.ZodNativeEnum:
+          return parseNativeEnumDef(def);
+        case import_v33.ZodFirstPartyTypeKind.ZodNullable:
+          return parseNullableDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodOptional:
+          return parseOptionalDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodMap:
+          return parseMapDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodSet:
+          return parseSetDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodLazy:
+          return () => def.getter()._def;
+        case import_v33.ZodFirstPartyTypeKind.ZodPromise:
+          return parsePromiseDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodNaN:
+        case import_v33.ZodFirstPartyTypeKind.ZodNever:
+          return parseNeverDef(refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodEffects:
+          return parseEffectsDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodAny:
+          return parseAnyDef(refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodUnknown:
+          return parseUnknownDef(refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodDefault:
+          return parseDefaultDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodBranded:
+          return parseBrandedDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodReadonly:
+          return parseReadonlyDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodCatch:
+          return parseCatchDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodPipeline:
+          return parsePipelineDef(def, refs);
+        case import_v33.ZodFirstPartyTypeKind.ZodFunction:
+        case import_v33.ZodFirstPartyTypeKind.ZodVoid:
+        case import_v33.ZodFirstPartyTypeKind.ZodSymbol:
+          return void 0;
+        default:
+          return /* @__PURE__ */ ((_) => void 0)(typeName);
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parseDef.js
+function parseDef(def, refs, forceResolution = false) {
+  const seenItem = refs.seen.get(def);
+  if (refs.override) {
+    const overrideResult = refs.override?.(def, refs, seenItem, forceResolution);
+    if (overrideResult !== ignoreOverride) {
+      return overrideResult;
+    }
+  }
+  if (seenItem && !forceResolution) {
+    const seenSchema = get$ref(seenItem, refs);
+    if (seenSchema !== void 0) {
+      return seenSchema;
+    }
+  }
+  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
+  refs.seen.set(def, newItem);
+  const jsonSchemaOrGetter = selectParser(def, def.typeName, refs);
+  const jsonSchema = typeof jsonSchemaOrGetter === "function" ? parseDef(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  if (jsonSchema) {
+    addMeta(def, refs, jsonSchema);
+  }
+  if (refs.postProcess) {
+    const postProcessResult = refs.postProcess(jsonSchema, def, refs);
+    newItem.jsonSchema = jsonSchema;
+    return postProcessResult;
+  }
+  newItem.jsonSchema = jsonSchema;
+  return jsonSchema;
+}
+var get$ref, addMeta;
+var init_parseDef = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parseDef.js"() {
+    init_Options();
+    init_selectParser();
+    init_getRelativePath();
+    init_any();
+    get$ref = (item, refs) => {
+      switch (refs.$refStrategy) {
+        case "root":
+          return { $ref: item.path.join("/") };
+        case "relative":
+          return { $ref: getRelativePath(refs.currentPath, item.path) };
+        case "none":
+        case "seen": {
+          if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
+            console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`);
+            return parseAnyDef(refs);
+          }
+          return refs.$refStrategy === "seen" ? parseAnyDef(refs) : void 0;
+        }
+      }
+    };
+    addMeta = (def, refs, jsonSchema) => {
+      if (def.description) {
+        jsonSchema.description = def.description;
+        if (refs.markdownDescription) {
+          jsonSchema.markdownDescription = def.description;
+        }
+      }
+      return jsonSchema;
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+var init_parseTypes = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parseTypes.js"() {
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+var zodToJsonSchema;
+var init_zodToJsonSchema = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js"() {
+    init_parseDef();
+    init_Refs();
+    init_any();
+    zodToJsonSchema = (schema, options) => {
+      const refs = getRefs(options);
+      let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name2, schema2]) => ({
+        ...acc,
+        [name2]: parseDef(schema2._def, {
+          ...refs,
+          currentPath: [...refs.basePath, refs.definitionPath, name2]
+        }, true) ?? parseAnyDef(refs)
+      }), {}) : void 0;
+      const name = typeof options === "string" ? options : options?.nameStrategy === "title" ? void 0 : options?.name;
+      const main2 = parseDef(schema._def, name === void 0 ? refs : {
+        ...refs,
+        currentPath: [...refs.basePath, refs.definitionPath, name]
+      }, false) ?? parseAnyDef(refs);
+      const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
+      if (title !== void 0) {
+        main2.title = title;
+      }
+      if (refs.flags.hasReferencedOpenAiAnyType) {
+        if (!definitions) {
+          definitions = {};
+        }
+        if (!definitions[refs.openAiAnyTypeName]) {
+          definitions[refs.openAiAnyTypeName] = {
+            // Skipping "object" as no properties can be defined and additionalProperties must be "false"
+            type: ["string", "number", "integer", "boolean", "array", "null"],
+            items: {
+              $ref: refs.$refStrategy === "relative" ? "1" : [
+                ...refs.basePath,
+                refs.definitionPath,
+                refs.openAiAnyTypeName
+              ].join("/")
+            }
+          };
+        }
+      }
+      const combined = name === void 0 ? definitions ? {
+        ...main2,
+        [refs.definitionPath]: definitions
+      } : main2 : {
+        $ref: [
+          ...refs.$refStrategy === "relative" ? [] : refs.basePath,
+          refs.definitionPath,
+          name
+        ].join("/"),
+        [refs.definitionPath]: {
+          ...definitions,
+          [name]: main2
+        }
+      };
+      if (refs.target === "jsonSchema7") {
+        combined.$schema = "http://json-schema.org/draft-07/schema#";
+      } else if (refs.target === "jsonSchema2019-09" || refs.target === "openAi") {
+        combined.$schema = "https://json-schema.org/draft/2019-09/schema#";
+      }
+      if (refs.target === "openAi" && ("anyOf" in combined || "oneOf" in combined || "allOf" in combined || "type" in combined && Array.isArray(combined.type))) {
+        console.warn("Warning: OpenAI may not support schemas with unions as roots! Try wrapping it in an object property.");
+      }
+      return combined;
+    };
+  }
+});
+
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/index.js
+var init_esm = __esm({
+  "node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/index.js"() {
+    init_Options();
+    init_Refs();
+    init_errorMessages();
+    init_getRelativePath();
+    init_parseDef();
+    init_parseTypes();
+    init_any();
+    init_array();
+    init_bigint();
+    init_boolean();
+    init_branded();
+    init_catch();
+    init_date();
+    init_default();
+    init_effects();
+    init_enum();
+    init_intersection();
+    init_literal();
+    init_map();
+    init_nativeEnum();
+    init_never();
+    init_null();
+    init_nullable();
+    init_number();
+    init_object();
+    init_optional();
+    init_pipeline();
+    init_promise();
+    init_readonly();
+    init_record();
+    init_set();
+    init_string();
+    init_tuple();
+    init_undefined();
+    init_union();
+    init_unknown();
+    init_selectParser();
+    init_zodToJsonSchema();
+    init_zodToJsonSchema();
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+function mapMiniTarget(t) {
+  if (!t)
+    return "draft-7";
+  if (t === "jsonSchema7" || t === "draft-7")
+    return "draft-7";
+  if (t === "jsonSchema2019-09" || t === "draft-2020-12")
+    return "draft-2020-12";
+  return "draft-7";
+}
+function toJsonSchemaCompat(schema, opts) {
+  if (isZ4Schema(schema)) {
+    return z4mini2.toJSONSchema(schema, {
+      target: mapMiniTarget(opts?.target),
+      io: opts?.pipeStrategy ?? "input"
+    });
+  }
+  return zodToJsonSchema(schema, {
+    strictUnions: opts?.strictUnions ?? true,
+    pipeStrategy: opts?.pipeStrategy ?? "input"
+  });
+}
+function getMethodLiteral(schema) {
+  const shape = getObjectShape(schema);
+  const methodSchema = shape?.method;
+  if (!methodSchema) {
+    throw new Error("Schema is missing a method literal");
+  }
+  const value = getLiteralValue(methodSchema);
+  if (typeof value !== "string") {
+    throw new Error("Schema method literal must be a string");
+  }
+  return value;
+}
+function parseWithCompat(schema, data) {
+  const result = safeParse2(schema, data);
+  if (!result.success) {
+    throw result.error;
+  }
+  return result.data;
+}
+var z4mini2;
+var init_zod_json_schema_compat = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js"() {
+    z4mini2 = __toESM(require_v4_mini(), 1);
+    init_zod_compat();
+    init_esm();
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function mergeCapabilities(base, additional) {
+  const result = { ...base };
+  for (const key in additional) {
+    const k = key;
+    const addValue = additional[k];
+    if (addValue === void 0)
+      continue;
+    const baseValue = result[k];
+    if (isPlainObject(baseValue) && isPlainObject(addValue)) {
+      result[k] = { ...baseValue, ...addValue };
+    } else {
+      result[k] = addValue;
+    }
+  }
+  return result;
+}
+var DEFAULT_REQUEST_TIMEOUT_MSEC, Protocol;
+var init_protocol = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js"() {
+    init_zod_compat();
+    init_types();
+    init_interfaces();
+    init_zod_json_schema_compat();
+    DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
+    Protocol = class {
+      constructor(_options) {
+        this._options = _options;
+        this._requestMessageId = 0;
+        this._requestHandlers = /* @__PURE__ */ new Map();
+        this._requestHandlerAbortControllers = /* @__PURE__ */ new Map();
+        this._notificationHandlers = /* @__PURE__ */ new Map();
+        this._responseHandlers = /* @__PURE__ */ new Map();
+        this._progressHandlers = /* @__PURE__ */ new Map();
+        this._timeoutInfo = /* @__PURE__ */ new Map();
+        this._pendingDebouncedNotifications = /* @__PURE__ */ new Set();
+        this._taskProgressTokens = /* @__PURE__ */ new Map();
+        this._requestResolvers = /* @__PURE__ */ new Map();
+        this.setNotificationHandler(CancelledNotificationSchema, (notification) => {
+          this._oncancel(notification);
+        });
+        this.setNotificationHandler(ProgressNotificationSchema, (notification) => {
+          this._onprogress(notification);
+        });
+        this.setRequestHandler(
+          PingRequestSchema,
+          // Automatic pong by default.
+          (_request) => ({})
+        );
+        this._taskStore = _options?.taskStore;
+        this._taskMessageQueue = _options?.taskMessageQueue;
+        if (this._taskStore) {
+          this.setRequestHandler(GetTaskRequestSchema, async (request, extra) => {
+            const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+            if (!task) {
+              throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
+            }
+            return {
+              ...task
+            };
+          });
+          this.setRequestHandler(GetTaskPayloadRequestSchema, async (request, extra) => {
+            const handleTaskResult = async () => {
+              const taskId = request.params.taskId;
+              if (this._taskMessageQueue) {
+                let queuedMessage;
+                while (queuedMessage = await this._taskMessageQueue.dequeue(taskId, extra.sessionId)) {
+                  if (queuedMessage.type === "response" || queuedMessage.type === "error") {
+                    const message = queuedMessage.message;
+                    const requestId = message.id;
+                    const resolver = this._requestResolvers.get(requestId);
+                    if (resolver) {
+                      this._requestResolvers.delete(requestId);
+                      if (queuedMessage.type === "response") {
+                        resolver(message);
+                      } else {
+                        const errorMessage = message;
+                        const error = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
+                        resolver(error);
+                      }
+                    } else {
+                      const messageType = queuedMessage.type === "response" ? "Response" : "Error";
+                      this._onerror(new Error(`${messageType} handler missing for request ${requestId}`));
+                    }
+                    continue;
+                  }
+                  await this._transport?.send(queuedMessage.message, { relatedRequestId: extra.requestId });
+                }
+              }
+              const task = await this._taskStore.getTask(taskId, extra.sessionId);
+              if (!task) {
+                throw new McpError(ErrorCode.InvalidParams, `Task not found: ${taskId}`);
+              }
+              if (!isTerminal(task.status)) {
+                await this._waitForTaskUpdate(taskId, extra.signal);
+                return await handleTaskResult();
+              }
+              if (isTerminal(task.status)) {
+                const result = await this._taskStore.getTaskResult(taskId, extra.sessionId);
+                this._clearTaskQueue(taskId);
+                return {
+                  ...result,
+                  _meta: {
+                    ...result._meta,
+                    [RELATED_TASK_META_KEY]: {
+                      taskId
+                    }
+                  }
+                };
+              }
+              return await handleTaskResult();
+            };
+            return await handleTaskResult();
+          });
+          this.setRequestHandler(ListTasksRequestSchema, async (request, extra) => {
+            try {
+              const { tasks, nextCursor } = await this._taskStore.listTasks(request.params?.cursor, extra.sessionId);
+              return {
+                tasks,
+                nextCursor,
+                _meta: {}
+              };
+            } catch (error) {
+              throw new McpError(ErrorCode.InvalidParams, `Failed to list tasks: ${error instanceof Error ? error.message : String(error)}`);
+            }
+          });
+          this.setRequestHandler(CancelTaskRequestSchema, async (request, extra) => {
+            try {
+              const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+              if (!task) {
+                throw new McpError(ErrorCode.InvalidParams, `Task not found: ${request.params.taskId}`);
+              }
+              if (isTerminal(task.status)) {
+                throw new McpError(ErrorCode.InvalidParams, `Cannot cancel task in terminal status: ${task.status}`);
+              }
+              await this._taskStore.updateTaskStatus(request.params.taskId, "cancelled", "Client cancelled task execution.", extra.sessionId);
+              this._clearTaskQueue(request.params.taskId);
+              const cancelledTask = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+              if (!cancelledTask) {
+                throw new McpError(ErrorCode.InvalidParams, `Task not found after cancellation: ${request.params.taskId}`);
+              }
+              return {
+                _meta: {},
+                ...cancelledTask
+              };
+            } catch (error) {
+              if (error instanceof McpError) {
+                throw error;
+              }
+              throw new McpError(ErrorCode.InvalidRequest, `Failed to cancel task: ${error instanceof Error ? error.message : String(error)}`);
+            }
+          });
+        }
+      }
+      async _oncancel(notification) {
+        if (!notification.params.requestId) {
+          return;
+        }
+        const controller = this._requestHandlerAbortControllers.get(notification.params.requestId);
+        controller?.abort(notification.params.reason);
+      }
+      _setupTimeout(messageId, timeout, maxTotalTimeout, onTimeout, resetTimeoutOnProgress = false) {
+        this._timeoutInfo.set(messageId, {
+          timeoutId: setTimeout(onTimeout, timeout),
+          startTime: Date.now(),
+          timeout,
+          maxTotalTimeout,
+          resetTimeoutOnProgress,
+          onTimeout
+        });
+      }
+      _resetTimeout(messageId) {
+        const info = this._timeoutInfo.get(messageId);
+        if (!info)
+          return false;
+        const totalElapsed = Date.now() - info.startTime;
+        if (info.maxTotalTimeout && totalElapsed >= info.maxTotalTimeout) {
+          this._timeoutInfo.delete(messageId);
+          throw McpError.fromError(ErrorCode.RequestTimeout, "Maximum total timeout exceeded", {
+            maxTotalTimeout: info.maxTotalTimeout,
+            totalElapsed
+          });
+        }
+        clearTimeout(info.timeoutId);
+        info.timeoutId = setTimeout(info.onTimeout, info.timeout);
+        return true;
+      }
+      _cleanupTimeout(messageId) {
+        const info = this._timeoutInfo.get(messageId);
+        if (info) {
+          clearTimeout(info.timeoutId);
+          this._timeoutInfo.delete(messageId);
+        }
+      }
+      /**
+       * Attaches to the given transport, starts it, and starts listening for messages.
+       *
+       * The Protocol object assumes ownership of the Transport, replacing any callbacks that have already been set, and expects that it is the only user of the Transport instance going forward.
+       */
+      async connect(transport) {
+        if (this._transport) {
+          throw new Error("Already connected to a transport. Call close() before connecting to a new transport, or use a separate Protocol instance per connection.");
+        }
+        this._transport = transport;
+        const _onclose = this.transport?.onclose;
+        this._transport.onclose = () => {
+          _onclose?.();
+          this._onclose();
+        };
+        const _onerror = this.transport?.onerror;
+        this._transport.onerror = (error) => {
+          _onerror?.(error);
+          this._onerror(error);
+        };
+        const _onmessage = this._transport?.onmessage;
+        this._transport.onmessage = (message, extra) => {
+          _onmessage?.(message, extra);
+          if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
+            this._onresponse(message);
+          } else if (isJSONRPCRequest(message)) {
+            this._onrequest(message, extra);
+          } else if (isJSONRPCNotification(message)) {
+            this._onnotification(message);
+          } else {
+            this._onerror(new Error(`Unknown message type: ${JSON.stringify(message)}`));
+          }
+        };
+        await this._transport.start();
+      }
+      _onclose() {
+        const responseHandlers = this._responseHandlers;
+        this._responseHandlers = /* @__PURE__ */ new Map();
+        this._progressHandlers.clear();
+        this._taskProgressTokens.clear();
+        this._pendingDebouncedNotifications.clear();
+        for (const info of this._timeoutInfo.values()) {
+          clearTimeout(info.timeoutId);
+        }
+        this._timeoutInfo.clear();
+        for (const controller of this._requestHandlerAbortControllers.values()) {
+          controller.abort();
+        }
+        this._requestHandlerAbortControllers.clear();
+        const error = McpError.fromError(ErrorCode.ConnectionClosed, "Connection closed");
+        this._transport = void 0;
+        this.onclose?.();
+        for (const handler of responseHandlers.values()) {
+          handler(error);
+        }
+      }
+      _onerror(error) {
+        this.onerror?.(error);
+      }
+      _onnotification(notification) {
+        const handler = this._notificationHandlers.get(notification.method) ?? this.fallbackNotificationHandler;
+        if (handler === void 0) {
+          return;
+        }
+        Promise.resolve().then(() => handler(notification)).catch((error) => this._onerror(new Error(`Uncaught error in notification handler: ${error}`)));
+      }
+      _onrequest(request, extra) {
+        const handler = this._requestHandlers.get(request.method) ?? this.fallbackRequestHandler;
+        const capturedTransport = this._transport;
+        const relatedTaskId = request.params?._meta?.[RELATED_TASK_META_KEY]?.taskId;
+        if (handler === void 0) {
+          const errorResponse = {
+            jsonrpc: "2.0",
+            id: request.id,
+            error: {
+              code: ErrorCode.MethodNotFound,
+              message: "Method not found"
+            }
+          };
+          if (relatedTaskId && this._taskMessageQueue) {
+            this._enqueueTaskMessage(relatedTaskId, {
+              type: "error",
+              message: errorResponse,
+              timestamp: Date.now()
+            }, capturedTransport?.sessionId).catch((error) => this._onerror(new Error(`Failed to enqueue error response: ${error}`)));
+          } else {
+            capturedTransport?.send(errorResponse).catch((error) => this._onerror(new Error(`Failed to send an error response: ${error}`)));
+          }
+          return;
+        }
+        const abortController = new AbortController();
+        this._requestHandlerAbortControllers.set(request.id, abortController);
+        const taskCreationParams = isTaskAugmentedRequestParams(request.params) ? request.params.task : void 0;
+        const taskStore = this._taskStore ? this.requestTaskStore(request, capturedTransport?.sessionId) : void 0;
+        const fullExtra = {
+          signal: abortController.signal,
+          sessionId: capturedTransport?.sessionId,
+          _meta: request.params?._meta,
+          sendNotification: async (notification) => {
+            if (abortController.signal.aborted)
+              return;
+            const notificationOptions = { relatedRequestId: request.id };
+            if (relatedTaskId) {
+              notificationOptions.relatedTask = { taskId: relatedTaskId };
+            }
+            await this.notification(notification, notificationOptions);
+          },
+          sendRequest: async (r, resultSchema, options) => {
+            if (abortController.signal.aborted) {
+              throw new McpError(ErrorCode.ConnectionClosed, "Request was cancelled");
+            }
+            const requestOptions = { ...options, relatedRequestId: request.id };
+            if (relatedTaskId && !requestOptions.relatedTask) {
+              requestOptions.relatedTask = { taskId: relatedTaskId };
+            }
+            const effectiveTaskId = requestOptions.relatedTask?.taskId ?? relatedTaskId;
+            if (effectiveTaskId && taskStore) {
+              await taskStore.updateTaskStatus(effectiveTaskId, "input_required");
+            }
+            return await this.request(r, resultSchema, requestOptions);
+          },
+          authInfo: extra?.authInfo,
+          requestId: request.id,
+          requestInfo: extra?.requestInfo,
+          taskId: relatedTaskId,
+          taskStore,
+          taskRequestedTtl: taskCreationParams?.ttl,
+          closeSSEStream: extra?.closeSSEStream,
+          closeStandaloneSSEStream: extra?.closeStandaloneSSEStream
+        };
+        Promise.resolve().then(() => {
+          if (taskCreationParams) {
+            this.assertTaskHandlerCapability(request.method);
+          }
+        }).then(() => handler(request, fullExtra)).then(async (result) => {
+          if (abortController.signal.aborted) {
+            return;
+          }
+          const response = {
+            result,
+            jsonrpc: "2.0",
+            id: request.id
+          };
+          if (relatedTaskId && this._taskMessageQueue) {
+            await this._enqueueTaskMessage(relatedTaskId, {
+              type: "response",
+              message: response,
+              timestamp: Date.now()
+            }, capturedTransport?.sessionId);
+          } else {
+            await capturedTransport?.send(response);
+          }
+        }, async (error) => {
+          if (abortController.signal.aborted) {
+            return;
+          }
+          const errorResponse = {
+            jsonrpc: "2.0",
+            id: request.id,
+            error: {
+              code: Number.isSafeInteger(error["code"]) ? error["code"] : ErrorCode.InternalError,
+              message: error.message ?? "Internal error",
+              ...error["data"] !== void 0 && { data: error["data"] }
+            }
+          };
+          if (relatedTaskId && this._taskMessageQueue) {
+            await this._enqueueTaskMessage(relatedTaskId, {
+              type: "error",
+              message: errorResponse,
+              timestamp: Date.now()
+            }, capturedTransport?.sessionId);
+          } else {
+            await capturedTransport?.send(errorResponse);
+          }
+        }).catch((error) => this._onerror(new Error(`Failed to send response: ${error}`))).finally(() => {
+          if (this._requestHandlerAbortControllers.get(request.id) === abortController) {
+            this._requestHandlerAbortControllers.delete(request.id);
+          }
+        });
+      }
+      _onprogress(notification) {
+        const { progressToken, ...params } = notification.params;
+        const messageId = Number(progressToken);
+        const handler = this._progressHandlers.get(messageId);
+        if (!handler) {
+          this._onerror(new Error(`Received a progress notification for an unknown token: ${JSON.stringify(notification)}`));
+          return;
+        }
+        const responseHandler = this._responseHandlers.get(messageId);
+        const timeoutInfo = this._timeoutInfo.get(messageId);
+        if (timeoutInfo && responseHandler && timeoutInfo.resetTimeoutOnProgress) {
+          try {
+            this._resetTimeout(messageId);
+          } catch (error) {
+            this._responseHandlers.delete(messageId);
+            this._progressHandlers.delete(messageId);
+            this._cleanupTimeout(messageId);
+            responseHandler(error);
+            return;
+          }
+        }
+        handler(params);
+      }
+      _onresponse(response) {
+        const messageId = Number(response.id);
+        const resolver = this._requestResolvers.get(messageId);
+        if (resolver) {
+          this._requestResolvers.delete(messageId);
+          if (isJSONRPCResultResponse(response)) {
+            resolver(response);
+          } else {
+            const error = new McpError(response.error.code, response.error.message, response.error.data);
+            resolver(error);
+          }
+          return;
+        }
+        const handler = this._responseHandlers.get(messageId);
+        if (handler === void 0) {
+          this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response)}`));
+          return;
+        }
+        this._responseHandlers.delete(messageId);
+        this._cleanupTimeout(messageId);
+        let isTaskResponse = false;
+        if (isJSONRPCResultResponse(response) && response.result && typeof response.result === "object") {
+          const result = response.result;
+          if (result.task && typeof result.task === "object") {
+            const task = result.task;
+            if (typeof task.taskId === "string") {
+              isTaskResponse = true;
+              this._taskProgressTokens.set(task.taskId, messageId);
+            }
+          }
+        }
+        if (!isTaskResponse) {
+          this._progressHandlers.delete(messageId);
+        }
+        if (isJSONRPCResultResponse(response)) {
+          handler(response);
+        } else {
+          const error = McpError.fromError(response.error.code, response.error.message, response.error.data);
+          handler(error);
+        }
+      }
+      get transport() {
+        return this._transport;
+      }
+      /**
+       * Closes the connection.
+       */
+      async close() {
+        await this._transport?.close();
+      }
+      /**
+       * Sends a request and returns an AsyncGenerator that yields response messages.
+       * The generator is guaranteed to end with either a 'result' or 'error' message.
+       *
+       * @example
+       * ```typescript
+       * const stream = protocol.requestStream(request, resultSchema, options);
+       * for await (const message of stream) {
+       *   switch (message.type) {
+       *     case 'taskCreated':
+       *       console.log('Task created:', message.task.taskId);
+       *       break;
+       *     case 'taskStatus':
+       *       console.log('Task status:', message.task.status);
+       *       break;
+       *     case 'result':
+       *       console.log('Final result:', message.result);
+       *       break;
+       *     case 'error':
+       *       console.error('Error:', message.error);
+       *       break;
+       *   }
+       * }
+       * ```
+       *
+       * @experimental Use `client.experimental.tasks.requestStream()` to access this method.
+       */
+      async *requestStream(request, resultSchema, options) {
+        const { task } = options ?? {};
+        if (!task) {
+          try {
+            const result = await this.request(request, resultSchema, options);
+            yield { type: "result", result };
+          } catch (error) {
+            yield {
+              type: "error",
+              error: error instanceof McpError ? error : new McpError(ErrorCode.InternalError, String(error))
+            };
+          }
+          return;
+        }
+        let taskId;
+        try {
+          const createResult = await this.request(request, CreateTaskResultSchema, options);
+          if (createResult.task) {
+            taskId = createResult.task.taskId;
+            yield { type: "taskCreated", task: createResult.task };
+          } else {
+            throw new McpError(ErrorCode.InternalError, "Task creation did not return a task");
+          }
+          while (true) {
+            const task2 = await this.getTask({ taskId }, options);
+            yield { type: "taskStatus", task: task2 };
+            if (isTerminal(task2.status)) {
+              if (task2.status === "completed") {
+                const result = await this.getTaskResult({ taskId }, resultSchema, options);
+                yield { type: "result", result };
+              } else if (task2.status === "failed") {
+                yield {
+                  type: "error",
+                  error: new McpError(ErrorCode.InternalError, `Task ${taskId} failed`)
+                };
+              } else if (task2.status === "cancelled") {
+                yield {
+                  type: "error",
+                  error: new McpError(ErrorCode.InternalError, `Task ${taskId} was cancelled`)
+                };
+              }
+              return;
+            }
+            if (task2.status === "input_required") {
+              const result = await this.getTaskResult({ taskId }, resultSchema, options);
+              yield { type: "result", result };
+              return;
+            }
+            const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
+            await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
+            options?.signal?.throwIfAborted();
+          }
+        } catch (error) {
+          yield {
+            type: "error",
+            error: error instanceof McpError ? error : new McpError(ErrorCode.InternalError, String(error))
+          };
+        }
+      }
+      /**
+       * Sends a request and waits for a response.
+       *
+       * Do not use this method to emit notifications! Use notification() instead.
+       */
+      request(request, resultSchema, options) {
+        const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
+        return new Promise((resolve3, reject2) => {
+          const earlyReject = (error) => {
+            reject2(error);
+          };
+          if (!this._transport) {
+            earlyReject(new Error("Not connected"));
+            return;
+          }
+          if (this._options?.enforceStrictCapabilities === true) {
+            try {
+              this.assertCapabilityForMethod(request.method);
+              if (task) {
+                this.assertTaskCapability(request.method);
+              }
+            } catch (e) {
+              earlyReject(e);
+              return;
+            }
+          }
+          options?.signal?.throwIfAborted();
+          const messageId = this._requestMessageId++;
+          const jsonrpcRequest = {
+            ...request,
+            jsonrpc: "2.0",
+            id: messageId
+          };
+          if (options?.onprogress) {
+            this._progressHandlers.set(messageId, options.onprogress);
+            jsonrpcRequest.params = {
+              ...request.params,
+              _meta: {
+                ...request.params?._meta || {},
+                progressToken: messageId
+              }
+            };
+          }
+          if (task) {
+            jsonrpcRequest.params = {
+              ...jsonrpcRequest.params,
+              task
+            };
+          }
+          if (relatedTask) {
+            jsonrpcRequest.params = {
+              ...jsonrpcRequest.params,
+              _meta: {
+                ...jsonrpcRequest.params?._meta || {},
+                [RELATED_TASK_META_KEY]: relatedTask
+              }
+            };
+          }
+          const cancel = (reason) => {
+            this._responseHandlers.delete(messageId);
+            this._progressHandlers.delete(messageId);
+            this._cleanupTimeout(messageId);
+            this._transport?.send({
+              jsonrpc: "2.0",
+              method: "notifications/cancelled",
+              params: {
+                requestId: messageId,
+                reason: String(reason)
+              }
+            }, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error2) => this._onerror(new Error(`Failed to send cancellation: ${error2}`)));
+            const error = reason instanceof McpError ? reason : new McpError(ErrorCode.RequestTimeout, String(reason));
+            reject2(error);
+          };
+          this._responseHandlers.set(messageId, (response) => {
+            if (options?.signal?.aborted) {
+              return;
+            }
+            if (response instanceof Error) {
+              return reject2(response);
+            }
+            try {
+              const parseResult = safeParse2(resultSchema, response.result);
+              if (!parseResult.success) {
+                reject2(parseResult.error);
+              } else {
+                resolve3(parseResult.data);
+              }
+            } catch (error) {
+              reject2(error);
+            }
+          });
+          options?.signal?.addEventListener("abort", () => {
+            cancel(options?.signal?.reason);
+          });
+          const timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT_MSEC;
+          const timeoutHandler = () => cancel(McpError.fromError(ErrorCode.RequestTimeout, "Request timed out", { timeout }));
+          this._setupTimeout(messageId, timeout, options?.maxTotalTimeout, timeoutHandler, options?.resetTimeoutOnProgress ?? false);
+          const relatedTaskId = relatedTask?.taskId;
+          if (relatedTaskId) {
+            const responseResolver = (response) => {
+              const handler = this._responseHandlers.get(messageId);
+              if (handler) {
+                handler(response);
+              } else {
+                this._onerror(new Error(`Response handler missing for side-channeled request ${messageId}`));
+              }
+            };
+            this._requestResolvers.set(messageId, responseResolver);
+            this._enqueueTaskMessage(relatedTaskId, {
+              type: "request",
+              message: jsonrpcRequest,
+              timestamp: Date.now()
+            }).catch((error) => {
+              this._cleanupTimeout(messageId);
+              reject2(error);
+            });
+          } else {
+            this._transport.send(jsonrpcRequest, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error) => {
+              this._cleanupTimeout(messageId);
+              reject2(error);
+            });
+          }
+        });
+      }
+      /**
+       * Gets the current status of a task.
+       *
+       * @experimental Use `client.experimental.tasks.getTask()` to access this method.
+       */
+      async getTask(params, options) {
+        return this.request({ method: "tasks/get", params }, GetTaskResultSchema, options);
+      }
+      /**
+       * Retrieves the result of a completed task.
+       *
+       * @experimental Use `client.experimental.tasks.getTaskResult()` to access this method.
+       */
+      async getTaskResult(params, resultSchema, options) {
+        return this.request({ method: "tasks/result", params }, resultSchema, options);
+      }
+      /**
+       * Lists tasks, optionally starting from a pagination cursor.
+       *
+       * @experimental Use `client.experimental.tasks.listTasks()` to access this method.
+       */
+      async listTasks(params, options) {
+        return this.request({ method: "tasks/list", params }, ListTasksResultSchema, options);
+      }
+      /**
+       * Cancels a specific task.
+       *
+       * @experimental Use `client.experimental.tasks.cancelTask()` to access this method.
+       */
+      async cancelTask(params, options) {
+        return this.request({ method: "tasks/cancel", params }, CancelTaskResultSchema, options);
+      }
+      /**
+       * Emits a notification, which is a one-way message that does not expect a response.
+       */
+      async notification(notification, options) {
+        if (!this._transport) {
+          throw new Error("Not connected");
+        }
+        this.assertNotificationCapability(notification.method);
+        const relatedTaskId = options?.relatedTask?.taskId;
+        if (relatedTaskId) {
+          const jsonrpcNotification2 = {
+            ...notification,
+            jsonrpc: "2.0",
+            params: {
+              ...notification.params,
+              _meta: {
+                ...notification.params?._meta || {},
+                [RELATED_TASK_META_KEY]: options.relatedTask
+              }
+            }
+          };
+          await this._enqueueTaskMessage(relatedTaskId, {
+            type: "notification",
+            message: jsonrpcNotification2,
+            timestamp: Date.now()
+          });
+          return;
+        }
+        const debouncedMethods = this._options?.debouncedNotificationMethods ?? [];
+        const canDebounce = debouncedMethods.includes(notification.method) && !notification.params && !options?.relatedRequestId && !options?.relatedTask;
+        if (canDebounce) {
+          if (this._pendingDebouncedNotifications.has(notification.method)) {
+            return;
+          }
+          this._pendingDebouncedNotifications.add(notification.method);
+          Promise.resolve().then(() => {
+            this._pendingDebouncedNotifications.delete(notification.method);
+            if (!this._transport) {
+              return;
+            }
+            let jsonrpcNotification2 = {
+              ...notification,
+              jsonrpc: "2.0"
+            };
+            if (options?.relatedTask) {
+              jsonrpcNotification2 = {
+                ...jsonrpcNotification2,
+                params: {
+                  ...jsonrpcNotification2.params,
+                  _meta: {
+                    ...jsonrpcNotification2.params?._meta || {},
+                    [RELATED_TASK_META_KEY]: options.relatedTask
+                  }
+                }
+              };
+            }
+            this._transport?.send(jsonrpcNotification2, options).catch((error) => this._onerror(error));
+          });
+          return;
+        }
+        let jsonrpcNotification = {
+          ...notification,
+          jsonrpc: "2.0"
+        };
+        if (options?.relatedTask) {
+          jsonrpcNotification = {
+            ...jsonrpcNotification,
+            params: {
+              ...jsonrpcNotification.params,
+              _meta: {
+                ...jsonrpcNotification.params?._meta || {},
+                [RELATED_TASK_META_KEY]: options.relatedTask
+              }
+            }
+          };
+        }
+        await this._transport.send(jsonrpcNotification, options);
+      }
+      /**
+       * Registers a handler to invoke when this protocol object receives a request with the given method.
+       *
+       * Note that this will replace any previous request handler for the same method.
+       */
+      setRequestHandler(requestSchema, handler) {
+        const method = getMethodLiteral(requestSchema);
+        this.assertRequestHandlerCapability(method);
+        this._requestHandlers.set(method, (request, extra) => {
+          const parsed = parseWithCompat(requestSchema, request);
+          return Promise.resolve(handler(parsed, extra));
+        });
+      }
+      /**
+       * Removes the request handler for the given method.
+       */
+      removeRequestHandler(method) {
+        this._requestHandlers.delete(method);
+      }
+      /**
+       * Asserts that a request handler has not already been set for the given method, in preparation for a new one being automatically installed.
+       */
+      assertCanSetRequestHandler(method) {
+        if (this._requestHandlers.has(method)) {
+          throw new Error(`A request handler for ${method} already exists, which would be overridden`);
+        }
+      }
+      /**
+       * Registers a handler to invoke when this protocol object receives a notification with the given method.
+       *
+       * Note that this will replace any previous notification handler for the same method.
+       */
+      setNotificationHandler(notificationSchema, handler) {
+        const method = getMethodLiteral(notificationSchema);
+        this._notificationHandlers.set(method, (notification) => {
+          const parsed = parseWithCompat(notificationSchema, notification);
+          return Promise.resolve(handler(parsed));
+        });
+      }
+      /**
+       * Removes the notification handler for the given method.
+       */
+      removeNotificationHandler(method) {
+        this._notificationHandlers.delete(method);
+      }
+      /**
+       * Cleans up the progress handler associated with a task.
+       * This should be called when a task reaches a terminal status.
+       */
+      _cleanupTaskProgressHandler(taskId) {
+        const progressToken = this._taskProgressTokens.get(taskId);
+        if (progressToken !== void 0) {
+          this._progressHandlers.delete(progressToken);
+          this._taskProgressTokens.delete(taskId);
+        }
+      }
+      /**
+       * Enqueues a task-related message for side-channel delivery via tasks/result.
+       * @param taskId The task ID to associate the message with
+       * @param message The message to enqueue
+       * @param sessionId Optional session ID for binding the operation to a specific session
+       * @throws Error if taskStore is not configured or if enqueue fails (e.g., queue overflow)
+       *
+       * Note: If enqueue fails, it's the TaskMessageQueue implementation's responsibility to handle
+       * the error appropriately (e.g., by failing the task, logging, etc.). The Protocol layer
+       * simply propagates the error.
+       */
+      async _enqueueTaskMessage(taskId, message, sessionId) {
+        if (!this._taskStore || !this._taskMessageQueue) {
+          throw new Error("Cannot enqueue task message: taskStore and taskMessageQueue are not configured");
+        }
+        const maxQueueSize = this._options?.maxTaskQueueSize;
+        await this._taskMessageQueue.enqueue(taskId, message, sessionId, maxQueueSize);
+      }
+      /**
+       * Clears the message queue for a task and rejects any pending request resolvers.
+       * @param taskId The task ID whose queue should be cleared
+       * @param sessionId Optional session ID for binding the operation to a specific session
+       */
+      async _clearTaskQueue(taskId, sessionId) {
+        if (this._taskMessageQueue) {
+          const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
+          for (const message of messages) {
+            if (message.type === "request" && isJSONRPCRequest(message.message)) {
+              const requestId = message.message.id;
+              const resolver = this._requestResolvers.get(requestId);
+              if (resolver) {
+                resolver(new McpError(ErrorCode.InternalError, "Task cancelled or completed"));
+                this._requestResolvers.delete(requestId);
+              } else {
+                this._onerror(new Error(`Resolver missing for request ${requestId} during task ${taskId} cleanup`));
+              }
+            }
+          }
+        }
+      }
+      /**
+       * Waits for a task update (new messages or status change) with abort signal support.
+       * Uses polling to check for updates at the task's configured poll interval.
+       * @param taskId The task ID to wait for
+       * @param signal Abort signal to cancel the wait
+       * @returns Promise that resolves when an update occurs or rejects if aborted
+       */
+      async _waitForTaskUpdate(taskId, signal) {
+        let interval = this._options?.defaultTaskPollInterval ?? 1e3;
+        try {
+          const task = await this._taskStore?.getTask(taskId);
+          if (task?.pollInterval) {
+            interval = task.pollInterval;
+          }
+        } catch {
+        }
+        return new Promise((resolve3, reject2) => {
+          if (signal.aborted) {
+            reject2(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
+            return;
+          }
+          const timeoutId = setTimeout(resolve3, interval);
+          signal.addEventListener("abort", () => {
+            clearTimeout(timeoutId);
+            reject2(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
+          }, { once: true });
+        });
+      }
+      requestTaskStore(request, sessionId) {
+        const taskStore = this._taskStore;
+        if (!taskStore) {
+          throw new Error("No task store configured");
+        }
+        return {
+          createTask: async (taskParams) => {
+            if (!request) {
+              throw new Error("No request provided");
+            }
+            return await taskStore.createTask(taskParams, request.id, {
+              method: request.method,
+              params: request.params
+            }, sessionId);
+          },
+          getTask: async (taskId) => {
+            const task = await taskStore.getTask(taskId, sessionId);
+            if (!task) {
+              throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
+            }
+            return task;
+          },
+          storeTaskResult: async (taskId, status2, result) => {
+            await taskStore.storeTaskResult(taskId, status2, result, sessionId);
+            const task = await taskStore.getTask(taskId, sessionId);
+            if (task) {
+              const notification = TaskStatusNotificationSchema.parse({
+                method: "notifications/tasks/status",
+                params: task
+              });
+              await this.notification(notification);
+              if (isTerminal(task.status)) {
+                this._cleanupTaskProgressHandler(taskId);
+              }
+            }
+          },
+          getTaskResult: (taskId) => {
+            return taskStore.getTaskResult(taskId, sessionId);
+          },
+          updateTaskStatus: async (taskId, status2, statusMessage) => {
+            const task = await taskStore.getTask(taskId, sessionId);
+            if (!task) {
+              throw new McpError(ErrorCode.InvalidParams, `Task "${taskId}" not found - it may have been cleaned up`);
+            }
+            if (isTerminal(task.status)) {
+              throw new McpError(ErrorCode.InvalidParams, `Cannot update task "${taskId}" from terminal status "${task.status}" to "${status2}". Terminal states (completed, failed, cancelled) cannot transition to other states.`);
+            }
+            await taskStore.updateTaskStatus(taskId, status2, statusMessage, sessionId);
+            const updatedTask = await taskStore.getTask(taskId, sessionId);
+            if (updatedTask) {
+              const notification = TaskStatusNotificationSchema.parse({
+                method: "notifications/tasks/status",
+                params: updatedTask
+              });
+              await this.notification(notification);
+              if (isTerminal(updatedTask.status)) {
+                this._cleanupTaskProgressHandler(taskId);
+              }
+            }
+          },
+          listTasks: (cursor) => {
+            return taskStore.listTasks(cursor, sessionId);
+          }
+        };
+      }
+    };
   }
 });
 
@@ -29434,4028 +33730,7 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/zod@4.4.3/node_modules/zod/index.cjs
-var require_zod = __commonJS({
-  "node_modules/.pnpm/zod@4.4.3/node_modules/zod/index.cjs"(exports2) {
-    "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    }));
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? (function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
-      if (mod && mod.__esModule) return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __exportStar = exports2 && exports2.__exportStar || function(m, exports3) {
-      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p)) __createBinding(exports3, m, p);
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.z = void 0;
-    var z17 = __importStar(require_external3());
-    exports2.z = z17;
-    __exportStar(require_external3(), exports2);
-    exports2.default = z17;
-  }
-});
-
-// src/local-server.ts
-var import_node_crypto7 = require("node:crypto");
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
-var z3rt = __toESM(require_v3(), 1);
-var z4mini = __toESM(require_v4_mini(), 1);
-function isZ4Schema(s) {
-  const schema = s;
-  return !!schema._zod;
-}
-function objectFromShape(shape) {
-  const values = Object.values(shape);
-  if (values.length === 0)
-    return z4mini.object({});
-  const allV4 = values.every(isZ4Schema);
-  const allV3 = values.every((s) => !isZ4Schema(s));
-  if (allV4)
-    return z4mini.object(shape);
-  if (allV3)
-    return z3rt.object(shape);
-  throw new Error("Mixed Zod versions detected in object shape.");
-}
-function safeParse2(schema, data) {
-  if (isZ4Schema(schema)) {
-    const result2 = z4mini.safeParse(schema, data);
-    return result2;
-  }
-  const v3Schema = schema;
-  const result = v3Schema.safeParse(data);
-  return result;
-}
-async function safeParseAsync2(schema, data) {
-  if (isZ4Schema(schema)) {
-    const result2 = await z4mini.safeParseAsync(schema, data);
-    return result2;
-  }
-  const v3Schema = schema;
-  const result = await v3Schema.safeParseAsync(data);
-  return result;
-}
-function getObjectShape(schema) {
-  if (!schema)
-    return void 0;
-  let rawShape;
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    rawShape = v4Schema._zod?.def?.shape;
-  } else {
-    const v3Schema = schema;
-    rawShape = v3Schema.shape;
-  }
-  if (!rawShape)
-    return void 0;
-  if (typeof rawShape === "function") {
-    try {
-      return rawShape();
-    } catch {
-      return void 0;
-    }
-  }
-  return rawShape;
-}
-function normalizeObjectSchema(schema) {
-  if (!schema)
-    return void 0;
-  if (typeof schema === "object") {
-    const asV3 = schema;
-    const asV4 = schema;
-    if (!asV3._def && !asV4._zod) {
-      const values = Object.values(schema);
-      if (values.length > 0 && values.every((v) => typeof v === "object" && v !== null && (v._def !== void 0 || v._zod !== void 0 || typeof v.parse === "function"))) {
-        return objectFromShape(schema);
-      }
-    }
-  }
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    const def = v4Schema._zod?.def;
-    if (def && (def.type === "object" || def.shape !== void 0)) {
-      return schema;
-    }
-  } else {
-    const v3Schema = schema;
-    if (v3Schema.shape !== void 0) {
-      return schema;
-    }
-  }
-  return void 0;
-}
-function getParseErrorMessage(error) {
-  if (error && typeof error === "object") {
-    if ("message" in error && typeof error.message === "string") {
-      return error.message;
-    }
-    if ("issues" in error && Array.isArray(error.issues) && error.issues.length > 0) {
-      const firstIssue = error.issues[0];
-      if (firstIssue && typeof firstIssue === "object" && "message" in firstIssue) {
-        return String(firstIssue.message);
-      }
-    }
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return String(error);
-    }
-  }
-  return String(error);
-}
-function getSchemaDescription(schema) {
-  return schema.description;
-}
-function isSchemaOptional(schema) {
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    return v4Schema._zod?.def?.type === "optional";
-  }
-  const v3Schema = schema;
-  if (typeof schema.isOptional === "function") {
-    return schema.isOptional();
-  }
-  return v3Schema._def?.typeName === "ZodOptional";
-}
-function getLiteralValue(schema) {
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    const def2 = v4Schema._zod?.def;
-    if (def2) {
-      if (def2.value !== void 0)
-        return def2.value;
-      if (Array.isArray(def2.values) && def2.values.length > 0) {
-        return def2.values[0];
-      }
-    }
-  }
-  const v3Schema = schema;
-  const def = v3Schema._def;
-  if (def) {
-    if (def.value !== void 0)
-      return def.value;
-    if (Array.isArray(def.values) && def.values.length > 0) {
-      return def.values[0];
-    }
-  }
-  const directValue = schema.value;
-  if (directValue !== void 0)
-    return directValue;
-  return void 0;
-}
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
-var z = __toESM(require_v4(), 1);
-var LATEST_PROTOCOL_VERSION = "2025-11-25";
-var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
-var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
-var JSONRPC_VERSION = "2.0";
-var AssertObjectSchema = z.custom((v) => v !== null && (typeof v === "object" || typeof v === "function"));
-var ProgressTokenSchema = z.union([z.string(), z.number().int()]);
-var CursorSchema = z.string();
-var TaskCreationParamsSchema = z.looseObject({
-  /**
-   * Requested duration in milliseconds to retain task from creation.
-   */
-  ttl: z.number().optional(),
-  /**
-   * Time in milliseconds to wait between task status requests.
-   */
-  pollInterval: z.number().optional()
-});
-var TaskMetadataSchema = z.object({
-  ttl: z.number().optional()
-});
-var RelatedTaskMetadataSchema = z.object({
-  taskId: z.string()
-});
-var RequestMetaSchema = z.looseObject({
-  /**
-   * If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
-   */
-  progressToken: ProgressTokenSchema.optional(),
-  /**
-   * If specified, this request is related to the provided task.
-   */
-  [RELATED_TASK_META_KEY]: RelatedTaskMetadataSchema.optional()
-});
-var BaseRequestParamsSchema = z.object({
-  /**
-   * See [General fields: `_meta`](/specification/draft/basic/index#meta) for notes on `_meta` usage.
-   */
-  _meta: RequestMetaSchema.optional()
-});
-var TaskAugmentedRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * If specified, the caller is requesting task-augmented execution for this request.
-   * The request will return a CreateTaskResult immediately, and the actual result can be
-   * retrieved later via tasks/result.
-   *
-   * Task augmentation is subject to capability negotiation - receivers MUST declare support
-   * for task augmentation of specific request types in their capabilities.
-   */
-  task: TaskMetadataSchema.optional()
-});
-var isTaskAugmentedRequestParams = (value) => TaskAugmentedRequestParamsSchema.safeParse(value).success;
-var RequestSchema = z.object({
-  method: z.string(),
-  params: BaseRequestParamsSchema.loose().optional()
-});
-var NotificationsParamsSchema = z.object({
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: RequestMetaSchema.optional()
-});
-var NotificationSchema = z.object({
-  method: z.string(),
-  params: NotificationsParamsSchema.loose().optional()
-});
-var ResultSchema = z.looseObject({
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: RequestMetaSchema.optional()
-});
-var RequestIdSchema = z.union([z.string(), z.number().int()]);
-var JSONRPCRequestSchema = z.object({
-  jsonrpc: z.literal(JSONRPC_VERSION),
-  id: RequestIdSchema,
-  ...RequestSchema.shape
-}).strict();
-var isJSONRPCRequest = (value) => JSONRPCRequestSchema.safeParse(value).success;
-var JSONRPCNotificationSchema = z.object({
-  jsonrpc: z.literal(JSONRPC_VERSION),
-  ...NotificationSchema.shape
-}).strict();
-var isJSONRPCNotification = (value) => JSONRPCNotificationSchema.safeParse(value).success;
-var JSONRPCResultResponseSchema = z.object({
-  jsonrpc: z.literal(JSONRPC_VERSION),
-  id: RequestIdSchema,
-  result: ResultSchema
-}).strict();
-var isJSONRPCResultResponse = (value) => JSONRPCResultResponseSchema.safeParse(value).success;
-var ErrorCode;
-(function(ErrorCode2) {
-  ErrorCode2[ErrorCode2["ConnectionClosed"] = -32e3] = "ConnectionClosed";
-  ErrorCode2[ErrorCode2["RequestTimeout"] = -32001] = "RequestTimeout";
-  ErrorCode2[ErrorCode2["ParseError"] = -32700] = "ParseError";
-  ErrorCode2[ErrorCode2["InvalidRequest"] = -32600] = "InvalidRequest";
-  ErrorCode2[ErrorCode2["MethodNotFound"] = -32601] = "MethodNotFound";
-  ErrorCode2[ErrorCode2["InvalidParams"] = -32602] = "InvalidParams";
-  ErrorCode2[ErrorCode2["InternalError"] = -32603] = "InternalError";
-  ErrorCode2[ErrorCode2["UrlElicitationRequired"] = -32042] = "UrlElicitationRequired";
-})(ErrorCode || (ErrorCode = {}));
-var JSONRPCErrorResponseSchema = z.object({
-  jsonrpc: z.literal(JSONRPC_VERSION),
-  id: RequestIdSchema.optional(),
-  error: z.object({
-    /**
-     * The error type that occurred.
-     */
-    code: z.number().int(),
-    /**
-     * A short description of the error. The message SHOULD be limited to a concise single sentence.
-     */
-    message: z.string(),
-    /**
-     * Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
-     */
-    data: z.unknown().optional()
-  })
-}).strict();
-var isJSONRPCErrorResponse = (value) => JSONRPCErrorResponseSchema.safeParse(value).success;
-var JSONRPCMessageSchema = z.union([
-  JSONRPCRequestSchema,
-  JSONRPCNotificationSchema,
-  JSONRPCResultResponseSchema,
-  JSONRPCErrorResponseSchema
-]);
-var JSONRPCResponseSchema = z.union([JSONRPCResultResponseSchema, JSONRPCErrorResponseSchema]);
-var EmptyResultSchema = ResultSchema.strict();
-var CancelledNotificationParamsSchema = NotificationsParamsSchema.extend({
-  /**
-   * The ID of the request to cancel.
-   *
-   * This MUST correspond to the ID of a request previously issued in the same direction.
-   */
-  requestId: RequestIdSchema.optional(),
-  /**
-   * An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.
-   */
-  reason: z.string().optional()
-});
-var CancelledNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/cancelled"),
-  params: CancelledNotificationParamsSchema
-});
-var IconSchema = z.object({
-  /**
-   * URL or data URI for the icon.
-   */
-  src: z.string(),
-  /**
-   * Optional MIME type for the icon.
-   */
-  mimeType: z.string().optional(),
-  /**
-   * Optional array of strings that specify sizes at which the icon can be used.
-   * Each string should be in WxH format (e.g., `"48x48"`, `"96x96"`) or `"any"` for scalable formats like SVG.
-   *
-   * If not provided, the client should assume that the icon can be used at any size.
-   */
-  sizes: z.array(z.string()).optional(),
-  /**
-   * Optional specifier for the theme this icon is designed for. `light` indicates
-   * the icon is designed to be used with a light background, and `dark` indicates
-   * the icon is designed to be used with a dark background.
-   *
-   * If not provided, the client should assume the icon can be used with any theme.
-   */
-  theme: z.enum(["light", "dark"]).optional()
-});
-var IconsSchema = z.object({
-  /**
-   * Optional set of sized icons that the client can display in a user interface.
-   *
-   * Clients that support rendering icons MUST support at least the following MIME types:
-   * - `image/png` - PNG images (safe, universal compatibility)
-   * - `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
-   *
-   * Clients that support rendering icons SHOULD also support:
-   * - `image/svg+xml` - SVG images (scalable but requires security precautions)
-   * - `image/webp` - WebP images (modern, efficient format)
-   */
-  icons: z.array(IconSchema).optional()
-});
-var BaseMetadataSchema = z.object({
-  /** Intended for programmatic or logical use, but used as a display name in past specs or fallback */
-  name: z.string(),
-  /**
-   * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
-   * even by those unfamiliar with domain-specific terminology.
-   *
-   * If not provided, the name should be used for display (except for Tool,
-   * where `annotations.title` should be given precedence over using `name`,
-   * if present).
-   */
-  title: z.string().optional()
-});
-var ImplementationSchema = BaseMetadataSchema.extend({
-  ...BaseMetadataSchema.shape,
-  ...IconsSchema.shape,
-  version: z.string(),
-  /**
-   * An optional URL of the website for this implementation.
-   */
-  websiteUrl: z.string().optional(),
-  /**
-   * An optional human-readable description of what this implementation does.
-   *
-   * This can be used by clients or servers to provide context about their purpose
-   * and capabilities. For example, a server might describe the types of resources
-   * or tools it provides, while a client might describe its intended use case.
-   */
-  description: z.string().optional()
-});
-var FormElicitationCapabilitySchema = z.intersection(z.object({
-  applyDefaults: z.boolean().optional()
-}), z.record(z.string(), z.unknown()));
-var ElicitationCapabilitySchema = z.preprocess((value) => {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    if (Object.keys(value).length === 0) {
-      return { form: {} };
-    }
-  }
-  return value;
-}, z.intersection(z.object({
-  form: FormElicitationCapabilitySchema.optional(),
-  url: AssertObjectSchema.optional()
-}), z.record(z.string(), z.unknown()).optional()));
-var ClientTasksCapabilitySchema = z.looseObject({
-  /**
-   * Present if the client supports listing tasks.
-   */
-  list: AssertObjectSchema.optional(),
-  /**
-   * Present if the client supports cancelling tasks.
-   */
-  cancel: AssertObjectSchema.optional(),
-  /**
-   * Capabilities for task creation on specific request types.
-   */
-  requests: z.looseObject({
-    /**
-     * Task support for sampling requests.
-     */
-    sampling: z.looseObject({
-      createMessage: AssertObjectSchema.optional()
-    }).optional(),
-    /**
-     * Task support for elicitation requests.
-     */
-    elicitation: z.looseObject({
-      create: AssertObjectSchema.optional()
-    }).optional()
-  }).optional()
-});
-var ServerTasksCapabilitySchema = z.looseObject({
-  /**
-   * Present if the server supports listing tasks.
-   */
-  list: AssertObjectSchema.optional(),
-  /**
-   * Present if the server supports cancelling tasks.
-   */
-  cancel: AssertObjectSchema.optional(),
-  /**
-   * Capabilities for task creation on specific request types.
-   */
-  requests: z.looseObject({
-    /**
-     * Task support for tool requests.
-     */
-    tools: z.looseObject({
-      call: AssertObjectSchema.optional()
-    }).optional()
-  }).optional()
-});
-var ClientCapabilitiesSchema = z.object({
-  /**
-   * Experimental, non-standard capabilities that the client supports.
-   */
-  experimental: z.record(z.string(), AssertObjectSchema).optional(),
-  /**
-   * Present if the client supports sampling from an LLM.
-   */
-  sampling: z.object({
-    /**
-     * Present if the client supports context inclusion via includeContext parameter.
-     * If not declared, servers SHOULD only use `includeContext: "none"` (or omit it).
-     */
-    context: AssertObjectSchema.optional(),
-    /**
-     * Present if the client supports tool use via tools and toolChoice parameters.
-     */
-    tools: AssertObjectSchema.optional()
-  }).optional(),
-  /**
-   * Present if the client supports eliciting user input.
-   */
-  elicitation: ElicitationCapabilitySchema.optional(),
-  /**
-   * Present if the client supports listing roots.
-   */
-  roots: z.object({
-    /**
-     * Whether the client supports issuing notifications for changes to the roots list.
-     */
-    listChanged: z.boolean().optional()
-  }).optional(),
-  /**
-   * Present if the client supports task creation.
-   */
-  tasks: ClientTasksCapabilitySchema.optional(),
-  /**
-   * Extensions that the client supports. Keys are extension identifiers (vendor-prefix/extension-name).
-   */
-  extensions: z.record(z.string(), AssertObjectSchema).optional()
-});
-var InitializeRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * The latest version of the Model Context Protocol that the client supports. The client MAY decide to support older versions as well.
-   */
-  protocolVersion: z.string(),
-  capabilities: ClientCapabilitiesSchema,
-  clientInfo: ImplementationSchema
-});
-var InitializeRequestSchema = RequestSchema.extend({
-  method: z.literal("initialize"),
-  params: InitializeRequestParamsSchema
-});
-var ServerCapabilitiesSchema = z.object({
-  /**
-   * Experimental, non-standard capabilities that the server supports.
-   */
-  experimental: z.record(z.string(), AssertObjectSchema).optional(),
-  /**
-   * Present if the server supports sending log messages to the client.
-   */
-  logging: AssertObjectSchema.optional(),
-  /**
-   * Present if the server supports sending completions to the client.
-   */
-  completions: AssertObjectSchema.optional(),
-  /**
-   * Present if the server offers any prompt templates.
-   */
-  prompts: z.object({
-    /**
-     * Whether this server supports issuing notifications for changes to the prompt list.
-     */
-    listChanged: z.boolean().optional()
-  }).optional(),
-  /**
-   * Present if the server offers any resources to read.
-   */
-  resources: z.object({
-    /**
-     * Whether this server supports clients subscribing to resource updates.
-     */
-    subscribe: z.boolean().optional(),
-    /**
-     * Whether this server supports issuing notifications for changes to the resource list.
-     */
-    listChanged: z.boolean().optional()
-  }).optional(),
-  /**
-   * Present if the server offers any tools to call.
-   */
-  tools: z.object({
-    /**
-     * Whether this server supports issuing notifications for changes to the tool list.
-     */
-    listChanged: z.boolean().optional()
-  }).optional(),
-  /**
-   * Present if the server supports task creation.
-   */
-  tasks: ServerTasksCapabilitySchema.optional(),
-  /**
-   * Extensions that the server supports. Keys are extension identifiers (vendor-prefix/extension-name).
-   */
-  extensions: z.record(z.string(), AssertObjectSchema).optional()
-});
-var InitializeResultSchema = ResultSchema.extend({
-  /**
-   * The version of the Model Context Protocol that the server wants to use. This may not match the version that the client requested. If the client cannot support this version, it MUST disconnect.
-   */
-  protocolVersion: z.string(),
-  capabilities: ServerCapabilitiesSchema,
-  serverInfo: ImplementationSchema,
-  /**
-   * Instructions describing how to use the server and its features.
-   *
-   * This can be used by clients to improve the LLM's understanding of available tools, resources, etc. It can be thought of like a "hint" to the model. For example, this information MAY be added to the system prompt.
-   */
-  instructions: z.string().optional()
-});
-var InitializedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/initialized"),
-  params: NotificationsParamsSchema.optional()
-});
-var PingRequestSchema = RequestSchema.extend({
-  method: z.literal("ping"),
-  params: BaseRequestParamsSchema.optional()
-});
-var ProgressSchema = z.object({
-  /**
-   * The progress thus far. This should increase every time progress is made, even if the total is unknown.
-   */
-  progress: z.number(),
-  /**
-   * Total number of items to process (or total progress required), if known.
-   */
-  total: z.optional(z.number()),
-  /**
-   * An optional message describing the current progress.
-   */
-  message: z.optional(z.string())
-});
-var ProgressNotificationParamsSchema = z.object({
-  ...NotificationsParamsSchema.shape,
-  ...ProgressSchema.shape,
-  /**
-   * The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.
-   */
-  progressToken: ProgressTokenSchema
-});
-var ProgressNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/progress"),
-  params: ProgressNotificationParamsSchema
-});
-var PaginatedRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * An opaque token representing the current pagination position.
-   * If provided, the server should return results starting after this cursor.
-   */
-  cursor: CursorSchema.optional()
-});
-var PaginatedRequestSchema = RequestSchema.extend({
-  params: PaginatedRequestParamsSchema.optional()
-});
-var PaginatedResultSchema = ResultSchema.extend({
-  /**
-   * An opaque token representing the pagination position after the last returned result.
-   * If present, there may be more results available.
-   */
-  nextCursor: CursorSchema.optional()
-});
-var TaskStatusSchema = z.enum(["working", "input_required", "completed", "failed", "cancelled"]);
-var TaskSchema = z.object({
-  taskId: z.string(),
-  status: TaskStatusSchema,
-  /**
-   * Time in milliseconds to keep task results available after completion.
-   * If null, the task has unlimited lifetime until manually cleaned up.
-   */
-  ttl: z.union([z.number(), z.null()]),
-  /**
-   * ISO 8601 timestamp when the task was created.
-   */
-  createdAt: z.string(),
-  /**
-   * ISO 8601 timestamp when the task was last updated.
-   */
-  lastUpdatedAt: z.string(),
-  pollInterval: z.optional(z.number()),
-  /**
-   * Optional diagnostic message for failed tasks or other status information.
-   */
-  statusMessage: z.optional(z.string())
-});
-var CreateTaskResultSchema = ResultSchema.extend({
-  task: TaskSchema
-});
-var TaskStatusNotificationParamsSchema = NotificationsParamsSchema.merge(TaskSchema);
-var TaskStatusNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/tasks/status"),
-  params: TaskStatusNotificationParamsSchema
-});
-var GetTaskRequestSchema = RequestSchema.extend({
-  method: z.literal("tasks/get"),
-  params: BaseRequestParamsSchema.extend({
-    taskId: z.string()
-  })
-});
-var GetTaskResultSchema = ResultSchema.merge(TaskSchema);
-var GetTaskPayloadRequestSchema = RequestSchema.extend({
-  method: z.literal("tasks/result"),
-  params: BaseRequestParamsSchema.extend({
-    taskId: z.string()
-  })
-});
-var GetTaskPayloadResultSchema = ResultSchema.loose();
-var ListTasksRequestSchema = PaginatedRequestSchema.extend({
-  method: z.literal("tasks/list")
-});
-var ListTasksResultSchema = PaginatedResultSchema.extend({
-  tasks: z.array(TaskSchema)
-});
-var CancelTaskRequestSchema = RequestSchema.extend({
-  method: z.literal("tasks/cancel"),
-  params: BaseRequestParamsSchema.extend({
-    taskId: z.string()
-  })
-});
-var CancelTaskResultSchema = ResultSchema.merge(TaskSchema);
-var ResourceContentsSchema = z.object({
-  /**
-   * The URI of this resource.
-   */
-  uri: z.string(),
-  /**
-   * The MIME type of this resource, if known.
-   */
-  mimeType: z.optional(z.string()),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var TextResourceContentsSchema = ResourceContentsSchema.extend({
-  /**
-   * The text of the item. This must only be set if the item can actually be represented as text (not binary data).
-   */
-  text: z.string()
-});
-var Base64Schema = z.string().refine((val) => {
-  try {
-    atob(val);
-    return true;
-  } catch {
-    return false;
-  }
-}, { message: "Invalid Base64 string" });
-var BlobResourceContentsSchema = ResourceContentsSchema.extend({
-  /**
-   * A base64-encoded string representing the binary data of the item.
-   */
-  blob: Base64Schema
-});
-var RoleSchema = z.enum(["user", "assistant"]);
-var AnnotationsSchema = z.object({
-  /**
-   * Intended audience(s) for the resource.
-   */
-  audience: z.array(RoleSchema).optional(),
-  /**
-   * Importance hint for the resource, from 0 (least) to 1 (most).
-   */
-  priority: z.number().min(0).max(1).optional(),
-  /**
-   * ISO 8601 timestamp for the most recent modification.
-   */
-  lastModified: z.iso.datetime({ offset: true }).optional()
-});
-var ResourceSchema = z.object({
-  ...BaseMetadataSchema.shape,
-  ...IconsSchema.shape,
-  /**
-   * The URI of this resource.
-   */
-  uri: z.string(),
-  /**
-   * A description of what this resource represents.
-   *
-   * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
-   */
-  description: z.optional(z.string()),
-  /**
-   * The MIME type of this resource, if known.
-   */
-  mimeType: z.optional(z.string()),
-  /**
-   * The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
-   *
-   * This can be used by Hosts to display file sizes and estimate context window usage.
-   */
-  size: z.optional(z.number()),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.optional(z.looseObject({}))
-});
-var ResourceTemplateSchema = z.object({
-  ...BaseMetadataSchema.shape,
-  ...IconsSchema.shape,
-  /**
-   * A URI template (according to RFC 6570) that can be used to construct resource URIs.
-   */
-  uriTemplate: z.string(),
-  /**
-   * A description of what this template is for.
-   *
-   * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
-   */
-  description: z.optional(z.string()),
-  /**
-   * The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
-   */
-  mimeType: z.optional(z.string()),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.optional(z.looseObject({}))
-});
-var ListResourcesRequestSchema = PaginatedRequestSchema.extend({
-  method: z.literal("resources/list")
-});
-var ListResourcesResultSchema = PaginatedResultSchema.extend({
-  resources: z.array(ResourceSchema)
-});
-var ListResourceTemplatesRequestSchema = PaginatedRequestSchema.extend({
-  method: z.literal("resources/templates/list")
-});
-var ListResourceTemplatesResultSchema = PaginatedResultSchema.extend({
-  resourceTemplates: z.array(ResourceTemplateSchema)
-});
-var ResourceRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * The URI of the resource to read. The URI can use any protocol; it is up to the server how to interpret it.
-   *
-   * @format uri
-   */
-  uri: z.string()
-});
-var ReadResourceRequestParamsSchema = ResourceRequestParamsSchema;
-var ReadResourceRequestSchema = RequestSchema.extend({
-  method: z.literal("resources/read"),
-  params: ReadResourceRequestParamsSchema
-});
-var ReadResourceResultSchema = ResultSchema.extend({
-  contents: z.array(z.union([TextResourceContentsSchema, BlobResourceContentsSchema]))
-});
-var ResourceListChangedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/resources/list_changed"),
-  params: NotificationsParamsSchema.optional()
-});
-var SubscribeRequestParamsSchema = ResourceRequestParamsSchema;
-var SubscribeRequestSchema = RequestSchema.extend({
-  method: z.literal("resources/subscribe"),
-  params: SubscribeRequestParamsSchema
-});
-var UnsubscribeRequestParamsSchema = ResourceRequestParamsSchema;
-var UnsubscribeRequestSchema = RequestSchema.extend({
-  method: z.literal("resources/unsubscribe"),
-  params: UnsubscribeRequestParamsSchema
-});
-var ResourceUpdatedNotificationParamsSchema = NotificationsParamsSchema.extend({
-  /**
-   * The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.
-   */
-  uri: z.string()
-});
-var ResourceUpdatedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/resources/updated"),
-  params: ResourceUpdatedNotificationParamsSchema
-});
-var PromptArgumentSchema = z.object({
-  /**
-   * The name of the argument.
-   */
-  name: z.string(),
-  /**
-   * A human-readable description of the argument.
-   */
-  description: z.optional(z.string()),
-  /**
-   * Whether this argument must be provided.
-   */
-  required: z.optional(z.boolean())
-});
-var PromptSchema = z.object({
-  ...BaseMetadataSchema.shape,
-  ...IconsSchema.shape,
-  /**
-   * An optional description of what this prompt provides
-   */
-  description: z.optional(z.string()),
-  /**
-   * A list of arguments to use for templating the prompt.
-   */
-  arguments: z.optional(z.array(PromptArgumentSchema)),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.optional(z.looseObject({}))
-});
-var ListPromptsRequestSchema = PaginatedRequestSchema.extend({
-  method: z.literal("prompts/list")
-});
-var ListPromptsResultSchema = PaginatedResultSchema.extend({
-  prompts: z.array(PromptSchema)
-});
-var GetPromptRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * The name of the prompt or prompt template.
-   */
-  name: z.string(),
-  /**
-   * Arguments to use for templating the prompt.
-   */
-  arguments: z.record(z.string(), z.string()).optional()
-});
-var GetPromptRequestSchema = RequestSchema.extend({
-  method: z.literal("prompts/get"),
-  params: GetPromptRequestParamsSchema
-});
-var TextContentSchema = z.object({
-  type: z.literal("text"),
-  /**
-   * The text content of the message.
-   */
-  text: z.string(),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var ImageContentSchema = z.object({
-  type: z.literal("image"),
-  /**
-   * The base64-encoded image data.
-   */
-  data: Base64Schema,
-  /**
-   * The MIME type of the image. Different providers may support different image types.
-   */
-  mimeType: z.string(),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var AudioContentSchema = z.object({
-  type: z.literal("audio"),
-  /**
-   * The base64-encoded audio data.
-   */
-  data: Base64Schema,
-  /**
-   * The MIME type of the audio. Different providers may support different audio types.
-   */
-  mimeType: z.string(),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var ToolUseContentSchema = z.object({
-  type: z.literal("tool_use"),
-  /**
-   * The name of the tool to invoke.
-   * Must match a tool name from the request's tools array.
-   */
-  name: z.string(),
-  /**
-   * Unique identifier for this tool call.
-   * Used to correlate with ToolResultContent in subsequent messages.
-   */
-  id: z.string(),
-  /**
-   * Arguments to pass to the tool.
-   * Must conform to the tool's inputSchema.
-   */
-  input: z.record(z.string(), z.unknown()),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var EmbeddedResourceSchema = z.object({
-  type: z.literal("resource"),
-  resource: z.union([TextResourceContentsSchema, BlobResourceContentsSchema]),
-  /**
-   * Optional annotations for the client.
-   */
-  annotations: AnnotationsSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var ResourceLinkSchema = ResourceSchema.extend({
-  type: z.literal("resource_link")
-});
-var ContentBlockSchema = z.union([
-  TextContentSchema,
-  ImageContentSchema,
-  AudioContentSchema,
-  ResourceLinkSchema,
-  EmbeddedResourceSchema
-]);
-var PromptMessageSchema = z.object({
-  role: RoleSchema,
-  content: ContentBlockSchema
-});
-var GetPromptResultSchema = ResultSchema.extend({
-  /**
-   * An optional description for the prompt.
-   */
-  description: z.string().optional(),
-  messages: z.array(PromptMessageSchema)
-});
-var PromptListChangedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/prompts/list_changed"),
-  params: NotificationsParamsSchema.optional()
-});
-var ToolAnnotationsSchema = z.object({
-  /**
-   * A human-readable title for the tool.
-   */
-  title: z.string().optional(),
-  /**
-   * If true, the tool does not modify its environment.
-   *
-   * Default: false
-   */
-  readOnlyHint: z.boolean().optional(),
-  /**
-   * If true, the tool may perform destructive updates to its environment.
-   * If false, the tool performs only additive updates.
-   *
-   * (This property is meaningful only when `readOnlyHint == false`)
-   *
-   * Default: true
-   */
-  destructiveHint: z.boolean().optional(),
-  /**
-   * If true, calling the tool repeatedly with the same arguments
-   * will have no additional effect on the its environment.
-   *
-   * (This property is meaningful only when `readOnlyHint == false`)
-   *
-   * Default: false
-   */
-  idempotentHint: z.boolean().optional(),
-  /**
-   * If true, this tool may interact with an "open world" of external
-   * entities. If false, the tool's domain of interaction is closed.
-   * For example, the world of a web search tool is open, whereas that
-   * of a memory tool is not.
-   *
-   * Default: true
-   */
-  openWorldHint: z.boolean().optional()
-});
-var ToolExecutionSchema = z.object({
-  /**
-   * Indicates the tool's preference for task-augmented execution.
-   * - "required": Clients MUST invoke the tool as a task
-   * - "optional": Clients MAY invoke the tool as a task or normal request
-   * - "forbidden": Clients MUST NOT attempt to invoke the tool as a task
-   *
-   * If not present, defaults to "forbidden".
-   */
-  taskSupport: z.enum(["required", "optional", "forbidden"]).optional()
-});
-var ToolSchema = z.object({
-  ...BaseMetadataSchema.shape,
-  ...IconsSchema.shape,
-  /**
-   * A human-readable description of the tool.
-   */
-  description: z.string().optional(),
-  /**
-   * A JSON Schema 2020-12 object defining the expected parameters for the tool.
-   * Must have type: 'object' at the root level per MCP spec.
-   */
-  inputSchema: z.object({
-    type: z.literal("object"),
-    properties: z.record(z.string(), AssertObjectSchema).optional(),
-    required: z.array(z.string()).optional()
-  }).catchall(z.unknown()),
-  /**
-   * An optional JSON Schema 2020-12 object defining the structure of the tool's output
-   * returned in the structuredContent field of a CallToolResult.
-   * Must have type: 'object' at the root level per MCP spec.
-   */
-  outputSchema: z.object({
-    type: z.literal("object"),
-    properties: z.record(z.string(), AssertObjectSchema).optional(),
-    required: z.array(z.string()).optional()
-  }).catchall(z.unknown()).optional(),
-  /**
-   * Optional additional tool information.
-   */
-  annotations: ToolAnnotationsSchema.optional(),
-  /**
-   * Execution-related properties for this tool.
-   */
-  execution: ToolExecutionSchema.optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var ListToolsRequestSchema = PaginatedRequestSchema.extend({
-  method: z.literal("tools/list")
-});
-var ListToolsResultSchema = PaginatedResultSchema.extend({
-  tools: z.array(ToolSchema)
-});
-var CallToolResultSchema = ResultSchema.extend({
-  /**
-   * A list of content objects that represent the result of the tool call.
-   *
-   * If the Tool does not define an outputSchema, this field MUST be present in the result.
-   * For backwards compatibility, this field is always present, but it may be empty.
-   */
-  content: z.array(ContentBlockSchema).default([]),
-  /**
-   * An object containing structured tool output.
-   *
-   * If the Tool defines an outputSchema, this field MUST be present in the result, and contain a JSON object that matches the schema.
-   */
-  structuredContent: z.record(z.string(), z.unknown()).optional(),
-  /**
-   * Whether the tool call ended in an error.
-   *
-   * If not set, this is assumed to be false (the call was successful).
-   *
-   * Any errors that originate from the tool SHOULD be reported inside the result
-   * object, with `isError` set to true, _not_ as an MCP protocol-level error
-   * response. Otherwise, the LLM would not be able to see that an error occurred
-   * and self-correct.
-   *
-   * However, any errors in _finding_ the tool, an error indicating that the
-   * server does not support tool calls, or any other exceptional conditions,
-   * should be reported as an MCP error response.
-   */
-  isError: z.boolean().optional()
-});
-var CompatibilityCallToolResultSchema = CallToolResultSchema.or(ResultSchema.extend({
-  toolResult: z.unknown()
-}));
-var CallToolRequestParamsSchema = TaskAugmentedRequestParamsSchema.extend({
-  /**
-   * The name of the tool to call.
-   */
-  name: z.string(),
-  /**
-   * Arguments to pass to the tool.
-   */
-  arguments: z.record(z.string(), z.unknown()).optional()
-});
-var CallToolRequestSchema = RequestSchema.extend({
-  method: z.literal("tools/call"),
-  params: CallToolRequestParamsSchema
-});
-var ToolListChangedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/tools/list_changed"),
-  params: NotificationsParamsSchema.optional()
-});
-var ListChangedOptionsBaseSchema = z.object({
-  /**
-   * If true, the list will be refreshed automatically when a list changed notification is received.
-   * The callback will be called with the updated list.
-   *
-   * If false, the callback will be called with null items, allowing manual refresh.
-   *
-   * @default true
-   */
-  autoRefresh: z.boolean().default(true),
-  /**
-   * Debounce time in milliseconds for list changed notification processing.
-   *
-   * Multiple notifications received within this timeframe will only trigger one refresh.
-   * Set to 0 to disable debouncing.
-   *
-   * @default 300
-   */
-  debounceMs: z.number().int().nonnegative().default(300)
-});
-var LoggingLevelSchema = z.enum(["debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"]);
-var SetLevelRequestParamsSchema = BaseRequestParamsSchema.extend({
-  /**
-   * The level of logging that the client wants to receive from the server. The server should send all logs at this level and higher (i.e., more severe) to the client as notifications/logging/message.
-   */
-  level: LoggingLevelSchema
-});
-var SetLevelRequestSchema = RequestSchema.extend({
-  method: z.literal("logging/setLevel"),
-  params: SetLevelRequestParamsSchema
-});
-var LoggingMessageNotificationParamsSchema = NotificationsParamsSchema.extend({
-  /**
-   * The severity of this log message.
-   */
-  level: LoggingLevelSchema,
-  /**
-   * An optional name of the logger issuing this message.
-   */
-  logger: z.string().optional(),
-  /**
-   * The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
-   */
-  data: z.unknown()
-});
-var LoggingMessageNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/message"),
-  params: LoggingMessageNotificationParamsSchema
-});
-var ModelHintSchema = z.object({
-  /**
-   * A hint for a model name.
-   */
-  name: z.string().optional()
-});
-var ModelPreferencesSchema = z.object({
-  /**
-   * Optional hints to use for model selection.
-   */
-  hints: z.array(ModelHintSchema).optional(),
-  /**
-   * How much to prioritize cost when selecting a model.
-   */
-  costPriority: z.number().min(0).max(1).optional(),
-  /**
-   * How much to prioritize sampling speed (latency) when selecting a model.
-   */
-  speedPriority: z.number().min(0).max(1).optional(),
-  /**
-   * How much to prioritize intelligence and capabilities when selecting a model.
-   */
-  intelligencePriority: z.number().min(0).max(1).optional()
-});
-var ToolChoiceSchema = z.object({
-  /**
-   * Controls when tools are used:
-   * - "auto": Model decides whether to use tools (default)
-   * - "required": Model MUST use at least one tool before completing
-   * - "none": Model MUST NOT use any tools
-   */
-  mode: z.enum(["auto", "required", "none"]).optional()
-});
-var ToolResultContentSchema = z.object({
-  type: z.literal("tool_result"),
-  toolUseId: z.string().describe("The unique identifier for the corresponding tool call."),
-  content: z.array(ContentBlockSchema).default([]),
-  structuredContent: z.object({}).loose().optional(),
-  isError: z.boolean().optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var SamplingContentSchema = z.discriminatedUnion("type", [TextContentSchema, ImageContentSchema, AudioContentSchema]);
-var SamplingMessageContentBlockSchema = z.discriminatedUnion("type", [
-  TextContentSchema,
-  ImageContentSchema,
-  AudioContentSchema,
-  ToolUseContentSchema,
-  ToolResultContentSchema
-]);
-var SamplingMessageSchema = z.object({
-  role: RoleSchema,
-  content: z.union([SamplingMessageContentBlockSchema, z.array(SamplingMessageContentBlockSchema)]),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var CreateMessageRequestParamsSchema = TaskAugmentedRequestParamsSchema.extend({
-  messages: z.array(SamplingMessageSchema),
-  /**
-   * The server's preferences for which model to select. The client MAY modify or omit this request.
-   */
-  modelPreferences: ModelPreferencesSchema.optional(),
-  /**
-   * An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.
-   */
-  systemPrompt: z.string().optional(),
-  /**
-   * A request to include context from one or more MCP servers (including the caller), to be attached to the prompt.
-   * The client MAY ignore this request.
-   *
-   * Default is "none". Values "thisServer" and "allServers" are soft-deprecated. Servers SHOULD only use these values if the client
-   * declares ClientCapabilities.sampling.context. These values may be removed in future spec releases.
-   */
-  includeContext: z.enum(["none", "thisServer", "allServers"]).optional(),
-  temperature: z.number().optional(),
-  /**
-   * The requested maximum number of tokens to sample (to prevent runaway completions).
-   *
-   * The client MAY choose to sample fewer tokens than the requested maximum.
-   */
-  maxTokens: z.number().int(),
-  stopSequences: z.array(z.string()).optional(),
-  /**
-   * Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.
-   */
-  metadata: AssertObjectSchema.optional(),
-  /**
-   * Tools that the model may use during generation.
-   * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
-   */
-  tools: z.array(ToolSchema).optional(),
-  /**
-   * Controls how the model uses tools.
-   * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
-   * Default is `{ mode: "auto" }`.
-   */
-  toolChoice: ToolChoiceSchema.optional()
-});
-var CreateMessageRequestSchema = RequestSchema.extend({
-  method: z.literal("sampling/createMessage"),
-  params: CreateMessageRequestParamsSchema
-});
-var CreateMessageResultSchema = ResultSchema.extend({
-  /**
-   * The name of the model that generated the message.
-   */
-  model: z.string(),
-  /**
-   * The reason why sampling stopped, if known.
-   *
-   * Standard values:
-   * - "endTurn": Natural end of the assistant's turn
-   * - "stopSequence": A stop sequence was encountered
-   * - "maxTokens": Maximum token limit was reached
-   *
-   * This field is an open string to allow for provider-specific stop reasons.
-   */
-  stopReason: z.optional(z.enum(["endTurn", "stopSequence", "maxTokens"]).or(z.string())),
-  role: RoleSchema,
-  /**
-   * Response content. Single content block (text, image, or audio).
-   */
-  content: SamplingContentSchema
-});
-var CreateMessageResultWithToolsSchema = ResultSchema.extend({
-  /**
-   * The name of the model that generated the message.
-   */
-  model: z.string(),
-  /**
-   * The reason why sampling stopped, if known.
-   *
-   * Standard values:
-   * - "endTurn": Natural end of the assistant's turn
-   * - "stopSequence": A stop sequence was encountered
-   * - "maxTokens": Maximum token limit was reached
-   * - "toolUse": The model wants to use one or more tools
-   *
-   * This field is an open string to allow for provider-specific stop reasons.
-   */
-  stopReason: z.optional(z.enum(["endTurn", "stopSequence", "maxTokens", "toolUse"]).or(z.string())),
-  role: RoleSchema,
-  /**
-   * Response content. May be a single block or array. May include ToolUseContent if stopReason is "toolUse".
-   */
-  content: z.union([SamplingMessageContentBlockSchema, z.array(SamplingMessageContentBlockSchema)])
-});
-var BooleanSchemaSchema = z.object({
-  type: z.literal("boolean"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  default: z.boolean().optional()
-});
-var StringSchemaSchema = z.object({
-  type: z.literal("string"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  minLength: z.number().optional(),
-  maxLength: z.number().optional(),
-  format: z.enum(["email", "uri", "date", "date-time"]).optional(),
-  default: z.string().optional()
-});
-var NumberSchemaSchema = z.object({
-  type: z.enum(["number", "integer"]),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  minimum: z.number().optional(),
-  maximum: z.number().optional(),
-  default: z.number().optional()
-});
-var UntitledSingleSelectEnumSchemaSchema = z.object({
-  type: z.literal("string"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  enum: z.array(z.string()),
-  default: z.string().optional()
-});
-var TitledSingleSelectEnumSchemaSchema = z.object({
-  type: z.literal("string"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  oneOf: z.array(z.object({
-    const: z.string(),
-    title: z.string()
-  })),
-  default: z.string().optional()
-});
-var LegacyTitledEnumSchemaSchema = z.object({
-  type: z.literal("string"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  enum: z.array(z.string()),
-  enumNames: z.array(z.string()).optional(),
-  default: z.string().optional()
-});
-var SingleSelectEnumSchemaSchema = z.union([UntitledSingleSelectEnumSchemaSchema, TitledSingleSelectEnumSchemaSchema]);
-var UntitledMultiSelectEnumSchemaSchema = z.object({
-  type: z.literal("array"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  minItems: z.number().optional(),
-  maxItems: z.number().optional(),
-  items: z.object({
-    type: z.literal("string"),
-    enum: z.array(z.string())
-  }),
-  default: z.array(z.string()).optional()
-});
-var TitledMultiSelectEnumSchemaSchema = z.object({
-  type: z.literal("array"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  minItems: z.number().optional(),
-  maxItems: z.number().optional(),
-  items: z.object({
-    anyOf: z.array(z.object({
-      const: z.string(),
-      title: z.string()
-    }))
-  }),
-  default: z.array(z.string()).optional()
-});
-var MultiSelectEnumSchemaSchema = z.union([UntitledMultiSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema]);
-var EnumSchemaSchema = z.union([LegacyTitledEnumSchemaSchema, SingleSelectEnumSchemaSchema, MultiSelectEnumSchemaSchema]);
-var PrimitiveSchemaDefinitionSchema = z.union([EnumSchemaSchema, BooleanSchemaSchema, StringSchemaSchema, NumberSchemaSchema]);
-var ElicitRequestFormParamsSchema = TaskAugmentedRequestParamsSchema.extend({
-  /**
-   * The elicitation mode.
-   *
-   * Optional for backward compatibility. Clients MUST treat missing mode as "form".
-   */
-  mode: z.literal("form").optional(),
-  /**
-   * The message to present to the user describing what information is being requested.
-   */
-  message: z.string(),
-  /**
-   * A restricted subset of JSON Schema.
-   * Only top-level properties are allowed, without nesting.
-   */
-  requestedSchema: z.object({
-    type: z.literal("object"),
-    properties: z.record(z.string(), PrimitiveSchemaDefinitionSchema),
-    required: z.array(z.string()).optional()
-  })
-});
-var ElicitRequestURLParamsSchema = TaskAugmentedRequestParamsSchema.extend({
-  /**
-   * The elicitation mode.
-   */
-  mode: z.literal("url"),
-  /**
-   * The message to present to the user explaining why the interaction is needed.
-   */
-  message: z.string(),
-  /**
-   * The ID of the elicitation, which must be unique within the context of the server.
-   * The client MUST treat this ID as an opaque value.
-   */
-  elicitationId: z.string(),
-  /**
-   * The URL that the user should navigate to.
-   */
-  url: z.string().url()
-});
-var ElicitRequestParamsSchema = z.union([ElicitRequestFormParamsSchema, ElicitRequestURLParamsSchema]);
-var ElicitRequestSchema = RequestSchema.extend({
-  method: z.literal("elicitation/create"),
-  params: ElicitRequestParamsSchema
-});
-var ElicitationCompleteNotificationParamsSchema = NotificationsParamsSchema.extend({
-  /**
-   * The ID of the elicitation that completed.
-   */
-  elicitationId: z.string()
-});
-var ElicitationCompleteNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/elicitation/complete"),
-  params: ElicitationCompleteNotificationParamsSchema
-});
-var ElicitResultSchema = ResultSchema.extend({
-  /**
-   * The user action in response to the elicitation.
-   * - "accept": User submitted the form/confirmed the action
-   * - "decline": User explicitly decline the action
-   * - "cancel": User dismissed without making an explicit choice
-   */
-  action: z.enum(["accept", "decline", "cancel"]),
-  /**
-   * The submitted form data, only present when action is "accept".
-   * Contains values matching the requested schema.
-   * Per MCP spec, content is "typically omitted" for decline/cancel actions.
-   * We normalize null to undefined for leniency while maintaining type compatibility.
-   */
-  content: z.preprocess((val) => val === null ? void 0 : val, z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).optional())
-});
-var ResourceTemplateReferenceSchema = z.object({
-  type: z.literal("ref/resource"),
-  /**
-   * The URI or URI template of the resource.
-   */
-  uri: z.string()
-});
-var PromptReferenceSchema = z.object({
-  type: z.literal("ref/prompt"),
-  /**
-   * The name of the prompt or prompt template
-   */
-  name: z.string()
-});
-var CompleteRequestParamsSchema = BaseRequestParamsSchema.extend({
-  ref: z.union([PromptReferenceSchema, ResourceTemplateReferenceSchema]),
-  /**
-   * The argument's information
-   */
-  argument: z.object({
-    /**
-     * The name of the argument
-     */
-    name: z.string(),
-    /**
-     * The value of the argument to use for completion matching.
-     */
-    value: z.string()
-  }),
-  context: z.object({
-    /**
-     * Previously-resolved variables in a URI template or prompt.
-     */
-    arguments: z.record(z.string(), z.string()).optional()
-  }).optional()
-});
-var CompleteRequestSchema = RequestSchema.extend({
-  method: z.literal("completion/complete"),
-  params: CompleteRequestParamsSchema
-});
-function assertCompleteRequestPrompt(request) {
-  if (request.params.ref.type !== "ref/prompt") {
-    throw new TypeError(`Expected CompleteRequestPrompt, but got ${request.params.ref.type}`);
-  }
-  void request;
-}
-function assertCompleteRequestResourceTemplate(request) {
-  if (request.params.ref.type !== "ref/resource") {
-    throw new TypeError(`Expected CompleteRequestResourceTemplate, but got ${request.params.ref.type}`);
-  }
-  void request;
-}
-var CompleteResultSchema = ResultSchema.extend({
-  completion: z.looseObject({
-    /**
-     * An array of completion values. Must not exceed 100 items.
-     */
-    values: z.array(z.string()).max(100),
-    /**
-     * The total number of completion options available. This can exceed the number of values actually sent in the response.
-     */
-    total: z.optional(z.number().int()),
-    /**
-     * Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.
-     */
-    hasMore: z.optional(z.boolean())
-  })
-});
-var RootSchema = z.object({
-  /**
-   * The URI identifying the root. This *must* start with file:// for now.
-   */
-  uri: z.string().startsWith("file://"),
-  /**
-   * An optional name for the root.
-   */
-  name: z.string().optional(),
-  /**
-   * See [MCP specification](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/47339c03c143bb4ec01a26e721a1b8fe66634ebe/docs/specification/draft/basic/index.mdx#general-fields)
-   * for notes on _meta usage.
-   */
-  _meta: z.record(z.string(), z.unknown()).optional()
-});
-var ListRootsRequestSchema = RequestSchema.extend({
-  method: z.literal("roots/list"),
-  params: BaseRequestParamsSchema.optional()
-});
-var ListRootsResultSchema = ResultSchema.extend({
-  roots: z.array(RootSchema)
-});
-var RootsListChangedNotificationSchema = NotificationSchema.extend({
-  method: z.literal("notifications/roots/list_changed"),
-  params: NotificationsParamsSchema.optional()
-});
-var ClientRequestSchema = z.union([
-  PingRequestSchema,
-  InitializeRequestSchema,
-  CompleteRequestSchema,
-  SetLevelRequestSchema,
-  GetPromptRequestSchema,
-  ListPromptsRequestSchema,
-  ListResourcesRequestSchema,
-  ListResourceTemplatesRequestSchema,
-  ReadResourceRequestSchema,
-  SubscribeRequestSchema,
-  UnsubscribeRequestSchema,
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-  GetTaskRequestSchema,
-  GetTaskPayloadRequestSchema,
-  ListTasksRequestSchema,
-  CancelTaskRequestSchema
-]);
-var ClientNotificationSchema = z.union([
-  CancelledNotificationSchema,
-  ProgressNotificationSchema,
-  InitializedNotificationSchema,
-  RootsListChangedNotificationSchema,
-  TaskStatusNotificationSchema
-]);
-var ClientResultSchema = z.union([
-  EmptyResultSchema,
-  CreateMessageResultSchema,
-  CreateMessageResultWithToolsSchema,
-  ElicitResultSchema,
-  ListRootsResultSchema,
-  GetTaskResultSchema,
-  ListTasksResultSchema,
-  CreateTaskResultSchema
-]);
-var ServerRequestSchema = z.union([
-  PingRequestSchema,
-  CreateMessageRequestSchema,
-  ElicitRequestSchema,
-  ListRootsRequestSchema,
-  GetTaskRequestSchema,
-  GetTaskPayloadRequestSchema,
-  ListTasksRequestSchema,
-  CancelTaskRequestSchema
-]);
-var ServerNotificationSchema = z.union([
-  CancelledNotificationSchema,
-  ProgressNotificationSchema,
-  LoggingMessageNotificationSchema,
-  ResourceUpdatedNotificationSchema,
-  ResourceListChangedNotificationSchema,
-  ToolListChangedNotificationSchema,
-  PromptListChangedNotificationSchema,
-  TaskStatusNotificationSchema,
-  ElicitationCompleteNotificationSchema
-]);
-var ServerResultSchema = z.union([
-  EmptyResultSchema,
-  InitializeResultSchema,
-  CompleteResultSchema,
-  GetPromptResultSchema,
-  ListPromptsResultSchema,
-  ListResourcesResultSchema,
-  ListResourceTemplatesResultSchema,
-  ReadResourceResultSchema,
-  CallToolResultSchema,
-  ListToolsResultSchema,
-  GetTaskResultSchema,
-  ListTasksResultSchema,
-  CreateTaskResultSchema
-]);
-var McpError = class _McpError extends Error {
-  constructor(code, message, data) {
-    super(`MCP error ${code}: ${message}`);
-    this.code = code;
-    this.data = data;
-    this.name = "McpError";
-  }
-  /**
-   * Factory method to create the appropriate error type based on the error code and data
-   */
-  static fromError(code, message, data) {
-    if (code === ErrorCode.UrlElicitationRequired && data) {
-      const errorData = data;
-      if (errorData.elicitations) {
-        return new UrlElicitationRequiredError(errorData.elicitations, message);
-      }
-    }
-    return new _McpError(code, message, data);
-  }
-};
-var UrlElicitationRequiredError = class extends McpError {
-  constructor(elicitations, message = `URL elicitation${elicitations.length > 1 ? "s" : ""} required`) {
-    super(ErrorCode.UrlElicitationRequired, message, {
-      elicitations
-    });
-  }
-  get elicitations() {
-    return this.data?.elicitations ?? [];
-  }
-};
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
-function isTerminal(status) {
-  return status === "completed" || status === "failed" || status === "cancelled";
-}
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
-var z4mini2 = __toESM(require_v4_mini(), 1);
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Options.js
-var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
-var defaultOptions = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  target: "jsonSchema7",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  markdownDescription: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref",
-  openAiAnyTypeName: "OpenAiAnyType"
-};
-var getDefaultOptions = (options) => typeof options === "string" ? {
-  ...defaultOptions,
-  name: options
-} : {
-  ...defaultOptions,
-  ...options
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/Refs.js
-var getRefs = (options) => {
-  const _options = getDefaultOptions(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    flags: { hasReferencedOpenAiAnyType: false },
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(Object.entries(_options.definitions).map(([name, def]) => [
-      def._def,
-      {
-        def: def._def,
-        path: [..._options.basePath, _options.definitionPath, name],
-        // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-        jsonSchema: void 0
-      }
-    ]))
-  };
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
-function addErrorMessage(res, key, errorMessage, refs) {
-  if (!refs?.errorMessages)
-    return;
-  if (errorMessage) {
-    res.errorMessage = {
-      ...res.errorMessage,
-      [key]: errorMessage
-    };
-  }
-}
-function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
-  res[key] = value;
-  addErrorMessage(res, key, errorMessage, refs);
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
-var getRelativePath = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i])
-      break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/selectParser.js
-var import_v33 = __toESM(require_v3(), 1);
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
-function parseAnyDef(refs) {
-  if (refs.target !== "openAi") {
-    return {};
-  }
-  const anyDefinitionPath = [
-    ...refs.basePath,
-    refs.definitionPath,
-    refs.openAiAnyTypeName
-  ];
-  refs.flags.hasReferencedOpenAiAnyType = true;
-  return {
-    $ref: refs.$refStrategy === "relative" ? getRelativePath(anyDefinitionPath, refs.currentPath) : anyDefinitionPath.join("/")
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
-var import_v3 = __toESM(require_v3(), 1);
-function parseArrayDef(def, refs) {
-  const res = {
-    type: "array"
-  };
-  if (def.type?._def && def.type?._def?.typeName !== import_v3.ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    setResponseValueAndErrors(res, "minItems", def.minLength.value, def.minLength.message, refs);
-  }
-  if (def.maxLength) {
-    setResponseValueAndErrors(res, "maxItems", def.maxLength.value, def.maxLength.message, refs);
-  }
-  if (def.exactLength) {
-    setResponseValueAndErrors(res, "minItems", def.exactLength.value, def.exactLength.message, refs);
-    setResponseValueAndErrors(res, "maxItems", def.exactLength.value, def.exactLength.message, refs);
-  }
-  return res;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
-function parseBigintDef(def, refs) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks)
-    return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (refs.target === "jsonSchema7") {
-          if (check.inclusive) {
-            setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
-          } else {
-            setResponseValueAndErrors(res, "exclusiveMinimum", check.value, check.message, refs);
-          }
-        } else {
-          if (!check.inclusive) {
-            res.exclusiveMinimum = true;
-          }
-          setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
-        }
-        break;
-      case "max":
-        if (refs.target === "jsonSchema7") {
-          if (check.inclusive) {
-            setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
-          } else {
-            setResponseValueAndErrors(res, "exclusiveMaximum", check.value, check.message, refs);
-          }
-        } else {
-          if (!check.inclusive) {
-            res.exclusiveMaximum = true;
-          }
-          setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
-        }
-        break;
-      case "multipleOf":
-        setResponseValueAndErrors(res, "multipleOf", check.value, check.message, refs);
-        break;
-    }
-  }
-  return res;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
-function parseBooleanDef() {
-  return {
-    type: "boolean"
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
-function parseBrandedDef(_def, refs) {
-  return parseDef(_def.type._def, refs);
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
-var parseCatchDef = (def, refs) => {
-  return parseDef(def.innerType._def, refs);
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
-function parseDateDef(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy ?? refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser(def, refs);
-  }
-}
-var integerDateParser = (def, refs) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  if (refs.target === "openApi3") {
-    return res;
-  }
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        setResponseValueAndErrors(
-          res,
-          "minimum",
-          check.value,
-          // This is in milliseconds
-          check.message,
-          refs
-        );
-        break;
-      case "max":
-        setResponseValueAndErrors(
-          res,
-          "maximum",
-          check.value,
-          // This is in milliseconds
-          check.message,
-          refs
-        );
-        break;
-    }
-  }
-  return res;
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
-function parseDefaultDef(_def, refs) {
-  return {
-    ...parseDef(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
-function parseEffectsDef(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
-function parseEnumDef(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
-var isJsonSchema7AllOfType = (type) => {
-  if ("type" in type && type.type === "string")
-    return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef(def, refs) {
-  const allOf = [
-    parseDef(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  let unevaluatedProperties = refs.target === "jsonSchema2019-09" ? { unevaluatedProperties: false } : void 0;
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType(schema)) {
-      mergedAllOf.push(...schema.allOf);
-      if (schema.unevaluatedProperties === void 0) {
-        unevaluatedProperties = void 0;
-      }
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      } else {
-        unevaluatedProperties = void 0;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? {
-    allOf: mergedAllOf,
-    ...unevaluatedProperties
-  } : void 0;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
-function parseLiteralDef(def, refs) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  if (refs.target === "openApi3") {
-    return {
-      type: parsedType === "bigint" ? "integer" : parsedType,
-      enum: [def.value]
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
-var import_v32 = __toESM(require_v3(), 1);
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
-var emojiRegex = void 0;
-var zodPatterns = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex === void 0) {
-      emojiRegex = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
-    }
-    return emojiRegex;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value, check.message, refs);
-          break;
-        case "max":
-          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value, check.message, refs);
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern(res, zodPatterns.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern(res, zodPatterns.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern(res, zodPatterns.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern(res, RegExp(`^${escapeLiteralCheckValue(check.value, refs)}`), check.message, refs);
-          break;
-        case "endsWith":
-          addPattern(res, RegExp(`${escapeLiteralCheckValue(check.value, refs)}$`), check.message, refs);
-          break;
-        case "datetime":
-          addFormat(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat(res, "duration", check.message, refs);
-          break;
-        case "length":
-          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value, check.message, refs);
-          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value, check.message, refs);
-          break;
-        case "includes": {
-          addPattern(res, RegExp(escapeLiteralCheckValue(check.value, refs)), check.message, refs);
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern(res, zodPatterns.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern(res, zodPatterns.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern(res, zodPatterns.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern(res, zodPatterns.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern(res, zodPatterns.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern(res, zodPatterns.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              setResponseValueAndErrors(res, "contentEncoding", "base64", check.message, refs);
-              break;
-            }
-            case "pattern:zod": {
-              addPattern(res, zodPatterns.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern(res, zodPatterns.nanoid, check.message, refs);
-        }
-        case "toLowerCase":
-        case "toUpperCase":
-        case "trim":
-          break;
-        default:
-          /* @__PURE__ */ ((_) => {
-          })(check);
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue(literal2, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric(literal2) : literal2;
-}
-var ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
-function escapeNonAlphaNumeric(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat(schema, value, message, refs) {
-  if (schema.format || schema.anyOf?.some((x) => x.format)) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format,
-        ...schema.errorMessage && refs.errorMessages && {
-          errorMessage: { format: schema.errorMessage.format }
-        }
-      });
-      delete schema.format;
-      if (schema.errorMessage) {
-        delete schema.errorMessage.format;
-        if (Object.keys(schema.errorMessage).length === 0) {
-          delete schema.errorMessage;
-        }
-      }
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    setResponseValueAndErrors(schema, "format", value, message, refs);
-  }
-}
-function addPattern(schema, regex, message, refs) {
-  if (schema.pattern || schema.allOf?.some((x) => x.pattern)) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern,
-        ...schema.errorMessage && refs.errorMessages && {
-          errorMessage: { pattern: schema.errorMessage.pattern }
-        }
-      });
-      delete schema.pattern;
-      if (schema.errorMessage) {
-        delete schema.errorMessage.pattern;
-        if (Object.keys(schema.errorMessage).length === 0) {
-          delete schema.errorMessage;
-        }
-      }
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    setResponseValueAndErrors(schema, "pattern", stringifyRegExpWithFlags(regex, refs), message, refs);
-  }
-}
-function stringifyRegExpWithFlags(regex, refs) {
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    m: regex.flags.includes("m"),
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && source[i + 2]?.match(/[a-z]/)) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch {
-    console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`);
-    return regex.source;
-  }
-  return pattern;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
-function parseRecordDef(def, refs) {
-  if (refs.target === "openAi") {
-    console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
-  }
-  if (refs.target === "openApi3" && def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      type: "object",
-      required: def.keyType._def.values,
-      properties: def.keyType._def.values.reduce((acc, key) => ({
-        ...acc,
-        [key]: parseDef(def.valueType._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "properties", key]
-        }) ?? parseAnyDef(refs)
-      }), {}),
-      additionalProperties: refs.rejectedAdditionalProperties
-    };
-  }
-  const schema = {
-    type: "object",
-    additionalProperties: parseDef(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    }) ?? refs.allowedAdditionalProperties
-  };
-  if (refs.target === "openApi3") {
-    return schema;
-  }
-  if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodString && def.keyType._def.checks?.length) {
-    const { type, ...keyType } = parseStringDef(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (def.keyType?._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === import_v32.ZodFirstPartyTypeKind.ZodString && def.keyType._def.type._def.checks?.length) {
-    const { type, ...keyType } = parseBrandedDef(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
-function parseMapDef(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef(def, refs);
-  }
-  const keys = parseDef(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef(refs);
-  const values = parseDef(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef(refs);
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
-function parseNativeEnumDef(def) {
-  const object4 = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object4[object4[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object4[key]);
-  const parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
-function parseNeverDef(refs) {
-  return refs.target === "openAi" ? void 0 : {
-    not: parseAnyDef({
-      ...refs,
-      currentPath: [...refs.currentPath, "not"]
-    })
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
-function parseNullDef(refs) {
-  return refs.target === "openApi3" ? {
-    enum: ["null"],
-    nullable: true
-  } : {
-    type: "null"
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
-var primitiveMappings = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef(def, refs) {
-  if (refs.target === "openApi3")
-    return asAnyOf(def, refs);
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every((x) => x._def.typeName in primitiveMappings && (!x._def.checks || !x._def.checks.length))) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce((acc, x) => {
-      const type = typeof x._def.value;
-      switch (type) {
-        case "string":
-        case "number":
-        case "boolean":
-          return [...acc, type];
-        case "bigint":
-          return [...acc, "integer"];
-        case "object":
-          if (x._def.value === null)
-            return [...acc, "null"];
-        case "symbol":
-        case "undefined":
-        case "function":
-        default:
-          return acc;
-      }
-    }, []);
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce((acc, x) => {
-          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-        }, [])
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce((acc, x) => [
-        ...acc,
-        ...x._def.values.filter((x2) => !acc.includes(x2))
-      ], [])
-    };
-  }
-  return asAnyOf(def, refs);
-}
-var asAnyOf = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef(x._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", `${i}`]
-  })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
-function parseNullableDef(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    if (refs.target === "openApi3") {
-      return {
-        type: primitiveMappings[def.innerType._def.typeName],
-        nullable: true
-      };
-    }
-    return {
-      type: [
-        primitiveMappings[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  if (refs.target === "openApi3") {
-    const base2 = parseDef(def.innerType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath]
-    });
-    if (base2 && "$ref" in base2)
-      return { allOf: [base2], nullable: true };
-    return base2 && { ...base2, nullable: true };
-  }
-  const base = parseDef(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
-function parseNumberDef(def, refs) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks)
-    return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        addErrorMessage(res, "type", check.message, refs);
-        break;
-      case "min":
-        if (refs.target === "jsonSchema7") {
-          if (check.inclusive) {
-            setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
-          } else {
-            setResponseValueAndErrors(res, "exclusiveMinimum", check.value, check.message, refs);
-          }
-        } else {
-          if (!check.inclusive) {
-            res.exclusiveMinimum = true;
-          }
-          setResponseValueAndErrors(res, "minimum", check.value, check.message, refs);
-        }
-        break;
-      case "max":
-        if (refs.target === "jsonSchema7") {
-          if (check.inclusive) {
-            setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
-          } else {
-            setResponseValueAndErrors(res, "exclusiveMaximum", check.value, check.message, refs);
-          }
-        } else {
-          if (!check.inclusive) {
-            res.exclusiveMaximum = true;
-          }
-          setResponseValueAndErrors(res, "maximum", check.value, check.message, refs);
-        }
-        break;
-      case "multipleOf":
-        setResponseValueAndErrors(res, "multipleOf", check.value, check.message, refs);
-        break;
-    }
-  }
-  return res;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
-function parseObjectDef(def, refs) {
-  const forceOptionalIntoNullable = refs.target === "openAi";
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    let propOptional = safeIsOptional(propDef);
-    if (propOptional && forceOptionalIntoNullable) {
-      if (propDef._def.typeName === "ZodOptional") {
-        propDef = propDef._def.innerType;
-      }
-      if (!propDef.isNullable()) {
-        propDef = propDef.nullable();
-      }
-      propOptional = false;
-    }
-    const parsedDef = parseDef(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional(schema) {
-  try {
-    return schema.isOptional();
-  } catch {
-    return true;
-  }
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
-var parseOptionalDef = (def, refs) => {
-  if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
-    return parseDef(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? {
-    anyOf: [
-      {
-        not: parseAnyDef(refs)
-      },
-      innerSchema
-    ]
-  } : parseAnyDef(refs);
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
-var parsePipelineDef = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef(def.out._def, refs);
-  }
-  const a = parseDef(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
-function parsePromiseDef(def, refs) {
-  return parseDef(def.type._def, refs);
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
-function parseSetDef(def, refs) {
-  const items = parseDef(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    setResponseValueAndErrors(schema, "minItems", def.minSize.value, def.minSize.message, refs);
-  }
-  if (def.maxSize) {
-    setResponseValueAndErrors(schema, "maxItems", def.maxSize.value, def.maxSize.message, refs);
-  }
-  return schema;
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
-function parseTupleDef(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map((x, i) => parseDef(x._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "items", `${i}`]
-      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
-      additionalItems: parseDef(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map((x, i) => parseDef(x._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "items", `${i}`]
-      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
-    };
-  }
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
-function parseUndefinedDef(refs) {
-  return {
-    not: parseAnyDef(refs)
-  };
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
-function parseUnknownDef(refs) {
-  return parseAnyDef(refs);
-}
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
-var parseReadonlyDef = (def, refs) => {
-  return parseDef(def.innerType._def, refs);
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/selectParser.js
-var selectParser = (def, typeName, refs) => {
-  switch (typeName) {
-    case import_v33.ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef();
-    case import_v33.ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef(refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef(refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodUnion:
-    case import_v33.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef(def);
-    case import_v33.ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef(def);
-    case import_v33.ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case import_v33.ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodNaN:
-    case import_v33.ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef(refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef(refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef(refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef(def, refs);
-    case import_v33.ZodFirstPartyTypeKind.ZodFunction:
-    case import_v33.ZodFirstPartyTypeKind.ZodVoid:
-    case import_v33.ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)(typeName);
-  }
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/parseDef.js
-function parseDef(def, refs, forceResolution = false) {
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = refs.override?.(def, refs, seenItem, forceResolution);
-    if (overrideResult !== ignoreOverride) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser(def, def.typeName, refs);
-  const jsonSchema = typeof jsonSchemaOrGetter === "function" ? parseDef(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema) {
-    addMeta(def, refs, jsonSchema);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema, def, refs);
-    newItem.jsonSchema = jsonSchema;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema;
-  return jsonSchema;
-}
-var get$ref = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`);
-        return parseAnyDef(refs);
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef(refs) : void 0;
-    }
-  }
-};
-var addMeta = (def, refs, jsonSchema) => {
-  if (def.description) {
-    jsonSchema.description = def.description;
-    if (refs.markdownDescription) {
-      jsonSchema.markdownDescription = def.description;
-    }
-  }
-  return jsonSchema;
-};
-
-// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
-var zodToJsonSchema = (schema, options) => {
-  const refs = getRefs(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name2, schema2]) => ({
-    ...acc,
-    [name2]: parseDef(schema2._def, {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    }, true) ?? parseAnyDef(refs)
-  }), {}) : void 0;
-  const name = typeof options === "string" ? options : options?.nameStrategy === "title" ? void 0 : options?.name;
-  const main2 = parseDef(schema._def, name === void 0 ? refs : {
-    ...refs,
-    currentPath: [...refs.basePath, refs.definitionPath, name]
-  }, false) ?? parseAnyDef(refs);
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main2.title = title;
-  }
-  if (refs.flags.hasReferencedOpenAiAnyType) {
-    if (!definitions) {
-      definitions = {};
-    }
-    if (!definitions[refs.openAiAnyTypeName]) {
-      definitions[refs.openAiAnyTypeName] = {
-        // Skipping "object" as no properties can be defined and additionalProperties must be "false"
-        type: ["string", "number", "integer", "boolean", "array", "null"],
-        items: {
-          $ref: refs.$refStrategy === "relative" ? "1" : [
-            ...refs.basePath,
-            refs.definitionPath,
-            refs.openAiAnyTypeName
-          ].join("/")
-        }
-      };
-    }
-  }
-  const combined = name === void 0 ? definitions ? {
-    ...main2,
-    [refs.definitionPath]: definitions
-  } : main2 : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name]: main2
-    }
-  };
-  if (refs.target === "jsonSchema7") {
-    combined.$schema = "http://json-schema.org/draft-07/schema#";
-  } else if (refs.target === "jsonSchema2019-09" || refs.target === "openAi") {
-    combined.$schema = "https://json-schema.org/draft/2019-09/schema#";
-  }
-  if (refs.target === "openAi" && ("anyOf" in combined || "oneOf" in combined || "allOf" in combined || "type" in combined && Array.isArray(combined.type))) {
-    console.warn("Warning: OpenAI may not support schemas with unions as roots! Try wrapping it in an object property.");
-  }
-  return combined;
-};
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
-function mapMiniTarget(t) {
-  if (!t)
-    return "draft-7";
-  if (t === "jsonSchema7" || t === "draft-7")
-    return "draft-7";
-  if (t === "jsonSchema2019-09" || t === "draft-2020-12")
-    return "draft-2020-12";
-  return "draft-7";
-}
-function toJsonSchemaCompat(schema, opts) {
-  if (isZ4Schema(schema)) {
-    return z4mini2.toJSONSchema(schema, {
-      target: mapMiniTarget(opts?.target),
-      io: opts?.pipeStrategy ?? "input"
-    });
-  }
-  return zodToJsonSchema(schema, {
-    strictUnions: opts?.strictUnions ?? true,
-    pipeStrategy: opts?.pipeStrategy ?? "input"
-  });
-}
-function getMethodLiteral(schema) {
-  const shape = getObjectShape(schema);
-  const methodSchema = shape?.method;
-  if (!methodSchema) {
-    throw new Error("Schema is missing a method literal");
-  }
-  const value = getLiteralValue(methodSchema);
-  if (typeof value !== "string") {
-    throw new Error("Schema method literal must be a string");
-  }
-  return value;
-}
-function parseWithCompat(schema, data) {
-  const result = safeParse2(schema, data);
-  if (!result.success) {
-    throw result.error;
-  }
-  return result.data;
-}
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
-var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
-var Protocol = class {
-  constructor(_options) {
-    this._options = _options;
-    this._requestMessageId = 0;
-    this._requestHandlers = /* @__PURE__ */ new Map();
-    this._requestHandlerAbortControllers = /* @__PURE__ */ new Map();
-    this._notificationHandlers = /* @__PURE__ */ new Map();
-    this._responseHandlers = /* @__PURE__ */ new Map();
-    this._progressHandlers = /* @__PURE__ */ new Map();
-    this._timeoutInfo = /* @__PURE__ */ new Map();
-    this._pendingDebouncedNotifications = /* @__PURE__ */ new Set();
-    this._taskProgressTokens = /* @__PURE__ */ new Map();
-    this._requestResolvers = /* @__PURE__ */ new Map();
-    this.setNotificationHandler(CancelledNotificationSchema, (notification) => {
-      this._oncancel(notification);
-    });
-    this.setNotificationHandler(ProgressNotificationSchema, (notification) => {
-      this._onprogress(notification);
-    });
-    this.setRequestHandler(
-      PingRequestSchema,
-      // Automatic pong by default.
-      (_request) => ({})
-    );
-    this._taskStore = _options?.taskStore;
-    this._taskMessageQueue = _options?.taskMessageQueue;
-    if (this._taskStore) {
-      this.setRequestHandler(GetTaskRequestSchema, async (request, extra) => {
-        const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
-        }
-        return {
-          ...task
-        };
-      });
-      this.setRequestHandler(GetTaskPayloadRequestSchema, async (request, extra) => {
-        const handleTaskResult = async () => {
-          const taskId = request.params.taskId;
-          if (this._taskMessageQueue) {
-            let queuedMessage;
-            while (queuedMessage = await this._taskMessageQueue.dequeue(taskId, extra.sessionId)) {
-              if (queuedMessage.type === "response" || queuedMessage.type === "error") {
-                const message = queuedMessage.message;
-                const requestId = message.id;
-                const resolver = this._requestResolvers.get(requestId);
-                if (resolver) {
-                  this._requestResolvers.delete(requestId);
-                  if (queuedMessage.type === "response") {
-                    resolver(message);
-                  } else {
-                    const errorMessage = message;
-                    const error = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
-                    resolver(error);
-                  }
-                } else {
-                  const messageType = queuedMessage.type === "response" ? "Response" : "Error";
-                  this._onerror(new Error(`${messageType} handler missing for request ${requestId}`));
-                }
-                continue;
-              }
-              await this._transport?.send(queuedMessage.message, { relatedRequestId: extra.requestId });
-            }
-          }
-          const task = await this._taskStore.getTask(taskId, extra.sessionId);
-          if (!task) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${taskId}`);
-          }
-          if (!isTerminal(task.status)) {
-            await this._waitForTaskUpdate(taskId, extra.signal);
-            return await handleTaskResult();
-          }
-          if (isTerminal(task.status)) {
-            const result = await this._taskStore.getTaskResult(taskId, extra.sessionId);
-            this._clearTaskQueue(taskId);
-            return {
-              ...result,
-              _meta: {
-                ...result._meta,
-                [RELATED_TASK_META_KEY]: {
-                  taskId
-                }
-              }
-            };
-          }
-          return await handleTaskResult();
-        };
-        return await handleTaskResult();
-      });
-      this.setRequestHandler(ListTasksRequestSchema, async (request, extra) => {
-        try {
-          const { tasks, nextCursor } = await this._taskStore.listTasks(request.params?.cursor, extra.sessionId);
-          return {
-            tasks,
-            nextCursor,
-            _meta: {}
-          };
-        } catch (error) {
-          throw new McpError(ErrorCode.InvalidParams, `Failed to list tasks: ${error instanceof Error ? error.message : String(error)}`);
-        }
-      });
-      this.setRequestHandler(CancelTaskRequestSchema, async (request, extra) => {
-        try {
-          const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-          if (!task) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${request.params.taskId}`);
-          }
-          if (isTerminal(task.status)) {
-            throw new McpError(ErrorCode.InvalidParams, `Cannot cancel task in terminal status: ${task.status}`);
-          }
-          await this._taskStore.updateTaskStatus(request.params.taskId, "cancelled", "Client cancelled task execution.", extra.sessionId);
-          this._clearTaskQueue(request.params.taskId);
-          const cancelledTask = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-          if (!cancelledTask) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found after cancellation: ${request.params.taskId}`);
-          }
-          return {
-            _meta: {},
-            ...cancelledTask
-          };
-        } catch (error) {
-          if (error instanceof McpError) {
-            throw error;
-          }
-          throw new McpError(ErrorCode.InvalidRequest, `Failed to cancel task: ${error instanceof Error ? error.message : String(error)}`);
-        }
-      });
-    }
-  }
-  async _oncancel(notification) {
-    if (!notification.params.requestId) {
-      return;
-    }
-    const controller = this._requestHandlerAbortControllers.get(notification.params.requestId);
-    controller?.abort(notification.params.reason);
-  }
-  _setupTimeout(messageId, timeout, maxTotalTimeout, onTimeout, resetTimeoutOnProgress = false) {
-    this._timeoutInfo.set(messageId, {
-      timeoutId: setTimeout(onTimeout, timeout),
-      startTime: Date.now(),
-      timeout,
-      maxTotalTimeout,
-      resetTimeoutOnProgress,
-      onTimeout
-    });
-  }
-  _resetTimeout(messageId) {
-    const info = this._timeoutInfo.get(messageId);
-    if (!info)
-      return false;
-    const totalElapsed = Date.now() - info.startTime;
-    if (info.maxTotalTimeout && totalElapsed >= info.maxTotalTimeout) {
-      this._timeoutInfo.delete(messageId);
-      throw McpError.fromError(ErrorCode.RequestTimeout, "Maximum total timeout exceeded", {
-        maxTotalTimeout: info.maxTotalTimeout,
-        totalElapsed
-      });
-    }
-    clearTimeout(info.timeoutId);
-    info.timeoutId = setTimeout(info.onTimeout, info.timeout);
-    return true;
-  }
-  _cleanupTimeout(messageId) {
-    const info = this._timeoutInfo.get(messageId);
-    if (info) {
-      clearTimeout(info.timeoutId);
-      this._timeoutInfo.delete(messageId);
-    }
-  }
-  /**
-   * Attaches to the given transport, starts it, and starts listening for messages.
-   *
-   * The Protocol object assumes ownership of the Transport, replacing any callbacks that have already been set, and expects that it is the only user of the Transport instance going forward.
-   */
-  async connect(transport) {
-    if (this._transport) {
-      throw new Error("Already connected to a transport. Call close() before connecting to a new transport, or use a separate Protocol instance per connection.");
-    }
-    this._transport = transport;
-    const _onclose = this.transport?.onclose;
-    this._transport.onclose = () => {
-      _onclose?.();
-      this._onclose();
-    };
-    const _onerror = this.transport?.onerror;
-    this._transport.onerror = (error) => {
-      _onerror?.(error);
-      this._onerror(error);
-    };
-    const _onmessage = this._transport?.onmessage;
-    this._transport.onmessage = (message, extra) => {
-      _onmessage?.(message, extra);
-      if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
-        this._onresponse(message);
-      } else if (isJSONRPCRequest(message)) {
-        this._onrequest(message, extra);
-      } else if (isJSONRPCNotification(message)) {
-        this._onnotification(message);
-      } else {
-        this._onerror(new Error(`Unknown message type: ${JSON.stringify(message)}`));
-      }
-    };
-    await this._transport.start();
-  }
-  _onclose() {
-    const responseHandlers = this._responseHandlers;
-    this._responseHandlers = /* @__PURE__ */ new Map();
-    this._progressHandlers.clear();
-    this._taskProgressTokens.clear();
-    this._pendingDebouncedNotifications.clear();
-    for (const info of this._timeoutInfo.values()) {
-      clearTimeout(info.timeoutId);
-    }
-    this._timeoutInfo.clear();
-    for (const controller of this._requestHandlerAbortControllers.values()) {
-      controller.abort();
-    }
-    this._requestHandlerAbortControllers.clear();
-    const error = McpError.fromError(ErrorCode.ConnectionClosed, "Connection closed");
-    this._transport = void 0;
-    this.onclose?.();
-    for (const handler of responseHandlers.values()) {
-      handler(error);
-    }
-  }
-  _onerror(error) {
-    this.onerror?.(error);
-  }
-  _onnotification(notification) {
-    const handler = this._notificationHandlers.get(notification.method) ?? this.fallbackNotificationHandler;
-    if (handler === void 0) {
-      return;
-    }
-    Promise.resolve().then(() => handler(notification)).catch((error) => this._onerror(new Error(`Uncaught error in notification handler: ${error}`)));
-  }
-  _onrequest(request, extra) {
-    const handler = this._requestHandlers.get(request.method) ?? this.fallbackRequestHandler;
-    const capturedTransport = this._transport;
-    const relatedTaskId = request.params?._meta?.[RELATED_TASK_META_KEY]?.taskId;
-    if (handler === void 0) {
-      const errorResponse = {
-        jsonrpc: "2.0",
-        id: request.id,
-        error: {
-          code: ErrorCode.MethodNotFound,
-          message: "Method not found"
-        }
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        this._enqueueTaskMessage(relatedTaskId, {
-          type: "error",
-          message: errorResponse,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId).catch((error) => this._onerror(new Error(`Failed to enqueue error response: ${error}`)));
-      } else {
-        capturedTransport?.send(errorResponse).catch((error) => this._onerror(new Error(`Failed to send an error response: ${error}`)));
-      }
-      return;
-    }
-    const abortController = new AbortController();
-    this._requestHandlerAbortControllers.set(request.id, abortController);
-    const taskCreationParams = isTaskAugmentedRequestParams(request.params) ? request.params.task : void 0;
-    const taskStore = this._taskStore ? this.requestTaskStore(request, capturedTransport?.sessionId) : void 0;
-    const fullExtra = {
-      signal: abortController.signal,
-      sessionId: capturedTransport?.sessionId,
-      _meta: request.params?._meta,
-      sendNotification: async (notification) => {
-        if (abortController.signal.aborted)
-          return;
-        const notificationOptions = { relatedRequestId: request.id };
-        if (relatedTaskId) {
-          notificationOptions.relatedTask = { taskId: relatedTaskId };
-        }
-        await this.notification(notification, notificationOptions);
-      },
-      sendRequest: async (r, resultSchema, options) => {
-        if (abortController.signal.aborted) {
-          throw new McpError(ErrorCode.ConnectionClosed, "Request was cancelled");
-        }
-        const requestOptions = { ...options, relatedRequestId: request.id };
-        if (relatedTaskId && !requestOptions.relatedTask) {
-          requestOptions.relatedTask = { taskId: relatedTaskId };
-        }
-        const effectiveTaskId = requestOptions.relatedTask?.taskId ?? relatedTaskId;
-        if (effectiveTaskId && taskStore) {
-          await taskStore.updateTaskStatus(effectiveTaskId, "input_required");
-        }
-        return await this.request(r, resultSchema, requestOptions);
-      },
-      authInfo: extra?.authInfo,
-      requestId: request.id,
-      requestInfo: extra?.requestInfo,
-      taskId: relatedTaskId,
-      taskStore,
-      taskRequestedTtl: taskCreationParams?.ttl,
-      closeSSEStream: extra?.closeSSEStream,
-      closeStandaloneSSEStream: extra?.closeStandaloneSSEStream
-    };
-    Promise.resolve().then(() => {
-      if (taskCreationParams) {
-        this.assertTaskHandlerCapability(request.method);
-      }
-    }).then(() => handler(request, fullExtra)).then(async (result) => {
-      if (abortController.signal.aborted) {
-        return;
-      }
-      const response = {
-        result,
-        jsonrpc: "2.0",
-        id: request.id
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        await this._enqueueTaskMessage(relatedTaskId, {
-          type: "response",
-          message: response,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId);
-      } else {
-        await capturedTransport?.send(response);
-      }
-    }, async (error) => {
-      if (abortController.signal.aborted) {
-        return;
-      }
-      const errorResponse = {
-        jsonrpc: "2.0",
-        id: request.id,
-        error: {
-          code: Number.isSafeInteger(error["code"]) ? error["code"] : ErrorCode.InternalError,
-          message: error.message ?? "Internal error",
-          ...error["data"] !== void 0 && { data: error["data"] }
-        }
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        await this._enqueueTaskMessage(relatedTaskId, {
-          type: "error",
-          message: errorResponse,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId);
-      } else {
-        await capturedTransport?.send(errorResponse);
-      }
-    }).catch((error) => this._onerror(new Error(`Failed to send response: ${error}`))).finally(() => {
-      if (this._requestHandlerAbortControllers.get(request.id) === abortController) {
-        this._requestHandlerAbortControllers.delete(request.id);
-      }
-    });
-  }
-  _onprogress(notification) {
-    const { progressToken, ...params } = notification.params;
-    const messageId = Number(progressToken);
-    const handler = this._progressHandlers.get(messageId);
-    if (!handler) {
-      this._onerror(new Error(`Received a progress notification for an unknown token: ${JSON.stringify(notification)}`));
-      return;
-    }
-    const responseHandler = this._responseHandlers.get(messageId);
-    const timeoutInfo = this._timeoutInfo.get(messageId);
-    if (timeoutInfo && responseHandler && timeoutInfo.resetTimeoutOnProgress) {
-      try {
-        this._resetTimeout(messageId);
-      } catch (error) {
-        this._responseHandlers.delete(messageId);
-        this._progressHandlers.delete(messageId);
-        this._cleanupTimeout(messageId);
-        responseHandler(error);
-        return;
-      }
-    }
-    handler(params);
-  }
-  _onresponse(response) {
-    const messageId = Number(response.id);
-    const resolver = this._requestResolvers.get(messageId);
-    if (resolver) {
-      this._requestResolvers.delete(messageId);
-      if (isJSONRPCResultResponse(response)) {
-        resolver(response);
-      } else {
-        const error = new McpError(response.error.code, response.error.message, response.error.data);
-        resolver(error);
-      }
-      return;
-    }
-    const handler = this._responseHandlers.get(messageId);
-    if (handler === void 0) {
-      this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response)}`));
-      return;
-    }
-    this._responseHandlers.delete(messageId);
-    this._cleanupTimeout(messageId);
-    let isTaskResponse = false;
-    if (isJSONRPCResultResponse(response) && response.result && typeof response.result === "object") {
-      const result = response.result;
-      if (result.task && typeof result.task === "object") {
-        const task = result.task;
-        if (typeof task.taskId === "string") {
-          isTaskResponse = true;
-          this._taskProgressTokens.set(task.taskId, messageId);
-        }
-      }
-    }
-    if (!isTaskResponse) {
-      this._progressHandlers.delete(messageId);
-    }
-    if (isJSONRPCResultResponse(response)) {
-      handler(response);
-    } else {
-      const error = McpError.fromError(response.error.code, response.error.message, response.error.data);
-      handler(error);
-    }
-  }
-  get transport() {
-    return this._transport;
-  }
-  /**
-   * Closes the connection.
-   */
-  async close() {
-    await this._transport?.close();
-  }
-  /**
-   * Sends a request and returns an AsyncGenerator that yields response messages.
-   * The generator is guaranteed to end with either a 'result' or 'error' message.
-   *
-   * @example
-   * ```typescript
-   * const stream = protocol.requestStream(request, resultSchema, options);
-   * for await (const message of stream) {
-   *   switch (message.type) {
-   *     case 'taskCreated':
-   *       console.log('Task created:', message.task.taskId);
-   *       break;
-   *     case 'taskStatus':
-   *       console.log('Task status:', message.task.status);
-   *       break;
-   *     case 'result':
-   *       console.log('Final result:', message.result);
-   *       break;
-   *     case 'error':
-   *       console.error('Error:', message.error);
-   *       break;
-   *   }
-   * }
-   * ```
-   *
-   * @experimental Use `client.experimental.tasks.requestStream()` to access this method.
-   */
-  async *requestStream(request, resultSchema, options) {
-    const { task } = options ?? {};
-    if (!task) {
-      try {
-        const result = await this.request(request, resultSchema, options);
-        yield { type: "result", result };
-      } catch (error) {
-        yield {
-          type: "error",
-          error: error instanceof McpError ? error : new McpError(ErrorCode.InternalError, String(error))
-        };
-      }
-      return;
-    }
-    let taskId;
-    try {
-      const createResult = await this.request(request, CreateTaskResultSchema, options);
-      if (createResult.task) {
-        taskId = createResult.task.taskId;
-        yield { type: "taskCreated", task: createResult.task };
-      } else {
-        throw new McpError(ErrorCode.InternalError, "Task creation did not return a task");
-      }
-      while (true) {
-        const task2 = await this.getTask({ taskId }, options);
-        yield { type: "taskStatus", task: task2 };
-        if (isTerminal(task2.status)) {
-          if (task2.status === "completed") {
-            const result = await this.getTaskResult({ taskId }, resultSchema, options);
-            yield { type: "result", result };
-          } else if (task2.status === "failed") {
-            yield {
-              type: "error",
-              error: new McpError(ErrorCode.InternalError, `Task ${taskId} failed`)
-            };
-          } else if (task2.status === "cancelled") {
-            yield {
-              type: "error",
-              error: new McpError(ErrorCode.InternalError, `Task ${taskId} was cancelled`)
-            };
-          }
-          return;
-        }
-        if (task2.status === "input_required") {
-          const result = await this.getTaskResult({ taskId }, resultSchema, options);
-          yield { type: "result", result };
-          return;
-        }
-        const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
-        options?.signal?.throwIfAborted();
-      }
-    } catch (error) {
-      yield {
-        type: "error",
-        error: error instanceof McpError ? error : new McpError(ErrorCode.InternalError, String(error))
-      };
-    }
-  }
-  /**
-   * Sends a request and waits for a response.
-   *
-   * Do not use this method to emit notifications! Use notification() instead.
-   */
-  request(request, resultSchema, options) {
-    const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve3, reject2) => {
-      const earlyReject = (error) => {
-        reject2(error);
-      };
-      if (!this._transport) {
-        earlyReject(new Error("Not connected"));
-        return;
-      }
-      if (this._options?.enforceStrictCapabilities === true) {
-        try {
-          this.assertCapabilityForMethod(request.method);
-          if (task) {
-            this.assertTaskCapability(request.method);
-          }
-        } catch (e) {
-          earlyReject(e);
-          return;
-        }
-      }
-      options?.signal?.throwIfAborted();
-      const messageId = this._requestMessageId++;
-      const jsonrpcRequest = {
-        ...request,
-        jsonrpc: "2.0",
-        id: messageId
-      };
-      if (options?.onprogress) {
-        this._progressHandlers.set(messageId, options.onprogress);
-        jsonrpcRequest.params = {
-          ...request.params,
-          _meta: {
-            ...request.params?._meta || {},
-            progressToken: messageId
-          }
-        };
-      }
-      if (task) {
-        jsonrpcRequest.params = {
-          ...jsonrpcRequest.params,
-          task
-        };
-      }
-      if (relatedTask) {
-        jsonrpcRequest.params = {
-          ...jsonrpcRequest.params,
-          _meta: {
-            ...jsonrpcRequest.params?._meta || {},
-            [RELATED_TASK_META_KEY]: relatedTask
-          }
-        };
-      }
-      const cancel = (reason) => {
-        this._responseHandlers.delete(messageId);
-        this._progressHandlers.delete(messageId);
-        this._cleanupTimeout(messageId);
-        this._transport?.send({
-          jsonrpc: "2.0",
-          method: "notifications/cancelled",
-          params: {
-            requestId: messageId,
-            reason: String(reason)
-          }
-        }, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error2) => this._onerror(new Error(`Failed to send cancellation: ${error2}`)));
-        const error = reason instanceof McpError ? reason : new McpError(ErrorCode.RequestTimeout, String(reason));
-        reject2(error);
-      };
-      this._responseHandlers.set(messageId, (response) => {
-        if (options?.signal?.aborted) {
-          return;
-        }
-        if (response instanceof Error) {
-          return reject2(response);
-        }
-        try {
-          const parseResult = safeParse2(resultSchema, response.result);
-          if (!parseResult.success) {
-            reject2(parseResult.error);
-          } else {
-            resolve3(parseResult.data);
-          }
-        } catch (error) {
-          reject2(error);
-        }
-      });
-      options?.signal?.addEventListener("abort", () => {
-        cancel(options?.signal?.reason);
-      });
-      const timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT_MSEC;
-      const timeoutHandler = () => cancel(McpError.fromError(ErrorCode.RequestTimeout, "Request timed out", { timeout }));
-      this._setupTimeout(messageId, timeout, options?.maxTotalTimeout, timeoutHandler, options?.resetTimeoutOnProgress ?? false);
-      const relatedTaskId = relatedTask?.taskId;
-      if (relatedTaskId) {
-        const responseResolver = (response) => {
-          const handler = this._responseHandlers.get(messageId);
-          if (handler) {
-            handler(response);
-          } else {
-            this._onerror(new Error(`Response handler missing for side-channeled request ${messageId}`));
-          }
-        };
-        this._requestResolvers.set(messageId, responseResolver);
-        this._enqueueTaskMessage(relatedTaskId, {
-          type: "request",
-          message: jsonrpcRequest,
-          timestamp: Date.now()
-        }).catch((error) => {
-          this._cleanupTimeout(messageId);
-          reject2(error);
-        });
-      } else {
-        this._transport.send(jsonrpcRequest, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error) => {
-          this._cleanupTimeout(messageId);
-          reject2(error);
-        });
-      }
-    });
-  }
-  /**
-   * Gets the current status of a task.
-   *
-   * @experimental Use `client.experimental.tasks.getTask()` to access this method.
-   */
-  async getTask(params, options) {
-    return this.request({ method: "tasks/get", params }, GetTaskResultSchema, options);
-  }
-  /**
-   * Retrieves the result of a completed task.
-   *
-   * @experimental Use `client.experimental.tasks.getTaskResult()` to access this method.
-   */
-  async getTaskResult(params, resultSchema, options) {
-    return this.request({ method: "tasks/result", params }, resultSchema, options);
-  }
-  /**
-   * Lists tasks, optionally starting from a pagination cursor.
-   *
-   * @experimental Use `client.experimental.tasks.listTasks()` to access this method.
-   */
-  async listTasks(params, options) {
-    return this.request({ method: "tasks/list", params }, ListTasksResultSchema, options);
-  }
-  /**
-   * Cancels a specific task.
-   *
-   * @experimental Use `client.experimental.tasks.cancelTask()` to access this method.
-   */
-  async cancelTask(params, options) {
-    return this.request({ method: "tasks/cancel", params }, CancelTaskResultSchema, options);
-  }
-  /**
-   * Emits a notification, which is a one-way message that does not expect a response.
-   */
-  async notification(notification, options) {
-    if (!this._transport) {
-      throw new Error("Not connected");
-    }
-    this.assertNotificationCapability(notification.method);
-    const relatedTaskId = options?.relatedTask?.taskId;
-    if (relatedTaskId) {
-      const jsonrpcNotification2 = {
-        ...notification,
-        jsonrpc: "2.0",
-        params: {
-          ...notification.params,
-          _meta: {
-            ...notification.params?._meta || {},
-            [RELATED_TASK_META_KEY]: options.relatedTask
-          }
-        }
-      };
-      await this._enqueueTaskMessage(relatedTaskId, {
-        type: "notification",
-        message: jsonrpcNotification2,
-        timestamp: Date.now()
-      });
-      return;
-    }
-    const debouncedMethods = this._options?.debouncedNotificationMethods ?? [];
-    const canDebounce = debouncedMethods.includes(notification.method) && !notification.params && !options?.relatedRequestId && !options?.relatedTask;
-    if (canDebounce) {
-      if (this._pendingDebouncedNotifications.has(notification.method)) {
-        return;
-      }
-      this._pendingDebouncedNotifications.add(notification.method);
-      Promise.resolve().then(() => {
-        this._pendingDebouncedNotifications.delete(notification.method);
-        if (!this._transport) {
-          return;
-        }
-        let jsonrpcNotification2 = {
-          ...notification,
-          jsonrpc: "2.0"
-        };
-        if (options?.relatedTask) {
-          jsonrpcNotification2 = {
-            ...jsonrpcNotification2,
-            params: {
-              ...jsonrpcNotification2.params,
-              _meta: {
-                ...jsonrpcNotification2.params?._meta || {},
-                [RELATED_TASK_META_KEY]: options.relatedTask
-              }
-            }
-          };
-        }
-        this._transport?.send(jsonrpcNotification2, options).catch((error) => this._onerror(error));
-      });
-      return;
-    }
-    let jsonrpcNotification = {
-      ...notification,
-      jsonrpc: "2.0"
-    };
-    if (options?.relatedTask) {
-      jsonrpcNotification = {
-        ...jsonrpcNotification,
-        params: {
-          ...jsonrpcNotification.params,
-          _meta: {
-            ...jsonrpcNotification.params?._meta || {},
-            [RELATED_TASK_META_KEY]: options.relatedTask
-          }
-        }
-      };
-    }
-    await this._transport.send(jsonrpcNotification, options);
-  }
-  /**
-   * Registers a handler to invoke when this protocol object receives a request with the given method.
-   *
-   * Note that this will replace any previous request handler for the same method.
-   */
-  setRequestHandler(requestSchema, handler) {
-    const method = getMethodLiteral(requestSchema);
-    this.assertRequestHandlerCapability(method);
-    this._requestHandlers.set(method, (request, extra) => {
-      const parsed = parseWithCompat(requestSchema, request);
-      return Promise.resolve(handler(parsed, extra));
-    });
-  }
-  /**
-   * Removes the request handler for the given method.
-   */
-  removeRequestHandler(method) {
-    this._requestHandlers.delete(method);
-  }
-  /**
-   * Asserts that a request handler has not already been set for the given method, in preparation for a new one being automatically installed.
-   */
-  assertCanSetRequestHandler(method) {
-    if (this._requestHandlers.has(method)) {
-      throw new Error(`A request handler for ${method} already exists, which would be overridden`);
-    }
-  }
-  /**
-   * Registers a handler to invoke when this protocol object receives a notification with the given method.
-   *
-   * Note that this will replace any previous notification handler for the same method.
-   */
-  setNotificationHandler(notificationSchema, handler) {
-    const method = getMethodLiteral(notificationSchema);
-    this._notificationHandlers.set(method, (notification) => {
-      const parsed = parseWithCompat(notificationSchema, notification);
-      return Promise.resolve(handler(parsed));
-    });
-  }
-  /**
-   * Removes the notification handler for the given method.
-   */
-  removeNotificationHandler(method) {
-    this._notificationHandlers.delete(method);
-  }
-  /**
-   * Cleans up the progress handler associated with a task.
-   * This should be called when a task reaches a terminal status.
-   */
-  _cleanupTaskProgressHandler(taskId) {
-    const progressToken = this._taskProgressTokens.get(taskId);
-    if (progressToken !== void 0) {
-      this._progressHandlers.delete(progressToken);
-      this._taskProgressTokens.delete(taskId);
-    }
-  }
-  /**
-   * Enqueues a task-related message for side-channel delivery via tasks/result.
-   * @param taskId The task ID to associate the message with
-   * @param message The message to enqueue
-   * @param sessionId Optional session ID for binding the operation to a specific session
-   * @throws Error if taskStore is not configured or if enqueue fails (e.g., queue overflow)
-   *
-   * Note: If enqueue fails, it's the TaskMessageQueue implementation's responsibility to handle
-   * the error appropriately (e.g., by failing the task, logging, etc.). The Protocol layer
-   * simply propagates the error.
-   */
-  async _enqueueTaskMessage(taskId, message, sessionId) {
-    if (!this._taskStore || !this._taskMessageQueue) {
-      throw new Error("Cannot enqueue task message: taskStore and taskMessageQueue are not configured");
-    }
-    const maxQueueSize = this._options?.maxTaskQueueSize;
-    await this._taskMessageQueue.enqueue(taskId, message, sessionId, maxQueueSize);
-  }
-  /**
-   * Clears the message queue for a task and rejects any pending request resolvers.
-   * @param taskId The task ID whose queue should be cleared
-   * @param sessionId Optional session ID for binding the operation to a specific session
-   */
-  async _clearTaskQueue(taskId, sessionId) {
-    if (this._taskMessageQueue) {
-      const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
-      for (const message of messages) {
-        if (message.type === "request" && isJSONRPCRequest(message.message)) {
-          const requestId = message.message.id;
-          const resolver = this._requestResolvers.get(requestId);
-          if (resolver) {
-            resolver(new McpError(ErrorCode.InternalError, "Task cancelled or completed"));
-            this._requestResolvers.delete(requestId);
-          } else {
-            this._onerror(new Error(`Resolver missing for request ${requestId} during task ${taskId} cleanup`));
-          }
-        }
-      }
-    }
-  }
-  /**
-   * Waits for a task update (new messages or status change) with abort signal support.
-   * Uses polling to check for updates at the task's configured poll interval.
-   * @param taskId The task ID to wait for
-   * @param signal Abort signal to cancel the wait
-   * @returns Promise that resolves when an update occurs or rejects if aborted
-   */
-  async _waitForTaskUpdate(taskId, signal) {
-    let interval = this._options?.defaultTaskPollInterval ?? 1e3;
-    try {
-      const task = await this._taskStore?.getTask(taskId);
-      if (task?.pollInterval) {
-        interval = task.pollInterval;
-      }
-    } catch {
-    }
-    return new Promise((resolve3, reject2) => {
-      if (signal.aborted) {
-        reject2(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
-        return;
-      }
-      const timeoutId = setTimeout(resolve3, interval);
-      signal.addEventListener("abort", () => {
-        clearTimeout(timeoutId);
-        reject2(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
-      }, { once: true });
-    });
-  }
-  requestTaskStore(request, sessionId) {
-    const taskStore = this._taskStore;
-    if (!taskStore) {
-      throw new Error("No task store configured");
-    }
-    return {
-      createTask: async (taskParams) => {
-        if (!request) {
-          throw new Error("No request provided");
-        }
-        return await taskStore.createTask(taskParams, request.id, {
-          method: request.method,
-          params: request.params
-        }, sessionId);
-      },
-      getTask: async (taskId) => {
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
-        }
-        return task;
-      },
-      storeTaskResult: async (taskId, status, result) => {
-        await taskStore.storeTaskResult(taskId, status, result, sessionId);
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (task) {
-          const notification = TaskStatusNotificationSchema.parse({
-            method: "notifications/tasks/status",
-            params: task
-          });
-          await this.notification(notification);
-          if (isTerminal(task.status)) {
-            this._cleanupTaskProgressHandler(taskId);
-          }
-        }
-      },
-      getTaskResult: (taskId) => {
-        return taskStore.getTaskResult(taskId, sessionId);
-      },
-      updateTaskStatus: async (taskId, status, statusMessage) => {
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, `Task "${taskId}" not found - it may have been cleaned up`);
-        }
-        if (isTerminal(task.status)) {
-          throw new McpError(ErrorCode.InvalidParams, `Cannot update task "${taskId}" from terminal status "${task.status}" to "${status}". Terminal states (completed, failed, cancelled) cannot transition to other states.`);
-        }
-        await taskStore.updateTaskStatus(taskId, status, statusMessage, sessionId);
-        const updatedTask = await taskStore.getTask(taskId, sessionId);
-        if (updatedTask) {
-          const notification = TaskStatusNotificationSchema.parse({
-            method: "notifications/tasks/status",
-            params: updatedTask
-          });
-          await this.notification(notification);
-          if (isTerminal(updatedTask.status)) {
-            this._cleanupTaskProgressHandler(taskId);
-          }
-        }
-      },
-      listTasks: (cursor) => {
-        return taskStore.listTasks(cursor, sessionId);
-      }
-    };
-  }
-};
-function isPlainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-function mergeCapabilities(base, additional) {
-  const result = { ...base };
-  for (const key in additional) {
-    const k = key;
-    const addValue = additional[k];
-    if (addValue === void 0)
-      continue;
-    const baseValue = result[k];
-    if (isPlainObject(baseValue) && isPlainObject(addValue)) {
-      result[k] = { ...baseValue, ...addValue };
-    } else {
-      result[k] = addValue;
-    }
-  }
-  return result;
-}
-
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
-var import_ajv = __toESM(require_ajv(), 1);
-var import_ajv_formats = __toESM(require_dist(), 1);
 function createDefaultAjvInstance() {
   const ajv = new import_ajv.default({
     strict: false,
@@ -33467,272 +33742,285 @@ function createDefaultAjvInstance() {
   addFormats(ajv);
   return ajv;
 }
-var AjvJsonSchemaValidator = class {
-  /**
-   * Create an AJV validator
-   *
-   * @param ajv - Optional pre-configured AJV instance. If not provided, a default instance will be created.
-   *
-   * @example
-   * ```typescript
-   * // Use default configuration (recommended for most cases)
-   * import { AjvJsonSchemaValidator } from '@modelcontextprotocol/sdk/validation/ajv';
-   * const validator = new AjvJsonSchemaValidator();
-   *
-   * // Or provide custom AJV instance for advanced configuration
-   * import { Ajv } from 'ajv';
-   * import addFormats from 'ajv-formats';
-   *
-   * const ajv = new Ajv({ validateFormats: true });
-   * addFormats(ajv);
-   * const validator = new AjvJsonSchemaValidator(ajv);
-   * ```
-   */
-  constructor(ajv) {
-    this._ajv = ajv ?? createDefaultAjvInstance();
-  }
-  /**
-   * Create a validator for the given JSON Schema
-   *
-   * The validator is compiled once and can be reused multiple times.
-   * If the schema has an $id, it will be cached by AJV automatically.
-   *
-   * @param schema - Standard JSON Schema object
-   * @returns A validator function that validates input data
-   */
-  getValidator(schema) {
-    const ajvValidator = "$id" in schema && typeof schema.$id === "string" ? this._ajv.getSchema(schema.$id) ?? this._ajv.compile(schema) : this._ajv.compile(schema);
-    return (input) => {
-      const valid = ajvValidator(input);
-      if (valid) {
-        return {
-          valid: true,
-          data: input,
-          errorMessage: void 0
-        };
-      } else {
-        return {
-          valid: false,
-          data: void 0,
-          errorMessage: this._ajv.errorsText(ajvValidator.errors)
+var import_ajv, import_ajv_formats, AjvJsonSchemaValidator;
+var init_ajv_provider = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js"() {
+    import_ajv = __toESM(require_ajv(), 1);
+    import_ajv_formats = __toESM(require_dist(), 1);
+    AjvJsonSchemaValidator = class {
+      /**
+       * Create an AJV validator
+       *
+       * @param ajv - Optional pre-configured AJV instance. If not provided, a default instance will be created.
+       *
+       * @example
+       * ```typescript
+       * // Use default configuration (recommended for most cases)
+       * import { AjvJsonSchemaValidator } from '@modelcontextprotocol/sdk/validation/ajv';
+       * const validator = new AjvJsonSchemaValidator();
+       *
+       * // Or provide custom AJV instance for advanced configuration
+       * import { Ajv } from 'ajv';
+       * import addFormats from 'ajv-formats';
+       *
+       * const ajv = new Ajv({ validateFormats: true });
+       * addFormats(ajv);
+       * const validator = new AjvJsonSchemaValidator(ajv);
+       * ```
+       */
+      constructor(ajv) {
+        this._ajv = ajv ?? createDefaultAjvInstance();
+      }
+      /**
+       * Create a validator for the given JSON Schema
+       *
+       * The validator is compiled once and can be reused multiple times.
+       * If the schema has an $id, it will be cached by AJV automatically.
+       *
+       * @param schema - Standard JSON Schema object
+       * @returns A validator function that validates input data
+       */
+      getValidator(schema) {
+        const ajvValidator = "$id" in schema && typeof schema.$id === "string" ? this._ajv.getSchema(schema.$id) ?? this._ajv.compile(schema) : this._ajv.compile(schema);
+        return (input) => {
+          const valid = ajvValidator(input);
+          if (valid) {
+            return {
+              valid: true,
+              data: input,
+              errorMessage: void 0
+            };
+          } else {
+            return {
+              valid: false,
+              data: void 0,
+              errorMessage: this._ajv.errorsText(ajvValidator.errors)
+            };
+          }
         };
       }
     };
   }
-};
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
-var ExperimentalServerTasks = class {
-  constructor(_server) {
-    this._server = _server;
-  }
-  /**
-   * Sends a request and returns an AsyncGenerator that yields response messages.
-   * The generator is guaranteed to end with either a 'result' or 'error' message.
-   *
-   * This method provides streaming access to request processing, allowing you to
-   * observe intermediate task status updates for task-augmented requests.
-   *
-   * @param request - The request to send
-   * @param resultSchema - Zod schema for validating the result
-   * @param options - Optional request options (timeout, signal, task creation params, etc.)
-   * @returns AsyncGenerator that yields ResponseMessage objects
-   *
-   * @experimental
-   */
-  requestStream(request, resultSchema, options) {
-    return this._server.requestStream(request, resultSchema, options);
-  }
-  /**
-   * Sends a sampling request and returns an AsyncGenerator that yields response messages.
-   * The generator is guaranteed to end with either a 'result' or 'error' message.
-   *
-   * For task-augmented requests, yields 'taskCreated' and 'taskStatus' messages
-   * before the final result.
-   *
-   * @example
-   * ```typescript
-   * const stream = server.experimental.tasks.createMessageStream({
-   *     messages: [{ role: 'user', content: { type: 'text', text: 'Hello' } }],
-   *     maxTokens: 100
-   * }, {
-   *     onprogress: (progress) => {
-   *         // Handle streaming tokens via progress notifications
-   *         console.log('Progress:', progress.message);
-   *     }
-   * });
-   *
-   * for await (const message of stream) {
-   *     switch (message.type) {
-   *         case 'taskCreated':
-   *             console.log('Task created:', message.task.taskId);
-   *             break;
-   *         case 'taskStatus':
-   *             console.log('Task status:', message.task.status);
-   *             break;
-   *         case 'result':
-   *             console.log('Final result:', message.result);
-   *             break;
-   *         case 'error':
-   *             console.error('Error:', message.error);
-   *             break;
-   *     }
-   * }
-   * ```
-   *
-   * @param params - The sampling request parameters
-   * @param options - Optional request options (timeout, signal, task creation params, onprogress, etc.)
-   * @returns AsyncGenerator that yields ResponseMessage objects
-   *
-   * @experimental
-   */
-  createMessageStream(params, options) {
-    const clientCapabilities = this._server.getClientCapabilities();
-    if ((params.tools || params.toolChoice) && !clientCapabilities?.sampling?.tools) {
-      throw new Error("Client does not support sampling tools capability.");
-    }
-    if (params.messages.length > 0) {
-      const lastMessage = params.messages[params.messages.length - 1];
-      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
-      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
-      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
-      if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
-          throw new Error("The last message must contain only tool_result content if any is present");
-        }
-        if (!hasPreviousToolUse) {
-          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
-        }
+var ExperimentalServerTasks;
+var init_server = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js"() {
+    init_types();
+    ExperimentalServerTasks = class {
+      constructor(_server) {
+        this._server = _server;
       }
-      if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
-        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
-          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
-        }
+      /**
+       * Sends a request and returns an AsyncGenerator that yields response messages.
+       * The generator is guaranteed to end with either a 'result' or 'error' message.
+       *
+       * This method provides streaming access to request processing, allowing you to
+       * observe intermediate task status updates for task-augmented requests.
+       *
+       * @param request - The request to send
+       * @param resultSchema - Zod schema for validating the result
+       * @param options - Optional request options (timeout, signal, task creation params, etc.)
+       * @returns AsyncGenerator that yields ResponseMessage objects
+       *
+       * @experimental
+       */
+      requestStream(request, resultSchema, options) {
+        return this._server.requestStream(request, resultSchema, options);
       }
-    }
-    return this.requestStream({
-      method: "sampling/createMessage",
-      params
-    }, CreateMessageResultSchema, options);
-  }
-  /**
-   * Sends an elicitation request and returns an AsyncGenerator that yields response messages.
-   * The generator is guaranteed to end with either a 'result' or 'error' message.
-   *
-   * For task-augmented requests (especially URL-based elicitation), yields 'taskCreated'
-   * and 'taskStatus' messages before the final result.
-   *
-   * @example
-   * ```typescript
-   * const stream = server.experimental.tasks.elicitInputStream({
-   *     mode: 'url',
-   *     message: 'Please authenticate',
-   *     elicitationId: 'auth-123',
-   *     url: 'https://example.com/auth'
-   * }, {
-   *     task: { ttl: 300000 } // Task-augmented for long-running auth flow
-   * });
-   *
-   * for await (const message of stream) {
-   *     switch (message.type) {
-   *         case 'taskCreated':
-   *             console.log('Task created:', message.task.taskId);
-   *             break;
-   *         case 'taskStatus':
-   *             console.log('Task status:', message.task.status);
-   *             break;
-   *         case 'result':
-   *             console.log('User action:', message.result.action);
-   *             break;
-   *         case 'error':
-   *             console.error('Error:', message.error);
-   *             break;
-   *     }
-   * }
-   * ```
-   *
-   * @param params - The elicitation request parameters
-   * @param options - Optional request options (timeout, signal, task creation params, etc.)
-   * @returns AsyncGenerator that yields ResponseMessage objects
-   *
-   * @experimental
-   */
-  elicitInputStream(params, options) {
-    const clientCapabilities = this._server.getClientCapabilities();
-    const mode = params.mode ?? "form";
-    switch (mode) {
-      case "url": {
-        if (!clientCapabilities?.elicitation?.url) {
-          throw new Error("Client does not support url elicitation.");
+      /**
+       * Sends a sampling request and returns an AsyncGenerator that yields response messages.
+       * The generator is guaranteed to end with either a 'result' or 'error' message.
+       *
+       * For task-augmented requests, yields 'taskCreated' and 'taskStatus' messages
+       * before the final result.
+       *
+       * @example
+       * ```typescript
+       * const stream = server.experimental.tasks.createMessageStream({
+       *     messages: [{ role: 'user', content: { type: 'text', text: 'Hello' } }],
+       *     maxTokens: 100
+       * }, {
+       *     onprogress: (progress) => {
+       *         // Handle streaming tokens via progress notifications
+       *         console.log('Progress:', progress.message);
+       *     }
+       * });
+       *
+       * for await (const message of stream) {
+       *     switch (message.type) {
+       *         case 'taskCreated':
+       *             console.log('Task created:', message.task.taskId);
+       *             break;
+       *         case 'taskStatus':
+       *             console.log('Task status:', message.task.status);
+       *             break;
+       *         case 'result':
+       *             console.log('Final result:', message.result);
+       *             break;
+       *         case 'error':
+       *             console.error('Error:', message.error);
+       *             break;
+       *     }
+       * }
+       * ```
+       *
+       * @param params - The sampling request parameters
+       * @param options - Optional request options (timeout, signal, task creation params, onprogress, etc.)
+       * @returns AsyncGenerator that yields ResponseMessage objects
+       *
+       * @experimental
+       */
+      createMessageStream(params, options) {
+        const clientCapabilities = this._server.getClientCapabilities();
+        if ((params.tools || params.toolChoice) && !clientCapabilities?.sampling?.tools) {
+          throw new Error("Client does not support sampling tools capability.");
         }
-        break;
-      }
-      case "form": {
-        if (!clientCapabilities?.elicitation?.form) {
-          throw new Error("Client does not support form elicitation.");
+        if (params.messages.length > 0) {
+          const lastMessage = params.messages[params.messages.length - 1];
+          const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
+          const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+          const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
+          const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
+          const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+          if (hasToolResults) {
+            if (lastContent.some((c) => c.type !== "tool_result")) {
+              throw new Error("The last message must contain only tool_result content if any is present");
+            }
+            if (!hasPreviousToolUse) {
+              throw new Error("tool_result blocks are not matching any tool_use from the previous message");
+            }
+          }
+          if (hasPreviousToolUse) {
+            const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
+            const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+            if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
+              throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
+            }
+          }
         }
-        break;
+        return this.requestStream({
+          method: "sampling/createMessage",
+          params
+        }, CreateMessageResultSchema, options);
       }
-    }
-    const normalizedParams = mode === "form" && params.mode === void 0 ? { ...params, mode: "form" } : params;
-    return this.requestStream({
-      method: "elicitation/create",
-      params: normalizedParams
-    }, ElicitResultSchema, options);
+      /**
+       * Sends an elicitation request and returns an AsyncGenerator that yields response messages.
+       * The generator is guaranteed to end with either a 'result' or 'error' message.
+       *
+       * For task-augmented requests (especially URL-based elicitation), yields 'taskCreated'
+       * and 'taskStatus' messages before the final result.
+       *
+       * @example
+       * ```typescript
+       * const stream = server.experimental.tasks.elicitInputStream({
+       *     mode: 'url',
+       *     message: 'Please authenticate',
+       *     elicitationId: 'auth-123',
+       *     url: 'https://example.com/auth'
+       * }, {
+       *     task: { ttl: 300000 } // Task-augmented for long-running auth flow
+       * });
+       *
+       * for await (const message of stream) {
+       *     switch (message.type) {
+       *         case 'taskCreated':
+       *             console.log('Task created:', message.task.taskId);
+       *             break;
+       *         case 'taskStatus':
+       *             console.log('Task status:', message.task.status);
+       *             break;
+       *         case 'result':
+       *             console.log('User action:', message.result.action);
+       *             break;
+       *         case 'error':
+       *             console.error('Error:', message.error);
+       *             break;
+       *     }
+       * }
+       * ```
+       *
+       * @param params - The elicitation request parameters
+       * @param options - Optional request options (timeout, signal, task creation params, etc.)
+       * @returns AsyncGenerator that yields ResponseMessage objects
+       *
+       * @experimental
+       */
+      elicitInputStream(params, options) {
+        const clientCapabilities = this._server.getClientCapabilities();
+        const mode = params.mode ?? "form";
+        switch (mode) {
+          case "url": {
+            if (!clientCapabilities?.elicitation?.url) {
+              throw new Error("Client does not support url elicitation.");
+            }
+            break;
+          }
+          case "form": {
+            if (!clientCapabilities?.elicitation?.form) {
+              throw new Error("Client does not support form elicitation.");
+            }
+            break;
+          }
+        }
+        const normalizedParams = mode === "form" && params.mode === void 0 ? { ...params, mode: "form" } : params;
+        return this.requestStream({
+          method: "elicitation/create",
+          params: normalizedParams
+        }, ElicitResultSchema, options);
+      }
+      /**
+       * Gets the current status of a task.
+       *
+       * @param taskId - The task identifier
+       * @param options - Optional request options
+       * @returns The task status
+       *
+       * @experimental
+       */
+      async getTask(taskId, options) {
+        return this._server.getTask({ taskId }, options);
+      }
+      /**
+       * Retrieves the result of a completed task.
+       *
+       * @param taskId - The task identifier
+       * @param resultSchema - Zod schema for validating the result
+       * @param options - Optional request options
+       * @returns The task result
+       *
+       * @experimental
+       */
+      async getTaskResult(taskId, resultSchema, options) {
+        return this._server.getTaskResult({ taskId }, resultSchema, options);
+      }
+      /**
+       * Lists tasks with optional pagination.
+       *
+       * @param cursor - Optional pagination cursor
+       * @param options - Optional request options
+       * @returns List of tasks with optional next cursor
+       *
+       * @experimental
+       */
+      async listTasks(cursor, options) {
+        return this._server.listTasks(cursor ? { cursor } : void 0, options);
+      }
+      /**
+       * Cancels a running task.
+       *
+       * @param taskId - The task identifier
+       * @param options - Optional request options
+       *
+       * @experimental
+       */
+      async cancelTask(taskId, options) {
+        return this._server.cancelTask({ taskId }, options);
+      }
+    };
   }
-  /**
-   * Gets the current status of a task.
-   *
-   * @param taskId - The task identifier
-   * @param options - Optional request options
-   * @returns The task status
-   *
-   * @experimental
-   */
-  async getTask(taskId, options) {
-    return this._server.getTask({ taskId }, options);
-  }
-  /**
-   * Retrieves the result of a completed task.
-   *
-   * @param taskId - The task identifier
-   * @param resultSchema - Zod schema for validating the result
-   * @param options - Optional request options
-   * @returns The task result
-   *
-   * @experimental
-   */
-  async getTaskResult(taskId, resultSchema, options) {
-    return this._server.getTaskResult({ taskId }, resultSchema, options);
-  }
-  /**
-   * Lists tasks with optional pagination.
-   *
-   * @param cursor - Optional pagination cursor
-   * @param options - Optional request options
-   * @returns List of tasks with optional next cursor
-   *
-   * @experimental
-   */
-  async listTasks(cursor, options) {
-    return this._server.listTasks(cursor ? { cursor } : void 0, options);
-  }
-  /**
-   * Cancels a running task.
-   *
-   * @param taskId - The task identifier
-   * @param options - Optional request options
-   *
-   * @experimental
-   */
-  async cancelTask(taskId, options) {
-    return this._server.cancelTask({ taskId }, options);
-  }
-};
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 function assertToolsCallTaskCapability(requests, method, entityName) {
@@ -33768,389 +34056,403 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
       break;
   }
 }
+var init_helpers = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js"() {
+  }
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
-var Server = class extends Protocol {
-  /**
-   * Initializes this server with the given name and version information.
-   */
-  constructor(_serverInfo, options) {
-    super(options);
-    this._serverInfo = _serverInfo;
-    this._loggingLevels = /* @__PURE__ */ new Map();
-    this.LOG_LEVEL_SEVERITY = new Map(LoggingLevelSchema.options.map((level, index) => [level, index]));
-    this.isMessageIgnored = (level, sessionId) => {
-      const currentLevel = this._loggingLevels.get(sessionId);
-      return currentLevel ? this.LOG_LEVEL_SEVERITY.get(level) < this.LOG_LEVEL_SEVERITY.get(currentLevel) : false;
-    };
-    this._capabilities = options?.capabilities ?? {};
-    this._instructions = options?.instructions;
-    this._jsonSchemaValidator = options?.jsonSchemaValidator ?? new AjvJsonSchemaValidator();
-    this.setRequestHandler(InitializeRequestSchema, (request) => this._oninitialize(request));
-    this.setNotificationHandler(InitializedNotificationSchema, () => this.oninitialized?.());
-    if (this._capabilities.logging) {
-      this.setRequestHandler(SetLevelRequestSchema, async (request, extra) => {
-        const transportSessionId = extra.sessionId || extra.requestInfo?.headers["mcp-session-id"] || void 0;
-        const { level } = request.params;
-        const parseResult = LoggingLevelSchema.safeParse(level);
-        if (parseResult.success) {
-          this._loggingLevels.set(transportSessionId, parseResult.data);
-        }
-        return {};
-      });
-    }
-  }
-  /**
-   * Access experimental features.
-   *
-   * WARNING: These APIs are experimental and may change without notice.
-   *
-   * @experimental
-   */
-  get experimental() {
-    if (!this._experimental) {
-      this._experimental = {
-        tasks: new ExperimentalServerTasks(this)
-      };
-    }
-    return this._experimental;
-  }
-  /**
-   * Registers new capabilities. This can only be called before connecting to a transport.
-   *
-   * The new capabilities will be merged with any existing capabilities previously given (e.g., at initialization).
-   */
-  registerCapabilities(capabilities) {
-    if (this.transport) {
-      throw new Error("Cannot register capabilities after connecting to transport");
-    }
-    this._capabilities = mergeCapabilities(this._capabilities, capabilities);
-  }
-  /**
-   * Override request handler registration to enforce server-side validation for tools/call.
-   */
-  setRequestHandler(requestSchema, handler) {
-    const shape = getObjectShape(requestSchema);
-    const methodSchema = shape?.method;
-    if (!methodSchema) {
-      throw new Error("Schema is missing a method literal");
-    }
-    let methodValue;
-    if (isZ4Schema(methodSchema)) {
-      const v4Schema = methodSchema;
-      const v4Def = v4Schema._zod?.def;
-      methodValue = v4Def?.value ?? v4Schema.value;
-    } else {
-      const v3Schema = methodSchema;
-      const legacyDef = v3Schema._def;
-      methodValue = legacyDef?.value ?? v3Schema.value;
-    }
-    if (typeof methodValue !== "string") {
-      throw new Error("Schema method literal must be a string");
-    }
-    const method = methodValue;
-    if (method === "tools/call") {
-      const wrappedHandler = async (request, extra) => {
-        const validatedRequest = safeParse2(CallToolRequestSchema, request);
-        if (!validatedRequest.success) {
-          const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
-        }
-        const { params } = validatedRequest.data;
-        const result = await Promise.resolve(handler(request, extra));
-        if (params.task) {
-          const taskValidationResult = safeParse2(CreateTaskResultSchema, result);
-          if (!taskValidationResult.success) {
-            const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
-            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
-          }
-          return taskValidationResult.data;
-        }
-        const validationResult = safeParse2(CallToolResultSchema, result);
-        if (!validationResult.success) {
-          const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
-        }
-        return validationResult.data;
-      };
-      return super.setRequestHandler(requestSchema, wrappedHandler);
-    }
-    return super.setRequestHandler(requestSchema, handler);
-  }
-  assertCapabilityForMethod(method) {
-    switch (method) {
-      case "sampling/createMessage":
-        if (!this._clientCapabilities?.sampling) {
-          throw new Error(`Client does not support sampling (required for ${method})`);
-        }
-        break;
-      case "elicitation/create":
-        if (!this._clientCapabilities?.elicitation) {
-          throw new Error(`Client does not support elicitation (required for ${method})`);
-        }
-        break;
-      case "roots/list":
-        if (!this._clientCapabilities?.roots) {
-          throw new Error(`Client does not support listing roots (required for ${method})`);
-        }
-        break;
-      case "ping":
-        break;
-    }
-  }
-  assertNotificationCapability(method) {
-    switch (method) {
-      case "notifications/message":
-        if (!this._capabilities.logging) {
-          throw new Error(`Server does not support logging (required for ${method})`);
-        }
-        break;
-      case "notifications/resources/updated":
-      case "notifications/resources/list_changed":
-        if (!this._capabilities.resources) {
-          throw new Error(`Server does not support notifying about resources (required for ${method})`);
-        }
-        break;
-      case "notifications/tools/list_changed":
-        if (!this._capabilities.tools) {
-          throw new Error(`Server does not support notifying of tool list changes (required for ${method})`);
-        }
-        break;
-      case "notifications/prompts/list_changed":
-        if (!this._capabilities.prompts) {
-          throw new Error(`Server does not support notifying of prompt list changes (required for ${method})`);
-        }
-        break;
-      case "notifications/elicitation/complete":
-        if (!this._clientCapabilities?.elicitation?.url) {
-          throw new Error(`Client does not support URL elicitation (required for ${method})`);
-        }
-        break;
-      case "notifications/cancelled":
-        break;
-      case "notifications/progress":
-        break;
-    }
-  }
-  assertRequestHandlerCapability(method) {
-    if (!this._capabilities) {
-      return;
-    }
-    switch (method) {
-      case "completion/complete":
-        if (!this._capabilities.completions) {
-          throw new Error(`Server does not support completions (required for ${method})`);
-        }
-        break;
-      case "logging/setLevel":
-        if (!this._capabilities.logging) {
-          throw new Error(`Server does not support logging (required for ${method})`);
-        }
-        break;
-      case "prompts/get":
-      case "prompts/list":
-        if (!this._capabilities.prompts) {
-          throw new Error(`Server does not support prompts (required for ${method})`);
-        }
-        break;
-      case "resources/list":
-      case "resources/templates/list":
-      case "resources/read":
-        if (!this._capabilities.resources) {
-          throw new Error(`Server does not support resources (required for ${method})`);
-        }
-        break;
-      case "tools/call":
-      case "tools/list":
-        if (!this._capabilities.tools) {
-          throw new Error(`Server does not support tools (required for ${method})`);
-        }
-        break;
-      case "tasks/get":
-      case "tasks/list":
-      case "tasks/result":
-      case "tasks/cancel":
-        if (!this._capabilities.tasks) {
-          throw new Error(`Server does not support tasks capability (required for ${method})`);
-        }
-        break;
-      case "ping":
-      case "initialize":
-        break;
-    }
-  }
-  assertTaskCapability(method) {
-    assertClientRequestTaskCapability(this._clientCapabilities?.tasks?.requests, method, "Client");
-  }
-  assertTaskHandlerCapability(method) {
-    if (!this._capabilities) {
-      return;
-    }
-    assertToolsCallTaskCapability(this._capabilities.tasks?.requests, method, "Server");
-  }
-  async _oninitialize(request) {
-    const requestedVersion = request.params.protocolVersion;
-    this._clientCapabilities = request.params.capabilities;
-    this._clientVersion = request.params.clientInfo;
-    const protocolVersion = SUPPORTED_PROTOCOL_VERSIONS.includes(requestedVersion) ? requestedVersion : LATEST_PROTOCOL_VERSION;
-    return {
-      protocolVersion,
-      capabilities: this.getCapabilities(),
-      serverInfo: this._serverInfo,
-      ...this._instructions && { instructions: this._instructions }
-    };
-  }
-  /**
-   * After initialization has completed, this will be populated with the client's reported capabilities.
-   */
-  getClientCapabilities() {
-    return this._clientCapabilities;
-  }
-  /**
-   * After initialization has completed, this will be populated with information about the client's name and version.
-   */
-  getClientVersion() {
-    return this._clientVersion;
-  }
-  getCapabilities() {
-    return this._capabilities;
-  }
-  async ping() {
-    return this.request({ method: "ping" }, EmptyResultSchema);
-  }
-  // Implementation
-  async createMessage(params, options) {
-    if (params.tools || params.toolChoice) {
-      if (!this._clientCapabilities?.sampling?.tools) {
-        throw new Error("Client does not support sampling tools capability.");
-      }
-    }
-    if (params.messages.length > 0) {
-      const lastMessage = params.messages[params.messages.length - 1];
-      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
-      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
-      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
-      if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
-          throw new Error("The last message must contain only tool_result content if any is present");
-        }
-        if (!hasPreviousToolUse) {
-          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
-        }
-      }
-      if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
-        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
-          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
-        }
-      }
-    }
-    if (params.tools) {
-      return this.request({ method: "sampling/createMessage", params }, CreateMessageResultWithToolsSchema, options);
-    }
-    return this.request({ method: "sampling/createMessage", params }, CreateMessageResultSchema, options);
-  }
-  /**
-   * Creates an elicitation request for the given parameters.
-   * For backwards compatibility, `mode` may be omitted for form requests and will default to `'form'`.
-   * @param params The parameters for the elicitation request.
-   * @param options Optional request options.
-   * @returns The result of the elicitation request.
-   */
-  async elicitInput(params, options) {
-    const mode = params.mode ?? "form";
-    switch (mode) {
-      case "url": {
-        if (!this._clientCapabilities?.elicitation?.url) {
-          throw new Error("Client does not support url elicitation.");
-        }
-        const urlParams = params;
-        return this.request({ method: "elicitation/create", params: urlParams }, ElicitResultSchema, options);
-      }
-      case "form": {
-        if (!this._clientCapabilities?.elicitation?.form) {
-          throw new Error("Client does not support form elicitation.");
-        }
-        const formParams = params.mode === "form" ? params : { ...params, mode: "form" };
-        const result = await this.request({ method: "elicitation/create", params: formParams }, ElicitResultSchema, options);
-        if (result.action === "accept" && result.content && formParams.requestedSchema) {
-          try {
-            const validator = this._jsonSchemaValidator.getValidator(formParams.requestedSchema);
-            const validationResult = validator(result.content);
-            if (!validationResult.valid) {
-              throw new McpError(ErrorCode.InvalidParams, `Elicitation response content does not match requested schema: ${validationResult.errorMessage}`);
+var Server;
+var init_server2 = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js"() {
+    init_protocol();
+    init_types();
+    init_ajv_provider();
+    init_zod_compat();
+    init_server();
+    init_helpers();
+    Server = class extends Protocol {
+      /**
+       * Initializes this server with the given name and version information.
+       */
+      constructor(_serverInfo, options) {
+        super(options);
+        this._serverInfo = _serverInfo;
+        this._loggingLevels = /* @__PURE__ */ new Map();
+        this.LOG_LEVEL_SEVERITY = new Map(LoggingLevelSchema.options.map((level, index) => [level, index]));
+        this.isMessageIgnored = (level, sessionId) => {
+          const currentLevel = this._loggingLevels.get(sessionId);
+          return currentLevel ? this.LOG_LEVEL_SEVERITY.get(level) < this.LOG_LEVEL_SEVERITY.get(currentLevel) : false;
+        };
+        this._capabilities = options?.capabilities ?? {};
+        this._instructions = options?.instructions;
+        this._jsonSchemaValidator = options?.jsonSchemaValidator ?? new AjvJsonSchemaValidator();
+        this.setRequestHandler(InitializeRequestSchema, (request) => this._oninitialize(request));
+        this.setNotificationHandler(InitializedNotificationSchema, () => this.oninitialized?.());
+        if (this._capabilities.logging) {
+          this.setRequestHandler(SetLevelRequestSchema, async (request, extra) => {
+            const transportSessionId = extra.sessionId || extra.requestInfo?.headers["mcp-session-id"] || void 0;
+            const { level } = request.params;
+            const parseResult = LoggingLevelSchema.safeParse(level);
+            if (parseResult.success) {
+              this._loggingLevels.set(transportSessionId, parseResult.data);
             }
-          } catch (error) {
-            if (error instanceof McpError) {
-              throw error;
+            return {};
+          });
+        }
+      }
+      /**
+       * Access experimental features.
+       *
+       * WARNING: These APIs are experimental and may change without notice.
+       *
+       * @experimental
+       */
+      get experimental() {
+        if (!this._experimental) {
+          this._experimental = {
+            tasks: new ExperimentalServerTasks(this)
+          };
+        }
+        return this._experimental;
+      }
+      /**
+       * Registers new capabilities. This can only be called before connecting to a transport.
+       *
+       * The new capabilities will be merged with any existing capabilities previously given (e.g., at initialization).
+       */
+      registerCapabilities(capabilities) {
+        if (this.transport) {
+          throw new Error("Cannot register capabilities after connecting to transport");
+        }
+        this._capabilities = mergeCapabilities(this._capabilities, capabilities);
+      }
+      /**
+       * Override request handler registration to enforce server-side validation for tools/call.
+       */
+      setRequestHandler(requestSchema, handler) {
+        const shape = getObjectShape(requestSchema);
+        const methodSchema = shape?.method;
+        if (!methodSchema) {
+          throw new Error("Schema is missing a method literal");
+        }
+        let methodValue;
+        if (isZ4Schema(methodSchema)) {
+          const v4Schema = methodSchema;
+          const v4Def = v4Schema._zod?.def;
+          methodValue = v4Def?.value ?? v4Schema.value;
+        } else {
+          const v3Schema = methodSchema;
+          const legacyDef = v3Schema._def;
+          methodValue = legacyDef?.value ?? v3Schema.value;
+        }
+        if (typeof methodValue !== "string") {
+          throw new Error("Schema method literal must be a string");
+        }
+        const method = methodValue;
+        if (method === "tools/call") {
+          const wrappedHandler = async (request, extra) => {
+            const validatedRequest = safeParse2(CallToolRequestSchema, request);
+            if (!validatedRequest.success) {
+              const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
+              throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
             }
-            throw new McpError(ErrorCode.InternalError, `Error validating elicitation response: ${error instanceof Error ? error.message : String(error)}`);
+            const { params } = validatedRequest.data;
+            const result = await Promise.resolve(handler(request, extra));
+            if (params.task) {
+              const taskValidationResult = safeParse2(CreateTaskResultSchema, result);
+              if (!taskValidationResult.success) {
+                const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
+                throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
+              }
+              return taskValidationResult.data;
+            }
+            const validationResult = safeParse2(CallToolResultSchema, result);
+            if (!validationResult.success) {
+              const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
+              throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
+            }
+            return validationResult.data;
+          };
+          return super.setRequestHandler(requestSchema, wrappedHandler);
+        }
+        return super.setRequestHandler(requestSchema, handler);
+      }
+      assertCapabilityForMethod(method) {
+        switch (method) {
+          case "sampling/createMessage":
+            if (!this._clientCapabilities?.sampling) {
+              throw new Error(`Client does not support sampling (required for ${method})`);
+            }
+            break;
+          case "elicitation/create":
+            if (!this._clientCapabilities?.elicitation) {
+              throw new Error(`Client does not support elicitation (required for ${method})`);
+            }
+            break;
+          case "roots/list":
+            if (!this._clientCapabilities?.roots) {
+              throw new Error(`Client does not support listing roots (required for ${method})`);
+            }
+            break;
+          case "ping":
+            break;
+        }
+      }
+      assertNotificationCapability(method) {
+        switch (method) {
+          case "notifications/message":
+            if (!this._capabilities.logging) {
+              throw new Error(`Server does not support logging (required for ${method})`);
+            }
+            break;
+          case "notifications/resources/updated":
+          case "notifications/resources/list_changed":
+            if (!this._capabilities.resources) {
+              throw new Error(`Server does not support notifying about resources (required for ${method})`);
+            }
+            break;
+          case "notifications/tools/list_changed":
+            if (!this._capabilities.tools) {
+              throw new Error(`Server does not support notifying of tool list changes (required for ${method})`);
+            }
+            break;
+          case "notifications/prompts/list_changed":
+            if (!this._capabilities.prompts) {
+              throw new Error(`Server does not support notifying of prompt list changes (required for ${method})`);
+            }
+            break;
+          case "notifications/elicitation/complete":
+            if (!this._clientCapabilities?.elicitation?.url) {
+              throw new Error(`Client does not support URL elicitation (required for ${method})`);
+            }
+            break;
+          case "notifications/cancelled":
+            break;
+          case "notifications/progress":
+            break;
+        }
+      }
+      assertRequestHandlerCapability(method) {
+        if (!this._capabilities) {
+          return;
+        }
+        switch (method) {
+          case "completion/complete":
+            if (!this._capabilities.completions) {
+              throw new Error(`Server does not support completions (required for ${method})`);
+            }
+            break;
+          case "logging/setLevel":
+            if (!this._capabilities.logging) {
+              throw new Error(`Server does not support logging (required for ${method})`);
+            }
+            break;
+          case "prompts/get":
+          case "prompts/list":
+            if (!this._capabilities.prompts) {
+              throw new Error(`Server does not support prompts (required for ${method})`);
+            }
+            break;
+          case "resources/list":
+          case "resources/templates/list":
+          case "resources/read":
+            if (!this._capabilities.resources) {
+              throw new Error(`Server does not support resources (required for ${method})`);
+            }
+            break;
+          case "tools/call":
+          case "tools/list":
+            if (!this._capabilities.tools) {
+              throw new Error(`Server does not support tools (required for ${method})`);
+            }
+            break;
+          case "tasks/get":
+          case "tasks/list":
+          case "tasks/result":
+          case "tasks/cancel":
+            if (!this._capabilities.tasks) {
+              throw new Error(`Server does not support tasks capability (required for ${method})`);
+            }
+            break;
+          case "ping":
+          case "initialize":
+            break;
+        }
+      }
+      assertTaskCapability(method) {
+        assertClientRequestTaskCapability(this._clientCapabilities?.tasks?.requests, method, "Client");
+      }
+      assertTaskHandlerCapability(method) {
+        if (!this._capabilities) {
+          return;
+        }
+        assertToolsCallTaskCapability(this._capabilities.tasks?.requests, method, "Server");
+      }
+      async _oninitialize(request) {
+        const requestedVersion = request.params.protocolVersion;
+        this._clientCapabilities = request.params.capabilities;
+        this._clientVersion = request.params.clientInfo;
+        const protocolVersion = SUPPORTED_PROTOCOL_VERSIONS.includes(requestedVersion) ? requestedVersion : LATEST_PROTOCOL_VERSION;
+        return {
+          protocolVersion,
+          capabilities: this.getCapabilities(),
+          serverInfo: this._serverInfo,
+          ...this._instructions && { instructions: this._instructions }
+        };
+      }
+      /**
+       * After initialization has completed, this will be populated with the client's reported capabilities.
+       */
+      getClientCapabilities() {
+        return this._clientCapabilities;
+      }
+      /**
+       * After initialization has completed, this will be populated with information about the client's name and version.
+       */
+      getClientVersion() {
+        return this._clientVersion;
+      }
+      getCapabilities() {
+        return this._capabilities;
+      }
+      async ping() {
+        return this.request({ method: "ping" }, EmptyResultSchema);
+      }
+      // Implementation
+      async createMessage(params, options) {
+        if (params.tools || params.toolChoice) {
+          if (!this._clientCapabilities?.sampling?.tools) {
+            throw new Error("Client does not support sampling tools capability.");
           }
         }
-        return result;
+        if (params.messages.length > 0) {
+          const lastMessage = params.messages[params.messages.length - 1];
+          const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
+          const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+          const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
+          const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
+          const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+          if (hasToolResults) {
+            if (lastContent.some((c) => c.type !== "tool_result")) {
+              throw new Error("The last message must contain only tool_result content if any is present");
+            }
+            if (!hasPreviousToolUse) {
+              throw new Error("tool_result blocks are not matching any tool_use from the previous message");
+            }
+          }
+          if (hasPreviousToolUse) {
+            const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
+            const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+            if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
+              throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
+            }
+          }
+        }
+        if (params.tools) {
+          return this.request({ method: "sampling/createMessage", params }, CreateMessageResultWithToolsSchema, options);
+        }
+        return this.request({ method: "sampling/createMessage", params }, CreateMessageResultSchema, options);
       }
-    }
-  }
-  /**
-   * Creates a reusable callback that, when invoked, will send a `notifications/elicitation/complete`
-   * notification for the specified elicitation ID.
-   *
-   * @param elicitationId The ID of the elicitation to mark as complete.
-   * @param options Optional notification options. Useful when the completion notification should be related to a prior request.
-   * @returns A function that emits the completion notification when awaited.
-   */
-  createElicitationCompletionNotifier(elicitationId, options) {
-    if (!this._clientCapabilities?.elicitation?.url) {
-      throw new Error("Client does not support URL elicitation (required for notifications/elicitation/complete)");
-    }
-    return () => this.notification({
-      method: "notifications/elicitation/complete",
-      params: {
-        elicitationId
+      /**
+       * Creates an elicitation request for the given parameters.
+       * For backwards compatibility, `mode` may be omitted for form requests and will default to `'form'`.
+       * @param params The parameters for the elicitation request.
+       * @param options Optional request options.
+       * @returns The result of the elicitation request.
+       */
+      async elicitInput(params, options) {
+        const mode = params.mode ?? "form";
+        switch (mode) {
+          case "url": {
+            if (!this._clientCapabilities?.elicitation?.url) {
+              throw new Error("Client does not support url elicitation.");
+            }
+            const urlParams = params;
+            return this.request({ method: "elicitation/create", params: urlParams }, ElicitResultSchema, options);
+          }
+          case "form": {
+            if (!this._clientCapabilities?.elicitation?.form) {
+              throw new Error("Client does not support form elicitation.");
+            }
+            const formParams = params.mode === "form" ? params : { ...params, mode: "form" };
+            const result = await this.request({ method: "elicitation/create", params: formParams }, ElicitResultSchema, options);
+            if (result.action === "accept" && result.content && formParams.requestedSchema) {
+              try {
+                const validator = this._jsonSchemaValidator.getValidator(formParams.requestedSchema);
+                const validationResult = validator(result.content);
+                if (!validationResult.valid) {
+                  throw new McpError(ErrorCode.InvalidParams, `Elicitation response content does not match requested schema: ${validationResult.errorMessage}`);
+                }
+              } catch (error) {
+                if (error instanceof McpError) {
+                  throw error;
+                }
+                throw new McpError(ErrorCode.InternalError, `Error validating elicitation response: ${error instanceof Error ? error.message : String(error)}`);
+              }
+            }
+            return result;
+          }
+        }
       }
-    }, options);
-  }
-  async listRoots(params, options) {
-    return this.request({ method: "roots/list", params }, ListRootsResultSchema, options);
-  }
-  /**
-   * Sends a logging message to the client, if connected.
-   * Note: You only need to send the parameters object, not the entire JSON RPC message
-   * @see LoggingMessageNotification
-   * @param params
-   * @param sessionId optional for stateless and backward compatibility
-   */
-  async sendLoggingMessage(params, sessionId) {
-    if (this._capabilities.logging) {
-      if (!this.isMessageIgnored(params.level, sessionId)) {
-        return this.notification({ method: "notifications/message", params });
+      /**
+       * Creates a reusable callback that, when invoked, will send a `notifications/elicitation/complete`
+       * notification for the specified elicitation ID.
+       *
+       * @param elicitationId The ID of the elicitation to mark as complete.
+       * @param options Optional notification options. Useful when the completion notification should be related to a prior request.
+       * @returns A function that emits the completion notification when awaited.
+       */
+      createElicitationCompletionNotifier(elicitationId, options) {
+        if (!this._clientCapabilities?.elicitation?.url) {
+          throw new Error("Client does not support URL elicitation (required for notifications/elicitation/complete)");
+        }
+        return () => this.notification({
+          method: "notifications/elicitation/complete",
+          params: {
+            elicitationId
+          }
+        }, options);
       }
-    }
+      async listRoots(params, options) {
+        return this.request({ method: "roots/list", params }, ListRootsResultSchema, options);
+      }
+      /**
+       * Sends a logging message to the client, if connected.
+       * Note: You only need to send the parameters object, not the entire JSON RPC message
+       * @see LoggingMessageNotification
+       * @param params
+       * @param sessionId optional for stateless and backward compatibility
+       */
+      async sendLoggingMessage(params, sessionId) {
+        if (this._capabilities.logging) {
+          if (!this.isMessageIgnored(params.level, sessionId)) {
+            return this.notification({ method: "notifications/message", params });
+          }
+        }
+      }
+      async sendResourceUpdated(params) {
+        return this.notification({
+          method: "notifications/resources/updated",
+          params
+        });
+      }
+      async sendResourceListChanged() {
+        return this.notification({
+          method: "notifications/resources/list_changed"
+        });
+      }
+      async sendToolListChanged() {
+        return this.notification({ method: "notifications/tools/list_changed" });
+      }
+      async sendPromptListChanged() {
+        return this.notification({ method: "notifications/prompts/list_changed" });
+      }
+    };
   }
-  async sendResourceUpdated(params) {
-    return this.notification({
-      method: "notifications/resources/updated",
-      params
-    });
-  }
-  async sendResourceListChanged() {
-    return this.notification({
-      method: "notifications/resources/list_changed"
-    });
-  }
-  async sendToolListChanged() {
-    return this.notification({ method: "notifications/tools/list_changed" });
-  }
-  async sendPromptListChanged() {
-    return this.notification({ method: "notifications/prompts/list_changed" });
-  }
-};
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
-var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
 }
@@ -34158,13 +34460,23 @@ function getCompleter(schema) {
   const meta = schema[COMPLETABLE_SYMBOL];
   return meta?.complete;
 }
-var McpZodTypeKind;
-(function(McpZodTypeKind2) {
-  McpZodTypeKind2["Completable"] = "McpCompletable";
-})(McpZodTypeKind || (McpZodTypeKind = {}));
+var COMPLETABLE_SYMBOL, McpZodTypeKind;
+var init_completable = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js"() {
+    COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
+    (function(McpZodTypeKind2) {
+      McpZodTypeKind2["Completable"] = "McpCompletable";
+    })(McpZodTypeKind || (McpZodTypeKind = {}));
+  }
+});
+
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+var init_uriTemplate = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js"() {
+  }
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
-var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
   const warnings = [];
   if (name.length === 0) {
@@ -34220,743 +34532,77 @@ function validateAndWarnToolName(name) {
   issueToolNameWarning(name, result.warnings);
   return result.isValid;
 }
+var TOOL_NAME_REGEX;
+var init_toolNameValidation = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js"() {
+    TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
+  }
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
-var ExperimentalMcpServerTasks = class {
-  constructor(_mcpServer) {
-    this._mcpServer = _mcpServer;
+var ExperimentalMcpServerTasks;
+var init_mcp_server = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js"() {
+    ExperimentalMcpServerTasks = class {
+      constructor(_mcpServer) {
+        this._mcpServer = _mcpServer;
+      }
+      registerToolTask(name, config2, handler) {
+        const execution = { taskSupport: "required", ...config2.execution };
+        if (execution.taskSupport === "forbidden") {
+          throw new Error(`Cannot register task-based tool '${name}' with taskSupport 'forbidden'. Use registerTool() instead.`);
+        }
+        const mcpServerInternal = this._mcpServer;
+        return mcpServerInternal._createRegisteredTool(name, config2.title, config2.description, config2.inputSchema, config2.outputSchema, config2.annotations, execution, config2._meta, handler);
+      }
+    };
   }
-  registerToolTask(name, config2, handler) {
-    const execution = { taskSupport: "required", ...config2.execution };
-    if (execution.taskSupport === "forbidden") {
-      throw new Error(`Cannot register task-based tool '${name}' with taskSupport 'forbidden'. Use registerTool() instead.`);
-    }
-    const mcpServerInternal = this._mcpServer;
-    return mcpServerInternal._createRegisteredTool(name, config2.title, config2.description, config2.inputSchema, config2.outputSchema, config2.annotations, execution, config2._meta, handler);
+});
+
+// node_modules/.pnpm/zod@4.4.3/node_modules/zod/index.cjs
+var require_zod = __commonJS({
+  "node_modules/.pnpm/zod@4.4.3/node_modules/zod/index.cjs"(exports2) {
+    "use strict";
+    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    }) : (function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      o[k2] = m[k];
+    }));
+    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? (function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    }) : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports2 && exports2.__importStar || function(mod) {
+      if (mod && mod.__esModule) return mod;
+      var result = {};
+      if (mod != null) {
+        for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+      }
+      __setModuleDefault(result, mod);
+      return result;
+    };
+    var __exportStar = exports2 && exports2.__exportStar || function(m, exports3) {
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p)) __createBinding(exports3, m, p);
+    };
+    Object.defineProperty(exports2, "__esModule", { value: true });
+    exports2.z = void 0;
+    var z20 = __importStar(require_external3());
+    exports2.z = z20;
+    __exportStar(require_external3(), exports2);
+    exports2.default = z20;
   }
-};
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
-var import_zod = __toESM(require_zod(), 1);
-var McpServer = class {
-  constructor(serverInfo, options) {
-    this._registeredResources = {};
-    this._registeredResourceTemplates = {};
-    this._registeredTools = {};
-    this._registeredPrompts = {};
-    this._toolHandlersInitialized = false;
-    this._completionHandlerInitialized = false;
-    this._resourceHandlersInitialized = false;
-    this._promptHandlersInitialized = false;
-    this.server = new Server(serverInfo, options);
-  }
-  /**
-   * Access experimental features.
-   *
-   * WARNING: These APIs are experimental and may change without notice.
-   *
-   * @experimental
-   */
-  get experimental() {
-    if (!this._experimental) {
-      this._experimental = {
-        tasks: new ExperimentalMcpServerTasks(this)
-      };
-    }
-    return this._experimental;
-  }
-  /**
-   * Attaches to the given transport, starts it, and starts listening for messages.
-   *
-   * The `server` object assumes ownership of the Transport, replacing any callbacks that have already been set, and expects that it is the only user of the Transport instance going forward.
-   */
-  async connect(transport) {
-    return await this.server.connect(transport);
-  }
-  /**
-   * Closes the connection.
-   */
-  async close() {
-    await this.server.close();
-  }
-  setToolRequestHandlers() {
-    if (this._toolHandlersInitialized) {
-      return;
-    }
-    this.server.assertCanSetRequestHandler(getMethodValue(ListToolsRequestSchema));
-    this.server.assertCanSetRequestHandler(getMethodValue(CallToolRequestSchema));
-    this.server.registerCapabilities({
-      tools: {
-        listChanged: true
-      }
-    });
-    this.server.setRequestHandler(ListToolsRequestSchema, () => ({
-      tools: Object.entries(this._registeredTools).filter(([, tool]) => tool.enabled).map(([name, tool]) => {
-        const toolDefinition = {
-          name,
-          title: tool.title,
-          description: tool.description,
-          inputSchema: (() => {
-            const obj = normalizeObjectSchema(tool.inputSchema);
-            return obj ? toJsonSchemaCompat(obj, {
-              strictUnions: true,
-              pipeStrategy: "input"
-            }) : EMPTY_OBJECT_JSON_SCHEMA;
-          })(),
-          annotations: tool.annotations,
-          execution: tool.execution,
-          _meta: tool._meta
-        };
-        if (tool.outputSchema) {
-          const obj = normalizeObjectSchema(tool.outputSchema);
-          if (obj) {
-            toolDefinition.outputSchema = toJsonSchemaCompat(obj, {
-              strictUnions: true,
-              pipeStrategy: "output"
-            });
-          }
-        }
-        return toolDefinition;
-      })
-    }));
-    this.server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
-      try {
-        const tool = this._registeredTools[request.params.name];
-        if (!tool) {
-          throw new McpError(ErrorCode.InvalidParams, `Tool ${request.params.name} not found`);
-        }
-        if (!tool.enabled) {
-          throw new McpError(ErrorCode.InvalidParams, `Tool ${request.params.name} disabled`);
-        }
-        const isTaskRequest = !!request.params.task;
-        const taskSupport = tool.execution?.taskSupport;
-        const isTaskHandler = "createTask" in tool.handler;
-        if ((taskSupport === "required" || taskSupport === "optional") && !isTaskHandler) {
-          throw new McpError(ErrorCode.InternalError, `Tool ${request.params.name} has taskSupport '${taskSupport}' but was not registered with registerToolTask`);
-        }
-        if (taskSupport === "required" && !isTaskRequest) {
-          throw new McpError(ErrorCode.MethodNotFound, `Tool ${request.params.name} requires task augmentation (taskSupport: 'required')`);
-        }
-        if (taskSupport === "optional" && !isTaskRequest && isTaskHandler) {
-          return await this.handleAutomaticTaskPolling(tool, request, extra);
-        }
-        const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
-        const result = await this.executeToolHandler(tool, args, extra);
-        if (isTaskRequest) {
-          return result;
-        }
-        await this.validateToolOutput(tool, result, request.params.name);
-        return result;
-      } catch (error) {
-        if (error instanceof McpError) {
-          if (error.code === ErrorCode.UrlElicitationRequired) {
-            throw error;
-          }
-        }
-        return this.createToolError(error instanceof Error ? error.message : String(error));
-      }
-    });
-    this._toolHandlersInitialized = true;
-  }
-  /**
-   * Creates a tool error result.
-   *
-   * @param errorMessage - The error message.
-   * @returns The tool error result.
-   */
-  createToolError(errorMessage) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: errorMessage
-        }
-      ],
-      isError: true
-    };
-  }
-  /**
-   * Validates tool input arguments against the tool's input schema.
-   */
-  async validateToolInput(tool, args, toolName) {
-    if (!tool.inputSchema) {
-      return void 0;
-    }
-    const inputObj = normalizeObjectSchema(tool.inputSchema);
-    const schemaToParse = inputObj ?? tool.inputSchema;
-    const parseResult = await safeParseAsync2(schemaToParse, args);
-    if (!parseResult.success) {
-      const error = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error);
-      throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage}`);
-    }
-    return parseResult.data;
-  }
-  /**
-   * Validates tool output against the tool's output schema.
-   */
-  async validateToolOutput(tool, result, toolName) {
-    if (!tool.outputSchema) {
-      return;
-    }
-    if (!("content" in result)) {
-      return;
-    }
-    if (result.isError) {
-      return;
-    }
-    if (!result.structuredContent) {
-      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Tool ${toolName} has an output schema but no structured content was provided`);
-    }
-    const outputObj = normalizeObjectSchema(tool.outputSchema);
-    const parseResult = await safeParseAsync2(outputObj, result.structuredContent);
-    if (!parseResult.success) {
-      const error = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error);
-      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage}`);
-    }
-  }
-  /**
-   * Executes a tool handler (either regular or task-based).
-   */
-  async executeToolHandler(tool, args, extra) {
-    const handler = tool.handler;
-    const isTaskHandler = "createTask" in handler;
-    if (isTaskHandler) {
-      if (!extra.taskStore) {
-        throw new Error("No task store provided.");
-      }
-      const taskExtra = { ...extra, taskStore: extra.taskStore };
-      if (tool.inputSchema) {
-        const typedHandler = handler;
-        return await Promise.resolve(typedHandler.createTask(args, taskExtra));
-      } else {
-        const typedHandler = handler;
-        return await Promise.resolve(typedHandler.createTask(taskExtra));
-      }
-    }
-    if (tool.inputSchema) {
-      const typedHandler = handler;
-      return await Promise.resolve(typedHandler(args, extra));
-    } else {
-      const typedHandler = handler;
-      return await Promise.resolve(typedHandler(extra));
-    }
-  }
-  /**
-   * Handles automatic task polling for tools with taskSupport 'optional'.
-   */
-  async handleAutomaticTaskPolling(tool, request, extra) {
-    if (!extra.taskStore) {
-      throw new Error("No task store provided for task-capable tool.");
-    }
-    const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
-    const handler = tool.handler;
-    const taskExtra = { ...extra, taskStore: extra.taskStore };
-    const createTaskResult = args ? await Promise.resolve(handler.createTask(args, taskExtra)) : (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await Promise.resolve(handler.createTask(taskExtra))
-    );
-    const taskId = createTaskResult.task.taskId;
-    let task = createTaskResult.task;
-    const pollInterval = task.pollInterval ?? 5e3;
-    while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
-      const updatedTask = await extra.taskStore.getTask(taskId);
-      if (!updatedTask) {
-        throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
-      }
-      task = updatedTask;
-    }
-    return await extra.taskStore.getTaskResult(taskId);
-  }
-  setCompletionRequestHandler() {
-    if (this._completionHandlerInitialized) {
-      return;
-    }
-    this.server.assertCanSetRequestHandler(getMethodValue(CompleteRequestSchema));
-    this.server.registerCapabilities({
-      completions: {}
-    });
-    this.server.setRequestHandler(CompleteRequestSchema, async (request) => {
-      switch (request.params.ref.type) {
-        case "ref/prompt":
-          assertCompleteRequestPrompt(request);
-          return this.handlePromptCompletion(request, request.params.ref);
-        case "ref/resource":
-          assertCompleteRequestResourceTemplate(request);
-          return this.handleResourceCompletion(request, request.params.ref);
-        default:
-          throw new McpError(ErrorCode.InvalidParams, `Invalid completion reference: ${request.params.ref}`);
-      }
-    });
-    this._completionHandlerInitialized = true;
-  }
-  async handlePromptCompletion(request, ref) {
-    const prompt = this._registeredPrompts[ref.name];
-    if (!prompt) {
-      throw new McpError(ErrorCode.InvalidParams, `Prompt ${ref.name} not found`);
-    }
-    if (!prompt.enabled) {
-      throw new McpError(ErrorCode.InvalidParams, `Prompt ${ref.name} disabled`);
-    }
-    if (!prompt.argsSchema) {
-      return EMPTY_COMPLETION_RESULT;
-    }
-    const promptShape = getObjectShape(prompt.argsSchema);
-    const field = promptShape?.[request.params.argument.name];
-    if (!isCompletable(field)) {
-      return EMPTY_COMPLETION_RESULT;
-    }
-    const completer = getCompleter(field);
-    if (!completer) {
-      return EMPTY_COMPLETION_RESULT;
-    }
-    const suggestions = await completer(request.params.argument.value, request.params.context);
-    return createCompletionResult(suggestions);
-  }
-  async handleResourceCompletion(request, ref) {
-    const template = Object.values(this._registeredResourceTemplates).find((t) => t.resourceTemplate.uriTemplate.toString() === ref.uri);
-    if (!template) {
-      if (this._registeredResources[ref.uri]) {
-        return EMPTY_COMPLETION_RESULT;
-      }
-      throw new McpError(ErrorCode.InvalidParams, `Resource template ${request.params.ref.uri} not found`);
-    }
-    const completer = template.resourceTemplate.completeCallback(request.params.argument.name);
-    if (!completer) {
-      return EMPTY_COMPLETION_RESULT;
-    }
-    const suggestions = await completer(request.params.argument.value, request.params.context);
-    return createCompletionResult(suggestions);
-  }
-  setResourceRequestHandlers() {
-    if (this._resourceHandlersInitialized) {
-      return;
-    }
-    this.server.assertCanSetRequestHandler(getMethodValue(ListResourcesRequestSchema));
-    this.server.assertCanSetRequestHandler(getMethodValue(ListResourceTemplatesRequestSchema));
-    this.server.assertCanSetRequestHandler(getMethodValue(ReadResourceRequestSchema));
-    this.server.registerCapabilities({
-      resources: {
-        listChanged: true
-      }
-    });
-    this.server.setRequestHandler(ListResourcesRequestSchema, async (request, extra) => {
-      const resources = Object.entries(this._registeredResources).filter(([_, resource]) => resource.enabled).map(([uri, resource]) => ({
-        uri,
-        name: resource.name,
-        ...resource.metadata
-      }));
-      const templateResources = [];
-      for (const template of Object.values(this._registeredResourceTemplates)) {
-        if (!template.resourceTemplate.listCallback) {
-          continue;
-        }
-        const result = await template.resourceTemplate.listCallback(extra);
-        for (const resource of result.resources) {
-          templateResources.push({
-            ...template.metadata,
-            // the defined resource metadata should override the template metadata if present
-            ...resource
-          });
-        }
-      }
-      return { resources: [...resources, ...templateResources] };
-    });
-    this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
-      const resourceTemplates = Object.entries(this._registeredResourceTemplates).map(([name, template]) => ({
-        name,
-        uriTemplate: template.resourceTemplate.uriTemplate.toString(),
-        ...template.metadata
-      }));
-      return { resourceTemplates };
-    });
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request, extra) => {
-      const uri = new URL(request.params.uri);
-      const resource = this._registeredResources[uri.toString()];
-      if (resource) {
-        if (!resource.enabled) {
-          throw new McpError(ErrorCode.InvalidParams, `Resource ${uri} disabled`);
-        }
-        return resource.readCallback(uri, extra);
-      }
-      for (const template of Object.values(this._registeredResourceTemplates)) {
-        const variables = template.resourceTemplate.uriTemplate.match(uri.toString());
-        if (variables) {
-          return template.readCallback(uri, variables, extra);
-        }
-      }
-      throw new McpError(ErrorCode.InvalidParams, `Resource ${uri} not found`);
-    });
-    this._resourceHandlersInitialized = true;
-  }
-  setPromptRequestHandlers() {
-    if (this._promptHandlersInitialized) {
-      return;
-    }
-    this.server.assertCanSetRequestHandler(getMethodValue(ListPromptsRequestSchema));
-    this.server.assertCanSetRequestHandler(getMethodValue(GetPromptRequestSchema));
-    this.server.registerCapabilities({
-      prompts: {
-        listChanged: true
-      }
-    });
-    this.server.setRequestHandler(ListPromptsRequestSchema, () => ({
-      prompts: Object.entries(this._registeredPrompts).filter(([, prompt]) => prompt.enabled).map(([name, prompt]) => {
-        return {
-          name,
-          title: prompt.title,
-          description: prompt.description,
-          arguments: prompt.argsSchema ? promptArgumentsFromSchema(prompt.argsSchema) : void 0
-        };
-      })
-    }));
-    this.server.setRequestHandler(GetPromptRequestSchema, async (request, extra) => {
-      const prompt = this._registeredPrompts[request.params.name];
-      if (!prompt) {
-        throw new McpError(ErrorCode.InvalidParams, `Prompt ${request.params.name} not found`);
-      }
-      if (!prompt.enabled) {
-        throw new McpError(ErrorCode.InvalidParams, `Prompt ${request.params.name} disabled`);
-      }
-      if (prompt.argsSchema) {
-        const argsObj = normalizeObjectSchema(prompt.argsSchema);
-        const parseResult = await safeParseAsync2(argsObj, request.params.arguments);
-        if (!parseResult.success) {
-          const error = "error" in parseResult ? parseResult.error : "Unknown error";
-          const errorMessage = getParseErrorMessage(error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage}`);
-        }
-        const args = parseResult.data;
-        const cb = prompt.callback;
-        return await Promise.resolve(cb(args, extra));
-      } else {
-        const cb = prompt.callback;
-        return await Promise.resolve(cb(extra));
-      }
-    });
-    this._promptHandlersInitialized = true;
-  }
-  resource(name, uriOrTemplate, ...rest) {
-    let metadata;
-    if (typeof rest[0] === "object") {
-      metadata = rest.shift();
-    }
-    const readCallback = rest[0];
-    if (typeof uriOrTemplate === "string") {
-      if (this._registeredResources[uriOrTemplate]) {
-        throw new Error(`Resource ${uriOrTemplate} is already registered`);
-      }
-      const registeredResource = this._createRegisteredResource(name, void 0, uriOrTemplate, metadata, readCallback);
-      this.setResourceRequestHandlers();
-      this.sendResourceListChanged();
-      return registeredResource;
-    } else {
-      if (this._registeredResourceTemplates[name]) {
-        throw new Error(`Resource template ${name} is already registered`);
-      }
-      const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, void 0, uriOrTemplate, metadata, readCallback);
-      this.setResourceRequestHandlers();
-      this.sendResourceListChanged();
-      return registeredResourceTemplate;
-    }
-  }
-  registerResource(name, uriOrTemplate, config2, readCallback) {
-    if (typeof uriOrTemplate === "string") {
-      if (this._registeredResources[uriOrTemplate]) {
-        throw new Error(`Resource ${uriOrTemplate} is already registered`);
-      }
-      const registeredResource = this._createRegisteredResource(name, config2.title, uriOrTemplate, config2, readCallback);
-      this.setResourceRequestHandlers();
-      this.sendResourceListChanged();
-      return registeredResource;
-    } else {
-      if (this._registeredResourceTemplates[name]) {
-        throw new Error(`Resource template ${name} is already registered`);
-      }
-      const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, config2.title, uriOrTemplate, config2, readCallback);
-      this.setResourceRequestHandlers();
-      this.sendResourceListChanged();
-      return registeredResourceTemplate;
-    }
-  }
-  _createRegisteredResource(name, title, uri, metadata, readCallback) {
-    const registeredResource = {
-      name,
-      title,
-      metadata,
-      readCallback,
-      enabled: true,
-      disable: () => registeredResource.update({ enabled: false }),
-      enable: () => registeredResource.update({ enabled: true }),
-      remove: () => registeredResource.update({ uri: null }),
-      update: (updates) => {
-        if (typeof updates.uri !== "undefined" && updates.uri !== uri) {
-          delete this._registeredResources[uri];
-          if (updates.uri)
-            this._registeredResources[updates.uri] = registeredResource;
-        }
-        if (typeof updates.name !== "undefined")
-          registeredResource.name = updates.name;
-        if (typeof updates.title !== "undefined")
-          registeredResource.title = updates.title;
-        if (typeof updates.metadata !== "undefined")
-          registeredResource.metadata = updates.metadata;
-        if (typeof updates.callback !== "undefined")
-          registeredResource.readCallback = updates.callback;
-        if (typeof updates.enabled !== "undefined")
-          registeredResource.enabled = updates.enabled;
-        this.sendResourceListChanged();
-      }
-    };
-    this._registeredResources[uri] = registeredResource;
-    return registeredResource;
-  }
-  _createRegisteredResourceTemplate(name, title, template, metadata, readCallback) {
-    const registeredResourceTemplate = {
-      resourceTemplate: template,
-      title,
-      metadata,
-      readCallback,
-      enabled: true,
-      disable: () => registeredResourceTemplate.update({ enabled: false }),
-      enable: () => registeredResourceTemplate.update({ enabled: true }),
-      remove: () => registeredResourceTemplate.update({ name: null }),
-      update: (updates) => {
-        if (typeof updates.name !== "undefined" && updates.name !== name) {
-          delete this._registeredResourceTemplates[name];
-          if (updates.name)
-            this._registeredResourceTemplates[updates.name] = registeredResourceTemplate;
-        }
-        if (typeof updates.title !== "undefined")
-          registeredResourceTemplate.title = updates.title;
-        if (typeof updates.template !== "undefined")
-          registeredResourceTemplate.resourceTemplate = updates.template;
-        if (typeof updates.metadata !== "undefined")
-          registeredResourceTemplate.metadata = updates.metadata;
-        if (typeof updates.callback !== "undefined")
-          registeredResourceTemplate.readCallback = updates.callback;
-        if (typeof updates.enabled !== "undefined")
-          registeredResourceTemplate.enabled = updates.enabled;
-        this.sendResourceListChanged();
-      }
-    };
-    this._registeredResourceTemplates[name] = registeredResourceTemplate;
-    const variableNames = template.uriTemplate.variableNames;
-    const hasCompleter = Array.isArray(variableNames) && variableNames.some((v) => !!template.completeCallback(v));
-    if (hasCompleter) {
-      this.setCompletionRequestHandler();
-    }
-    return registeredResourceTemplate;
-  }
-  _createRegisteredPrompt(name, title, description, argsSchema, callback) {
-    const registeredPrompt = {
-      title,
-      description,
-      argsSchema: argsSchema === void 0 ? void 0 : objectFromShape(argsSchema),
-      callback,
-      enabled: true,
-      disable: () => registeredPrompt.update({ enabled: false }),
-      enable: () => registeredPrompt.update({ enabled: true }),
-      remove: () => registeredPrompt.update({ name: null }),
-      update: (updates) => {
-        if (typeof updates.name !== "undefined" && updates.name !== name) {
-          delete this._registeredPrompts[name];
-          if (updates.name)
-            this._registeredPrompts[updates.name] = registeredPrompt;
-        }
-        if (typeof updates.title !== "undefined")
-          registeredPrompt.title = updates.title;
-        if (typeof updates.description !== "undefined")
-          registeredPrompt.description = updates.description;
-        if (typeof updates.argsSchema !== "undefined")
-          registeredPrompt.argsSchema = objectFromShape(updates.argsSchema);
-        if (typeof updates.callback !== "undefined")
-          registeredPrompt.callback = updates.callback;
-        if (typeof updates.enabled !== "undefined")
-          registeredPrompt.enabled = updates.enabled;
-        this.sendPromptListChanged();
-      }
-    };
-    this._registeredPrompts[name] = registeredPrompt;
-    if (argsSchema) {
-      const hasCompletable = Object.values(argsSchema).some((field) => {
-        const inner = field instanceof import_zod.ZodOptional ? field._def?.innerType : field;
-        return isCompletable(inner);
-      });
-      if (hasCompletable) {
-        this.setCompletionRequestHandler();
-      }
-    }
-    return registeredPrompt;
-  }
-  _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, execution, _meta, handler) {
-    validateAndWarnToolName(name);
-    const registeredTool = {
-      title,
-      description,
-      inputSchema: getZodSchemaObject(inputSchema),
-      outputSchema: getZodSchemaObject(outputSchema),
-      annotations,
-      execution,
-      _meta,
-      handler,
-      enabled: true,
-      disable: () => registeredTool.update({ enabled: false }),
-      enable: () => registeredTool.update({ enabled: true }),
-      remove: () => registeredTool.update({ name: null }),
-      update: (updates) => {
-        if (typeof updates.name !== "undefined" && updates.name !== name) {
-          if (typeof updates.name === "string") {
-            validateAndWarnToolName(updates.name);
-          }
-          delete this._registeredTools[name];
-          if (updates.name)
-            this._registeredTools[updates.name] = registeredTool;
-        }
-        if (typeof updates.title !== "undefined")
-          registeredTool.title = updates.title;
-        if (typeof updates.description !== "undefined")
-          registeredTool.description = updates.description;
-        if (typeof updates.paramsSchema !== "undefined")
-          registeredTool.inputSchema = objectFromShape(updates.paramsSchema);
-        if (typeof updates.outputSchema !== "undefined")
-          registeredTool.outputSchema = objectFromShape(updates.outputSchema);
-        if (typeof updates.callback !== "undefined")
-          registeredTool.handler = updates.callback;
-        if (typeof updates.annotations !== "undefined")
-          registeredTool.annotations = updates.annotations;
-        if (typeof updates._meta !== "undefined")
-          registeredTool._meta = updates._meta;
-        if (typeof updates.enabled !== "undefined")
-          registeredTool.enabled = updates.enabled;
-        this.sendToolListChanged();
-      }
-    };
-    this._registeredTools[name] = registeredTool;
-    this.setToolRequestHandlers();
-    this.sendToolListChanged();
-    return registeredTool;
-  }
-  /**
-   * tool() implementation. Parses arguments passed to overrides defined above.
-   */
-  tool(name, ...rest) {
-    if (this._registeredTools[name]) {
-      throw new Error(`Tool ${name} is already registered`);
-    }
-    let description;
-    let inputSchema;
-    let outputSchema;
-    let annotations;
-    if (typeof rest[0] === "string") {
-      description = rest.shift();
-    }
-    if (rest.length > 1) {
-      const firstArg = rest[0];
-      if (isZodRawShapeCompat(firstArg)) {
-        inputSchema = rest.shift();
-        if (rest.length > 1 && typeof rest[0] === "object" && rest[0] !== null && !isZodRawShapeCompat(rest[0])) {
-          annotations = rest.shift();
-        }
-      } else if (typeof firstArg === "object" && firstArg !== null) {
-        if (Object.values(firstArg).some((v) => typeof v === "object" && v !== null)) {
-          throw new Error(`Tool ${name} expected a Zod schema or ToolAnnotations, but received an unrecognized object`);
-        }
-        annotations = rest.shift();
-      }
-    }
-    const callback = rest[0];
-    return this._createRegisteredTool(name, void 0, description, inputSchema, outputSchema, annotations, { taskSupport: "forbidden" }, void 0, callback);
-  }
-  /**
-   * Registers a tool with a config object and callback.
-   */
-  registerTool(name, config2, cb) {
-    if (this._registeredTools[name]) {
-      throw new Error(`Tool ${name} is already registered`);
-    }
-    const { title, description, inputSchema, outputSchema, annotations, _meta } = config2;
-    return this._createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, { taskSupport: "forbidden" }, _meta, cb);
-  }
-  prompt(name, ...rest) {
-    if (this._registeredPrompts[name]) {
-      throw new Error(`Prompt ${name} is already registered`);
-    }
-    let description;
-    if (typeof rest[0] === "string") {
-      description = rest.shift();
-    }
-    let argsSchema;
-    if (rest.length > 1) {
-      argsSchema = rest.shift();
-    }
-    const cb = rest[0];
-    const registeredPrompt = this._createRegisteredPrompt(name, void 0, description, argsSchema, cb);
-    this.setPromptRequestHandlers();
-    this.sendPromptListChanged();
-    return registeredPrompt;
-  }
-  /**
-   * Registers a prompt with a config object and callback.
-   */
-  registerPrompt(name, config2, cb) {
-    if (this._registeredPrompts[name]) {
-      throw new Error(`Prompt ${name} is already registered`);
-    }
-    const { title, description, argsSchema } = config2;
-    const registeredPrompt = this._createRegisteredPrompt(name, title, description, argsSchema, cb);
-    this.setPromptRequestHandlers();
-    this.sendPromptListChanged();
-    return registeredPrompt;
-  }
-  /**
-   * Checks if the server is connected to a transport.
-   * @returns True if the server is connected
-   */
-  isConnected() {
-    return this.server.transport !== void 0;
-  }
-  /**
-   * Sends a logging message to the client, if connected.
-   * Note: You only need to send the parameters object, not the entire JSON RPC message
-   * @see LoggingMessageNotification
-   * @param params
-   * @param sessionId optional for stateless and backward compatibility
-   */
-  async sendLoggingMessage(params, sessionId) {
-    return this.server.sendLoggingMessage(params, sessionId);
-  }
-  /**
-   * Sends a resource list changed event to the client, if connected.
-   */
-  sendResourceListChanged() {
-    if (this.isConnected()) {
-      this.server.sendResourceListChanged();
-    }
-  }
-  /**
-   * Sends a tool list changed event to the client, if connected.
-   */
-  sendToolListChanged() {
-    if (this.isConnected()) {
-      this.server.sendToolListChanged();
-    }
-  }
-  /**
-   * Sends a prompt list changed event to the client, if connected.
-   */
-  sendPromptListChanged() {
-    if (this.isConnected()) {
-      this.server.sendPromptListChanged();
-    }
-  }
-};
-var EMPTY_OBJECT_JSON_SCHEMA = {
-  type: "object",
-  properties: {}
-};
 function isZodTypeLike(value) {
   return value !== null && typeof value === "object" && "parse" in value && typeof value.parse === "function" && "safeParse" in value && typeof value.safeParse === "function";
 }
@@ -35022,116 +34668,1408 @@ function createCompletionResult(suggestions) {
     }
   };
 }
-var EMPTY_COMPLETION_RESULT = {
-  completion: {
-    values: [],
-    hasMore: false
+var import_zod, McpServer, EMPTY_OBJECT_JSON_SCHEMA, EMPTY_COMPLETION_RESULT;
+var init_mcp = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js"() {
+    init_server2();
+    init_zod_compat();
+    init_zod_json_schema_compat();
+    init_types();
+    init_completable();
+    init_uriTemplate();
+    init_toolNameValidation();
+    init_mcp_server();
+    import_zod = __toESM(require_zod(), 1);
+    McpServer = class {
+      constructor(serverInfo, options) {
+        this._registeredResources = {};
+        this._registeredResourceTemplates = {};
+        this._registeredTools = {};
+        this._registeredPrompts = {};
+        this._toolHandlersInitialized = false;
+        this._completionHandlerInitialized = false;
+        this._resourceHandlersInitialized = false;
+        this._promptHandlersInitialized = false;
+        this.server = new Server(serverInfo, options);
+      }
+      /**
+       * Access experimental features.
+       *
+       * WARNING: These APIs are experimental and may change without notice.
+       *
+       * @experimental
+       */
+      get experimental() {
+        if (!this._experimental) {
+          this._experimental = {
+            tasks: new ExperimentalMcpServerTasks(this)
+          };
+        }
+        return this._experimental;
+      }
+      /**
+       * Attaches to the given transport, starts it, and starts listening for messages.
+       *
+       * The `server` object assumes ownership of the Transport, replacing any callbacks that have already been set, and expects that it is the only user of the Transport instance going forward.
+       */
+      async connect(transport) {
+        return await this.server.connect(transport);
+      }
+      /**
+       * Closes the connection.
+       */
+      async close() {
+        await this.server.close();
+      }
+      setToolRequestHandlers() {
+        if (this._toolHandlersInitialized) {
+          return;
+        }
+        this.server.assertCanSetRequestHandler(getMethodValue(ListToolsRequestSchema));
+        this.server.assertCanSetRequestHandler(getMethodValue(CallToolRequestSchema));
+        this.server.registerCapabilities({
+          tools: {
+            listChanged: true
+          }
+        });
+        this.server.setRequestHandler(ListToolsRequestSchema, () => ({
+          tools: Object.entries(this._registeredTools).filter(([, tool]) => tool.enabled).map(([name, tool]) => {
+            const toolDefinition = {
+              name,
+              title: tool.title,
+              description: tool.description,
+              inputSchema: (() => {
+                const obj = normalizeObjectSchema(tool.inputSchema);
+                return obj ? toJsonSchemaCompat(obj, {
+                  strictUnions: true,
+                  pipeStrategy: "input"
+                }) : EMPTY_OBJECT_JSON_SCHEMA;
+              })(),
+              annotations: tool.annotations,
+              execution: tool.execution,
+              _meta: tool._meta
+            };
+            if (tool.outputSchema) {
+              const obj = normalizeObjectSchema(tool.outputSchema);
+              if (obj) {
+                toolDefinition.outputSchema = toJsonSchemaCompat(obj, {
+                  strictUnions: true,
+                  pipeStrategy: "output"
+                });
+              }
+            }
+            return toolDefinition;
+          })
+        }));
+        this.server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
+          try {
+            const tool = this._registeredTools[request.params.name];
+            if (!tool) {
+              throw new McpError(ErrorCode.InvalidParams, `Tool ${request.params.name} not found`);
+            }
+            if (!tool.enabled) {
+              throw new McpError(ErrorCode.InvalidParams, `Tool ${request.params.name} disabled`);
+            }
+            const isTaskRequest = !!request.params.task;
+            const taskSupport = tool.execution?.taskSupport;
+            const isTaskHandler = "createTask" in tool.handler;
+            if ((taskSupport === "required" || taskSupport === "optional") && !isTaskHandler) {
+              throw new McpError(ErrorCode.InternalError, `Tool ${request.params.name} has taskSupport '${taskSupport}' but was not registered with registerToolTask`);
+            }
+            if (taskSupport === "required" && !isTaskRequest) {
+              throw new McpError(ErrorCode.MethodNotFound, `Tool ${request.params.name} requires task augmentation (taskSupport: 'required')`);
+            }
+            if (taskSupport === "optional" && !isTaskRequest && isTaskHandler) {
+              return await this.handleAutomaticTaskPolling(tool, request, extra);
+            }
+            const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
+            const result = await this.executeToolHandler(tool, args, extra);
+            if (isTaskRequest) {
+              return result;
+            }
+            await this.validateToolOutput(tool, result, request.params.name);
+            return result;
+          } catch (error) {
+            if (error instanceof McpError) {
+              if (error.code === ErrorCode.UrlElicitationRequired) {
+                throw error;
+              }
+            }
+            return this.createToolError(error instanceof Error ? error.message : String(error));
+          }
+        });
+        this._toolHandlersInitialized = true;
+      }
+      /**
+       * Creates a tool error result.
+       *
+       * @param errorMessage - The error message.
+       * @returns The tool error result.
+       */
+      createToolError(errorMessage) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: errorMessage
+            }
+          ],
+          isError: true
+        };
+      }
+      /**
+       * Validates tool input arguments against the tool's input schema.
+       */
+      async validateToolInput(tool, args, toolName) {
+        if (!tool.inputSchema) {
+          return void 0;
+        }
+        const inputObj = normalizeObjectSchema(tool.inputSchema);
+        const schemaToParse = inputObj ?? tool.inputSchema;
+        const parseResult = await safeParseAsync2(schemaToParse, args);
+        if (!parseResult.success) {
+          const error = "error" in parseResult ? parseResult.error : "Unknown error";
+          const errorMessage = getParseErrorMessage(error);
+          throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage}`);
+        }
+        return parseResult.data;
+      }
+      /**
+       * Validates tool output against the tool's output schema.
+       */
+      async validateToolOutput(tool, result, toolName) {
+        if (!tool.outputSchema) {
+          return;
+        }
+        if (!("content" in result)) {
+          return;
+        }
+        if (result.isError) {
+          return;
+        }
+        if (!result.structuredContent) {
+          throw new McpError(ErrorCode.InvalidParams, `Output validation error: Tool ${toolName} has an output schema but no structured content was provided`);
+        }
+        const outputObj = normalizeObjectSchema(tool.outputSchema);
+        const parseResult = await safeParseAsync2(outputObj, result.structuredContent);
+        if (!parseResult.success) {
+          const error = "error" in parseResult ? parseResult.error : "Unknown error";
+          const errorMessage = getParseErrorMessage(error);
+          throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage}`);
+        }
+      }
+      /**
+       * Executes a tool handler (either regular or task-based).
+       */
+      async executeToolHandler(tool, args, extra) {
+        const handler = tool.handler;
+        const isTaskHandler = "createTask" in handler;
+        if (isTaskHandler) {
+          if (!extra.taskStore) {
+            throw new Error("No task store provided.");
+          }
+          const taskExtra = { ...extra, taskStore: extra.taskStore };
+          if (tool.inputSchema) {
+            const typedHandler = handler;
+            return await Promise.resolve(typedHandler.createTask(args, taskExtra));
+          } else {
+            const typedHandler = handler;
+            return await Promise.resolve(typedHandler.createTask(taskExtra));
+          }
+        }
+        if (tool.inputSchema) {
+          const typedHandler = handler;
+          return await Promise.resolve(typedHandler(args, extra));
+        } else {
+          const typedHandler = handler;
+          return await Promise.resolve(typedHandler(extra));
+        }
+      }
+      /**
+       * Handles automatic task polling for tools with taskSupport 'optional'.
+       */
+      async handleAutomaticTaskPolling(tool, request, extra) {
+        if (!extra.taskStore) {
+          throw new Error("No task store provided for task-capable tool.");
+        }
+        const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
+        const handler = tool.handler;
+        const taskExtra = { ...extra, taskStore: extra.taskStore };
+        const createTaskResult = args ? await Promise.resolve(handler.createTask(args, taskExtra)) : (
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await Promise.resolve(handler.createTask(taskExtra))
+        );
+        const taskId = createTaskResult.task.taskId;
+        let task = createTaskResult.task;
+        const pollInterval = task.pollInterval ?? 5e3;
+        while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
+          await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
+          const updatedTask = await extra.taskStore.getTask(taskId);
+          if (!updatedTask) {
+            throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
+          }
+          task = updatedTask;
+        }
+        return await extra.taskStore.getTaskResult(taskId);
+      }
+      setCompletionRequestHandler() {
+        if (this._completionHandlerInitialized) {
+          return;
+        }
+        this.server.assertCanSetRequestHandler(getMethodValue(CompleteRequestSchema));
+        this.server.registerCapabilities({
+          completions: {}
+        });
+        this.server.setRequestHandler(CompleteRequestSchema, async (request) => {
+          switch (request.params.ref.type) {
+            case "ref/prompt":
+              assertCompleteRequestPrompt(request);
+              return this.handlePromptCompletion(request, request.params.ref);
+            case "ref/resource":
+              assertCompleteRequestResourceTemplate(request);
+              return this.handleResourceCompletion(request, request.params.ref);
+            default:
+              throw new McpError(ErrorCode.InvalidParams, `Invalid completion reference: ${request.params.ref}`);
+          }
+        });
+        this._completionHandlerInitialized = true;
+      }
+      async handlePromptCompletion(request, ref) {
+        const prompt = this._registeredPrompts[ref.name];
+        if (!prompt) {
+          throw new McpError(ErrorCode.InvalidParams, `Prompt ${ref.name} not found`);
+        }
+        if (!prompt.enabled) {
+          throw new McpError(ErrorCode.InvalidParams, `Prompt ${ref.name} disabled`);
+        }
+        if (!prompt.argsSchema) {
+          return EMPTY_COMPLETION_RESULT;
+        }
+        const promptShape = getObjectShape(prompt.argsSchema);
+        const field = promptShape?.[request.params.argument.name];
+        if (!isCompletable(field)) {
+          return EMPTY_COMPLETION_RESULT;
+        }
+        const completer = getCompleter(field);
+        if (!completer) {
+          return EMPTY_COMPLETION_RESULT;
+        }
+        const suggestions = await completer(request.params.argument.value, request.params.context);
+        return createCompletionResult(suggestions);
+      }
+      async handleResourceCompletion(request, ref) {
+        const template = Object.values(this._registeredResourceTemplates).find((t) => t.resourceTemplate.uriTemplate.toString() === ref.uri);
+        if (!template) {
+          if (this._registeredResources[ref.uri]) {
+            return EMPTY_COMPLETION_RESULT;
+          }
+          throw new McpError(ErrorCode.InvalidParams, `Resource template ${request.params.ref.uri} not found`);
+        }
+        const completer = template.resourceTemplate.completeCallback(request.params.argument.name);
+        if (!completer) {
+          return EMPTY_COMPLETION_RESULT;
+        }
+        const suggestions = await completer(request.params.argument.value, request.params.context);
+        return createCompletionResult(suggestions);
+      }
+      setResourceRequestHandlers() {
+        if (this._resourceHandlersInitialized) {
+          return;
+        }
+        this.server.assertCanSetRequestHandler(getMethodValue(ListResourcesRequestSchema));
+        this.server.assertCanSetRequestHandler(getMethodValue(ListResourceTemplatesRequestSchema));
+        this.server.assertCanSetRequestHandler(getMethodValue(ReadResourceRequestSchema));
+        this.server.registerCapabilities({
+          resources: {
+            listChanged: true
+          }
+        });
+        this.server.setRequestHandler(ListResourcesRequestSchema, async (request, extra) => {
+          const resources = Object.entries(this._registeredResources).filter(([_, resource]) => resource.enabled).map(([uri, resource]) => ({
+            uri,
+            name: resource.name,
+            ...resource.metadata
+          }));
+          const templateResources = [];
+          for (const template of Object.values(this._registeredResourceTemplates)) {
+            if (!template.resourceTemplate.listCallback) {
+              continue;
+            }
+            const result = await template.resourceTemplate.listCallback(extra);
+            for (const resource of result.resources) {
+              templateResources.push({
+                ...template.metadata,
+                // the defined resource metadata should override the template metadata if present
+                ...resource
+              });
+            }
+          }
+          return { resources: [...resources, ...templateResources] };
+        });
+        this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
+          const resourceTemplates = Object.entries(this._registeredResourceTemplates).map(([name, template]) => ({
+            name,
+            uriTemplate: template.resourceTemplate.uriTemplate.toString(),
+            ...template.metadata
+          }));
+          return { resourceTemplates };
+        });
+        this.server.setRequestHandler(ReadResourceRequestSchema, async (request, extra) => {
+          const uri = new URL(request.params.uri);
+          const resource = this._registeredResources[uri.toString()];
+          if (resource) {
+            if (!resource.enabled) {
+              throw new McpError(ErrorCode.InvalidParams, `Resource ${uri} disabled`);
+            }
+            return resource.readCallback(uri, extra);
+          }
+          for (const template of Object.values(this._registeredResourceTemplates)) {
+            const variables = template.resourceTemplate.uriTemplate.match(uri.toString());
+            if (variables) {
+              return template.readCallback(uri, variables, extra);
+            }
+          }
+          throw new McpError(ErrorCode.InvalidParams, `Resource ${uri} not found`);
+        });
+        this._resourceHandlersInitialized = true;
+      }
+      setPromptRequestHandlers() {
+        if (this._promptHandlersInitialized) {
+          return;
+        }
+        this.server.assertCanSetRequestHandler(getMethodValue(ListPromptsRequestSchema));
+        this.server.assertCanSetRequestHandler(getMethodValue(GetPromptRequestSchema));
+        this.server.registerCapabilities({
+          prompts: {
+            listChanged: true
+          }
+        });
+        this.server.setRequestHandler(ListPromptsRequestSchema, () => ({
+          prompts: Object.entries(this._registeredPrompts).filter(([, prompt]) => prompt.enabled).map(([name, prompt]) => {
+            return {
+              name,
+              title: prompt.title,
+              description: prompt.description,
+              arguments: prompt.argsSchema ? promptArgumentsFromSchema(prompt.argsSchema) : void 0
+            };
+          })
+        }));
+        this.server.setRequestHandler(GetPromptRequestSchema, async (request, extra) => {
+          const prompt = this._registeredPrompts[request.params.name];
+          if (!prompt) {
+            throw new McpError(ErrorCode.InvalidParams, `Prompt ${request.params.name} not found`);
+          }
+          if (!prompt.enabled) {
+            throw new McpError(ErrorCode.InvalidParams, `Prompt ${request.params.name} disabled`);
+          }
+          if (prompt.argsSchema) {
+            const argsObj = normalizeObjectSchema(prompt.argsSchema);
+            const parseResult = await safeParseAsync2(argsObj, request.params.arguments);
+            if (!parseResult.success) {
+              const error = "error" in parseResult ? parseResult.error : "Unknown error";
+              const errorMessage = getParseErrorMessage(error);
+              throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage}`);
+            }
+            const args = parseResult.data;
+            const cb = prompt.callback;
+            return await Promise.resolve(cb(args, extra));
+          } else {
+            const cb = prompt.callback;
+            return await Promise.resolve(cb(extra));
+          }
+        });
+        this._promptHandlersInitialized = true;
+      }
+      resource(name, uriOrTemplate, ...rest) {
+        let metadata;
+        if (typeof rest[0] === "object") {
+          metadata = rest.shift();
+        }
+        const readCallback = rest[0];
+        if (typeof uriOrTemplate === "string") {
+          if (this._registeredResources[uriOrTemplate]) {
+            throw new Error(`Resource ${uriOrTemplate} is already registered`);
+          }
+          const registeredResource = this._createRegisteredResource(name, void 0, uriOrTemplate, metadata, readCallback);
+          this.setResourceRequestHandlers();
+          this.sendResourceListChanged();
+          return registeredResource;
+        } else {
+          if (this._registeredResourceTemplates[name]) {
+            throw new Error(`Resource template ${name} is already registered`);
+          }
+          const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, void 0, uriOrTemplate, metadata, readCallback);
+          this.setResourceRequestHandlers();
+          this.sendResourceListChanged();
+          return registeredResourceTemplate;
+        }
+      }
+      registerResource(name, uriOrTemplate, config2, readCallback) {
+        if (typeof uriOrTemplate === "string") {
+          if (this._registeredResources[uriOrTemplate]) {
+            throw new Error(`Resource ${uriOrTemplate} is already registered`);
+          }
+          const registeredResource = this._createRegisteredResource(name, config2.title, uriOrTemplate, config2, readCallback);
+          this.setResourceRequestHandlers();
+          this.sendResourceListChanged();
+          return registeredResource;
+        } else {
+          if (this._registeredResourceTemplates[name]) {
+            throw new Error(`Resource template ${name} is already registered`);
+          }
+          const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, config2.title, uriOrTemplate, config2, readCallback);
+          this.setResourceRequestHandlers();
+          this.sendResourceListChanged();
+          return registeredResourceTemplate;
+        }
+      }
+      _createRegisteredResource(name, title, uri, metadata, readCallback) {
+        const registeredResource = {
+          name,
+          title,
+          metadata,
+          readCallback,
+          enabled: true,
+          disable: () => registeredResource.update({ enabled: false }),
+          enable: () => registeredResource.update({ enabled: true }),
+          remove: () => registeredResource.update({ uri: null }),
+          update: (updates) => {
+            if (typeof updates.uri !== "undefined" && updates.uri !== uri) {
+              delete this._registeredResources[uri];
+              if (updates.uri)
+                this._registeredResources[updates.uri] = registeredResource;
+            }
+            if (typeof updates.name !== "undefined")
+              registeredResource.name = updates.name;
+            if (typeof updates.title !== "undefined")
+              registeredResource.title = updates.title;
+            if (typeof updates.metadata !== "undefined")
+              registeredResource.metadata = updates.metadata;
+            if (typeof updates.callback !== "undefined")
+              registeredResource.readCallback = updates.callback;
+            if (typeof updates.enabled !== "undefined")
+              registeredResource.enabled = updates.enabled;
+            this.sendResourceListChanged();
+          }
+        };
+        this._registeredResources[uri] = registeredResource;
+        return registeredResource;
+      }
+      _createRegisteredResourceTemplate(name, title, template, metadata, readCallback) {
+        const registeredResourceTemplate = {
+          resourceTemplate: template,
+          title,
+          metadata,
+          readCallback,
+          enabled: true,
+          disable: () => registeredResourceTemplate.update({ enabled: false }),
+          enable: () => registeredResourceTemplate.update({ enabled: true }),
+          remove: () => registeredResourceTemplate.update({ name: null }),
+          update: (updates) => {
+            if (typeof updates.name !== "undefined" && updates.name !== name) {
+              delete this._registeredResourceTemplates[name];
+              if (updates.name)
+                this._registeredResourceTemplates[updates.name] = registeredResourceTemplate;
+            }
+            if (typeof updates.title !== "undefined")
+              registeredResourceTemplate.title = updates.title;
+            if (typeof updates.template !== "undefined")
+              registeredResourceTemplate.resourceTemplate = updates.template;
+            if (typeof updates.metadata !== "undefined")
+              registeredResourceTemplate.metadata = updates.metadata;
+            if (typeof updates.callback !== "undefined")
+              registeredResourceTemplate.readCallback = updates.callback;
+            if (typeof updates.enabled !== "undefined")
+              registeredResourceTemplate.enabled = updates.enabled;
+            this.sendResourceListChanged();
+          }
+        };
+        this._registeredResourceTemplates[name] = registeredResourceTemplate;
+        const variableNames = template.uriTemplate.variableNames;
+        const hasCompleter = Array.isArray(variableNames) && variableNames.some((v) => !!template.completeCallback(v));
+        if (hasCompleter) {
+          this.setCompletionRequestHandler();
+        }
+        return registeredResourceTemplate;
+      }
+      _createRegisteredPrompt(name, title, description, argsSchema, callback) {
+        const registeredPrompt = {
+          title,
+          description,
+          argsSchema: argsSchema === void 0 ? void 0 : objectFromShape(argsSchema),
+          callback,
+          enabled: true,
+          disable: () => registeredPrompt.update({ enabled: false }),
+          enable: () => registeredPrompt.update({ enabled: true }),
+          remove: () => registeredPrompt.update({ name: null }),
+          update: (updates) => {
+            if (typeof updates.name !== "undefined" && updates.name !== name) {
+              delete this._registeredPrompts[name];
+              if (updates.name)
+                this._registeredPrompts[updates.name] = registeredPrompt;
+            }
+            if (typeof updates.title !== "undefined")
+              registeredPrompt.title = updates.title;
+            if (typeof updates.description !== "undefined")
+              registeredPrompt.description = updates.description;
+            if (typeof updates.argsSchema !== "undefined")
+              registeredPrompt.argsSchema = objectFromShape(updates.argsSchema);
+            if (typeof updates.callback !== "undefined")
+              registeredPrompt.callback = updates.callback;
+            if (typeof updates.enabled !== "undefined")
+              registeredPrompt.enabled = updates.enabled;
+            this.sendPromptListChanged();
+          }
+        };
+        this._registeredPrompts[name] = registeredPrompt;
+        if (argsSchema) {
+          const hasCompletable = Object.values(argsSchema).some((field) => {
+            const inner = field instanceof import_zod.ZodOptional ? field._def?.innerType : field;
+            return isCompletable(inner);
+          });
+          if (hasCompletable) {
+            this.setCompletionRequestHandler();
+          }
+        }
+        return registeredPrompt;
+      }
+      _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, execution, _meta, handler) {
+        validateAndWarnToolName(name);
+        const registeredTool = {
+          title,
+          description,
+          inputSchema: getZodSchemaObject(inputSchema),
+          outputSchema: getZodSchemaObject(outputSchema),
+          annotations,
+          execution,
+          _meta,
+          handler,
+          enabled: true,
+          disable: () => registeredTool.update({ enabled: false }),
+          enable: () => registeredTool.update({ enabled: true }),
+          remove: () => registeredTool.update({ name: null }),
+          update: (updates) => {
+            if (typeof updates.name !== "undefined" && updates.name !== name) {
+              if (typeof updates.name === "string") {
+                validateAndWarnToolName(updates.name);
+              }
+              delete this._registeredTools[name];
+              if (updates.name)
+                this._registeredTools[updates.name] = registeredTool;
+            }
+            if (typeof updates.title !== "undefined")
+              registeredTool.title = updates.title;
+            if (typeof updates.description !== "undefined")
+              registeredTool.description = updates.description;
+            if (typeof updates.paramsSchema !== "undefined")
+              registeredTool.inputSchema = objectFromShape(updates.paramsSchema);
+            if (typeof updates.outputSchema !== "undefined")
+              registeredTool.outputSchema = objectFromShape(updates.outputSchema);
+            if (typeof updates.callback !== "undefined")
+              registeredTool.handler = updates.callback;
+            if (typeof updates.annotations !== "undefined")
+              registeredTool.annotations = updates.annotations;
+            if (typeof updates._meta !== "undefined")
+              registeredTool._meta = updates._meta;
+            if (typeof updates.enabled !== "undefined")
+              registeredTool.enabled = updates.enabled;
+            this.sendToolListChanged();
+          }
+        };
+        this._registeredTools[name] = registeredTool;
+        this.setToolRequestHandlers();
+        this.sendToolListChanged();
+        return registeredTool;
+      }
+      /**
+       * tool() implementation. Parses arguments passed to overrides defined above.
+       */
+      tool(name, ...rest) {
+        if (this._registeredTools[name]) {
+          throw new Error(`Tool ${name} is already registered`);
+        }
+        let description;
+        let inputSchema;
+        let outputSchema;
+        let annotations;
+        if (typeof rest[0] === "string") {
+          description = rest.shift();
+        }
+        if (rest.length > 1) {
+          const firstArg = rest[0];
+          if (isZodRawShapeCompat(firstArg)) {
+            inputSchema = rest.shift();
+            if (rest.length > 1 && typeof rest[0] === "object" && rest[0] !== null && !isZodRawShapeCompat(rest[0])) {
+              annotations = rest.shift();
+            }
+          } else if (typeof firstArg === "object" && firstArg !== null) {
+            if (Object.values(firstArg).some((v) => typeof v === "object" && v !== null)) {
+              throw new Error(`Tool ${name} expected a Zod schema or ToolAnnotations, but received an unrecognized object`);
+            }
+            annotations = rest.shift();
+          }
+        }
+        const callback = rest[0];
+        return this._createRegisteredTool(name, void 0, description, inputSchema, outputSchema, annotations, { taskSupport: "forbidden" }, void 0, callback);
+      }
+      /**
+       * Registers a tool with a config object and callback.
+       */
+      registerTool(name, config2, cb) {
+        if (this._registeredTools[name]) {
+          throw new Error(`Tool ${name} is already registered`);
+        }
+        const { title, description, inputSchema, outputSchema, annotations, _meta } = config2;
+        return this._createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, { taskSupport: "forbidden" }, _meta, cb);
+      }
+      prompt(name, ...rest) {
+        if (this._registeredPrompts[name]) {
+          throw new Error(`Prompt ${name} is already registered`);
+        }
+        let description;
+        if (typeof rest[0] === "string") {
+          description = rest.shift();
+        }
+        let argsSchema;
+        if (rest.length > 1) {
+          argsSchema = rest.shift();
+        }
+        const cb = rest[0];
+        const registeredPrompt = this._createRegisteredPrompt(name, void 0, description, argsSchema, cb);
+        this.setPromptRequestHandlers();
+        this.sendPromptListChanged();
+        return registeredPrompt;
+      }
+      /**
+       * Registers a prompt with a config object and callback.
+       */
+      registerPrompt(name, config2, cb) {
+        if (this._registeredPrompts[name]) {
+          throw new Error(`Prompt ${name} is already registered`);
+        }
+        const { title, description, argsSchema } = config2;
+        const registeredPrompt = this._createRegisteredPrompt(name, title, description, argsSchema, cb);
+        this.setPromptRequestHandlers();
+        this.sendPromptListChanged();
+        return registeredPrompt;
+      }
+      /**
+       * Checks if the server is connected to a transport.
+       * @returns True if the server is connected
+       */
+      isConnected() {
+        return this.server.transport !== void 0;
+      }
+      /**
+       * Sends a logging message to the client, if connected.
+       * Note: You only need to send the parameters object, not the entire JSON RPC message
+       * @see LoggingMessageNotification
+       * @param params
+       * @param sessionId optional for stateless and backward compatibility
+       */
+      async sendLoggingMessage(params, sessionId) {
+        return this.server.sendLoggingMessage(params, sessionId);
+      }
+      /**
+       * Sends a resource list changed event to the client, if connected.
+       */
+      sendResourceListChanged() {
+        if (this.isConnected()) {
+          this.server.sendResourceListChanged();
+        }
+      }
+      /**
+       * Sends a tool list changed event to the client, if connected.
+       */
+      sendToolListChanged() {
+        if (this.isConnected()) {
+          this.server.sendToolListChanged();
+        }
+      }
+      /**
+       * Sends a prompt list changed event to the client, if connected.
+       */
+      sendPromptListChanged() {
+        if (this.isConnected()) {
+          this.server.sendPromptListChanged();
+        }
+      }
+    };
+    EMPTY_OBJECT_JSON_SCHEMA = {
+      type: "object",
+      properties: {}
+    };
+    EMPTY_COMPLETION_RESULT = {
+      completion: {
+        values: [],
+        hasMore: false
+      }
+    };
   }
-};
-
-// node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
-var import_node_process = __toESM(require("node:process"), 1);
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
-var ReadBuffer = class {
-  append(chunk) {
-    this._buffer = this._buffer ? Buffer.concat([this._buffer, chunk]) : chunk;
-  }
-  readMessage() {
-    if (!this._buffer) {
-      return null;
-    }
-    const index = this._buffer.indexOf("\n");
-    if (index === -1) {
-      return null;
-    }
-    const line = this._buffer.toString("utf8", 0, index).replace(/\r$/, "");
-    this._buffer = this._buffer.subarray(index + 1);
-    return deserializeMessage(line);
-  }
-  clear() {
-    this._buffer = void 0;
-  }
-};
 function deserializeMessage(line) {
   return JSONRPCMessageSchema.parse(JSON.parse(line));
 }
 function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
+var ReadBuffer;
+var init_stdio = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js"() {
+    init_types();
+    ReadBuffer = class {
+      append(chunk) {
+        this._buffer = this._buffer ? Buffer.concat([this._buffer, chunk]) : chunk;
+      }
+      readMessage() {
+        if (!this._buffer) {
+          return null;
+        }
+        const index = this._buffer.indexOf("\n");
+        if (index === -1) {
+          return null;
+        }
+        const line = this._buffer.toString("utf8", 0, index).replace(/\r$/, "");
+        this._buffer = this._buffer.subarray(index + 1);
+        return deserializeMessage(line);
+      }
+      clear() {
+        this._buffer = void 0;
+      }
+    };
+  }
+});
 
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
-var StdioServerTransport = class {
-  constructor(_stdin = import_node_process.default.stdin, _stdout = import_node_process.default.stdout) {
-    this._stdin = _stdin;
-    this._stdout = _stdout;
-    this._readBuffer = new ReadBuffer();
-    this._started = false;
-    this._ondata = (chunk) => {
-      this._readBuffer.append(chunk);
-      this.processReadBuffer();
-    };
-    this._onerror = (error) => {
-      this.onerror?.(error);
-    };
-  }
-  /**
-   * Starts listening for messages on stdin.
-   */
-  async start() {
-    if (this._started) {
-      throw new Error("StdioServerTransport already started! If using Server class, note that connect() calls start() automatically.");
-    }
-    this._started = true;
-    this._stdin.on("data", this._ondata);
-    this._stdin.on("error", this._onerror);
-  }
-  processReadBuffer() {
-    while (true) {
-      try {
-        const message = this._readBuffer.readMessage();
-        if (message === null) {
-          break;
+var import_node_process, StdioServerTransport;
+var init_stdio2 = __esm({
+  "node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js"() {
+    import_node_process = __toESM(require("node:process"), 1);
+    init_stdio();
+    StdioServerTransport = class {
+      constructor(_stdin = import_node_process.default.stdin, _stdout = import_node_process.default.stdout) {
+        this._stdin = _stdin;
+        this._stdout = _stdout;
+        this._readBuffer = new ReadBuffer();
+        this._started = false;
+        this._ondata = (chunk) => {
+          this._readBuffer.append(chunk);
+          this.processReadBuffer();
+        };
+        this._onerror = (error) => {
+          this.onerror?.(error);
+        };
+      }
+      /**
+       * Starts listening for messages on stdin.
+       */
+      async start() {
+        if (this._started) {
+          throw new Error("StdioServerTransport already started! If using Server class, note that connect() calls start() automatically.");
         }
-        this.onmessage?.(message);
-      } catch (error) {
-        this.onerror?.(error);
+        this._started = true;
+        this._stdin.on("data", this._ondata);
+        this._stdin.on("error", this._onerror);
       }
-    }
+      processReadBuffer() {
+        while (true) {
+          try {
+            const message = this._readBuffer.readMessage();
+            if (message === null) {
+              break;
+            }
+            this.onmessage?.(message);
+          } catch (error) {
+            this.onerror?.(error);
+          }
+        }
+      }
+      async close() {
+        this._stdin.off("data", this._ondata);
+        this._stdin.off("error", this._onerror);
+        const remainingDataListeners = this._stdin.listenerCount("data");
+        if (remainingDataListeners === 0) {
+          this._stdin.pause();
+        }
+        this._readBuffer.clear();
+        this.onclose?.();
+      }
+      send(message) {
+        return new Promise((resolve3) => {
+          const json = serializeMessage(message);
+          if (this._stdout.write(json)) {
+            resolve3();
+          } else {
+            this._stdout.once("drain", resolve3);
+          }
+        });
+      }
+    };
   }
-  async close() {
-    this._stdin.off("data", this._ondata);
-    this._stdin.off("error", this._onerror);
-    const remainingDataListeners = this._stdin.listenerCount("data");
-    if (remainingDataListeners === 0) {
-      this._stdin.pause();
-    }
-    this._readBuffer.clear();
-    this.onclose?.();
+});
+
+// src/remote-server.ts
+var remote_server_exports = {};
+__export(remote_server_exports, {
+  approveCandidate: () => approveCandidate,
+  authHeaders: () => authHeaders,
+  capture: () => capture,
+  deriveCandidateId: () => deriveCandidateId,
+  drainOutbox: () => drainOutbox,
+  errorResult: () => errorResult,
+  listInbox: () => listInbox,
+  mintOriginToken: () => mintOriginToken,
+  outboxDir: () => outboxDir,
+  rejectCandidate: () => rejectCandidate,
+  search: () => search,
+  startRemoteServer: () => startRemoteServer,
+  status: () => status
+});
+function mintOriginToken(secret, candidateId, tenantId, capturedAt) {
+  const payload = [candidateId, tenantId, capturedAt].join(String.fromCharCode(0));
+  return (0, import_node_crypto.createHmac)("sha256", secret).update(payload, "utf8").digest("hex");
+}
+function jsonResult(obj) {
+  return { content: [{ type: "text", text: JSON.stringify(obj, null, 2) }] };
+}
+function authHeaders() {
+  const headers = { "content-type": "application/json" };
+  if (API_TOKEN !== void 0 && API_TOKEN !== "") {
+    headers["authorization"] = `Bearer ${API_TOKEN}`;
   }
-  send(message) {
-    return new Promise((resolve3) => {
-      const json = serializeMessage(message);
-      if (this._stdout.write(json)) {
-        resolve3();
+  return headers;
+}
+async function errorResult(res) {
+  let detail = "";
+  try {
+    const text = await res.text();
+    try {
+      const b = JSON.parse(text);
+      detail = typeof b.error === "string" ? b.error : text;
+    } catch {
+      detail = text;
+    }
+  } catch {
+    detail = "";
+  }
+  const msg = res.status === 401 ? "team token rejected \u2014 check TEAMKB_API_TOKEN" : res.status === 403 ? "this action needs an ADMIN token; your member token can propose but not promote/transition \u2014 nothing was applied" : res.status === 422 ? `the brain declined it: ${detail}` : `request failed (${res.status})${detail ? ": " + detail : ""}`;
+  return jsonResult({ ok: false, status: res.status, error: msg });
+}
+function uuidv5(name, namespace) {
+  const ns = Buffer.from(namespace.replace(/-/g, ""), "hex");
+  const h = (0, import_node_crypto.createHash)("sha1").update(ns).update(name, "utf8").digest().subarray(0, 16);
+  h[6] = h[6] & 15 | 80;
+  h[8] = h[8] & 63 | 128;
+  const x = h.toString("hex");
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20, 32)}`;
+}
+function deriveCandidateId(tenant, title, content, sessionId, learningIndex) {
+  const sid = sessionId?.trim();
+  if (sid !== void 0 && sid !== "") {
+    const idx = typeof learningIndex === "number" && Number.isInteger(learningIndex) && learningIndex >= 0 ? learningIndex : 0;
+    return uuidv5(`${tenant}
+${sid}
+session-end
+${idx}`, CANDIDATE_ID_NAMESPACE);
+  }
+  return uuidv5(`${tenant}
+${title}
+${content}`, CANDIDATE_ID_NAMESPACE);
+}
+function outboxDir() {
+  const o = process.env["TEAMKB_OUTBOX_DIR"]?.trim();
+  return o !== void 0 && o !== "" ? o : (0, import_node_path2.join)((0, import_node_os2.homedir)(), ".teamkb-outbox");
+}
+async function enqueueOutbox(candidate) {
+  const dir = outboxDir();
+  try {
+    await (0, import_promises.mkdir)(dir, { recursive: true, mode: 448 });
+    const body = JSON.stringify(candidate);
+    await (0, import_promises.writeFile)((0, import_node_path2.join)(dir, `${candidate.id}.json`), body, { mode: 384 });
+    return true;
+  } catch (e) {
+    process.stderr.write(
+      `[governed-brain:team] outbox enqueue failed: ${e instanceof Error ? e.message : String(e)}
+`
+    );
+    return false;
+  }
+}
+async function drainOutbox() {
+  if (API_URL === void 0 || API_URL === "") return 0;
+  if (draining) return 0;
+  draining = true;
+  try {
+    const dir = outboxDir();
+    let files;
+    try {
+      files = (await (0, import_promises.readdir)(dir)).filter((f) => f.endsWith(".json"));
+    } catch {
+      return 0;
+    }
+    let cleared = 0;
+    for (const f of files) {
+      const path = (0, import_node_path2.join)(dir, f);
+      let body;
+      try {
+        body = await (0, import_promises.readFile)(path, "utf8");
+        JSON.parse(body);
+      } catch {
+        await (0, import_promises.unlink)(path).catch(() => {
+        });
+        continue;
+      }
+      let res;
+      try {
+        res = await fetch(`${API_URL.replace(/\/+$/, "")}/api/candidates`, {
+          method: "POST",
+          headers: authHeaders(),
+          body
+        });
+      } catch {
+        break;
+      }
+      const transient = res.status === 429 || res.status === 408;
+      if (res.ok || res.status >= 400 && res.status < 500 && !transient) {
+        if (!res.ok) {
+          process.stderr.write(`[governed-brain:team] outbox: dropping ${f} on ${res.status} (permanent)
+`);
+        }
+        await (0, import_promises.unlink)(path).then(() => {
+          cleared++;
+        }).catch(() => {
+        });
       } else {
-        this._stdout.once("drain", resolve3);
+        break;
       }
+    }
+    return cleared;
+  } finally {
+    draining = false;
+  }
+}
+async function search(query, scope, limit) {
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+  }
+  const url = `${API_URL.replace(/\/+$/, "")}/api/search`;
+  let res;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: authHeaders(),
+      // Send the tenant — the API's /api/search scopes qmd by tenantId and returns
+      // ZERO hits without it (unlike capture, which carried tenantId in the candidate).
+      // TENANT_ID defaults to the shared 'intent-solutions' tenant; a scoped teammate
+      // token still has its tenantId validated server-side by the tenancy guard.
+      body: JSON.stringify({ query, scope, tenantId: TENANT_ID, pagination: { page: 1, pageSize: limit } })
+    });
+  } catch (e) {
+    return jsonResult({
+      ok: false,
+      error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}`
     });
   }
-};
+  if (!res.ok) return errorResult(res);
+  const body = await res.json();
+  const results = (body.hits ?? []).filter((h) => typeof h.citation === "string" && h.citation.length > 0).map((h) => ({
+    citation: h.citation,
+    snippet: typeof h.snippet === "string" ? h.snippet : "",
+    score: typeof h.score === "number" ? h.score : 0,
+    title: h.title,
+    collection: h.collection
+  }));
+  return jsonResult({ source: "brain-api", query, scope, count: results.length, results });
+}
+async function status() {
+  const tokenSet2 = API_TOKEN !== void 0 && API_TOKEN !== "";
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({
+      mode: "team",
+      apiUrl: null,
+      tokenSet: tokenSet2,
+      healthy: false,
+      version: null,
+      error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain"
+    });
+  }
+  const apiUrl = API_URL.replace(/\/+$/, "");
+  let res;
+  try {
+    res = await fetch(`${apiUrl}/api/health`, { method: "GET" });
+  } catch (e) {
+    return jsonResult({
+      mode: "team",
+      apiUrl,
+      tokenSet: tokenSet2,
+      healthy: false,
+      version: null,
+      error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}`
+    });
+  }
+  let version = null;
+  try {
+    const b = await res.json();
+    if (typeof b.version === "string") version = b.version;
+  } catch {
+    version = null;
+  }
+  return jsonResult({ mode: "team", apiUrl, tokenSet: tokenSet2, healthy: res.ok, version });
+}
+async function capture(title, content, category, filePaths, sessionId, learningIndex) {
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+  }
+  const candidateId = deriveCandidateId(TENANT_ID, title, content, sessionId, learningIndex);
+  const capturedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const candidate = {
+    id: candidateId,
+    status: "inbox",
+    source: "mcp",
+    content,
+    title,
+    category: category ?? "reference",
+    trustLevel: "medium",
+    author: { type: "ai", id: "governed-brain" },
+    tenantId: TENANT_ID,
+    metadata: {
+      filePaths: filePaths ?? [],
+      tags: [],
+      ...sessionId?.trim() ? { sessionId: sessionId.trim() } : {},
+      ...typeof learningIndex === "number" && Number.isInteger(learningIndex) ? { learningIndex } : {}
+    },
+    prePolicyFlags: { potentialSecret: false, lowConfidence: false, duplicateSuspect: false },
+    capturedAt,
+    // H1 write-time provenance — only when the admin distributed the secret.
+    // Unset → no origin field at all (unattested; identical to pre-H1 bodies).
+    ...ORIGIN_SECRET !== void 0 ? {
+      origin: {
+        tokenHmac: mintOriginToken(ORIGIN_SECRET, candidateId, TENANT_ID, capturedAt),
+        channel: TEAM_ORIGIN_CHANNEL,
+        mintedAt: capturedAt
+      }
+    } : {}
+  };
+  const body = JSON.stringify(candidate);
+  let res;
+  try {
+    res = await fetch(`${API_URL.replace(/\/+$/, "")}/api/candidates`, {
+      method: "POST",
+      headers: authHeaders(),
+      body
+    });
+  } catch (e) {
+    const queued = await enqueueOutbox(candidate);
+    return jsonResult({
+      ok: queued,
+      queued,
+      candidateId: candidate.id,
+      tenantId: TENANT_ID,
+      message: queued ? `Could not reach the brain (${e instanceof Error ? e.message : String(e)}). Queued to the durable outbox \u2014 it will be sent on the next successful capture. Nothing was lost.` : `Could not reach the brain (${e instanceof Error ? e.message : String(e)}) AND could not write the durable outbox \u2014 this capture was NOT saved. Please retry.`
+    });
+  }
+  if (!res.ok) {
+    if (res.status >= 500) {
+      const queued = await enqueueOutbox(candidate);
+      return jsonResult({
+        ok: queued,
+        queued,
+        candidateId: candidate.id,
+        tenantId: TENANT_ID,
+        message: queued ? `The brain returned ${res.status}. Queued to the durable outbox \u2014 it will be retried on the next successful capture. Nothing was lost.` : `The brain returned ${res.status} AND the durable outbox write failed \u2014 this capture was NOT saved. Please retry.`
+      });
+    }
+    return errorResult(res);
+  }
+  let intake;
+  try {
+    const text = await res.text();
+    try {
+      const parsed = JSON.parse(text);
+      if (typeof parsed.intake === "string") intake = parsed.intake;
+    } catch {
+    }
+  } catch {
+    intake = void 0;
+  }
+  const drained = await drainOutbox();
+  const known = intake === "created" || intake === "already_exists" ? intake : res.status === 201 ? "created" : "unknown";
+  const already = known === "already_exists";
+  return jsonResult({
+    ok: true,
+    candidateId: candidate.id,
+    tenantId: TENANT_ID,
+    intake: known,
+    alreadyExists: already,
+    ...drained > 0 ? { outboxDrained: drained } : {},
+    message: already ? "Idempotent: this proposal already exists in the team brain inbox (same session slot or same content). Safe to retry; not a new capture." : known === "unknown" ? "Proposed to the team brain inbox (server did not report created vs already_exists). This is a PROPOSAL \u2014 not durable memory until promoted." : "Proposed to the team brain inbox. This is a PROPOSAL \u2014 the deterministic govern pipeline decides if/when it is promoted (an admin governs, or auto-govern once enabled). It is not durable memory yet."
+  });
+}
+function resolveTenant(tenantId) {
+  const t = tenantId?.trim();
+  return t !== void 0 && t !== "" ? t : TENANT_ID;
+}
+async function listInbox(tenantId, limit) {
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+  }
+  const tenant = resolveTenant(tenantId);
+  const url = `${API_URL.replace(/\/+$/, "")}/api/candidates?status=quarantined&tenantId=${encodeURIComponent(tenant)}`;
+  let res;
+  try {
+    res = await fetch(url, { method: "GET", headers: authHeaders() });
+  } catch (e) {
+    return jsonResult({ ok: false, error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}` });
+  }
+  if (!res.ok) return errorResult(res);
+  let rows;
+  try {
+    rows = await res.json();
+  } catch {
+    return jsonResult({ ok: false, error: "the brain returned an unreadable (non-JSON) inbox response" });
+  }
+  const candidates = (Array.isArray(rows) ? rows : []).filter((r) => typeof r.id === "string" && r.id.length > 0).slice(0, limit).map((r) => ({
+    id: r.id,
+    title: typeof r.title === "string" ? r.title : "",
+    category: typeof r.category === "string" ? r.category : "",
+    author: typeof r.author === "object" && r.author !== null ? r.author.id ?? "" : r.author ?? "",
+    capturedAt: typeof r.capturedAt === "string" ? r.capturedAt : ""
+  }));
+  return jsonResult({ ok: true, tenantId: tenant, count: candidates.length, candidates });
+}
+async function approveCandidate(candidateId, tenantId, reason) {
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+  }
+  const tenant = resolveTenant(tenantId);
+  let res;
+  try {
+    res = await fetch(
+      `${API_URL.replace(/\/+$/, "")}/api/candidates/${encodeURIComponent(candidateId)}/promote?tenantId=${encodeURIComponent(tenant)}`,
+      {
+        method: "POST",
+        headers: authHeaders(),
+        // actorType:'ai' — this is the review AGENT proxying; the SERVER derives
+        // the actor id from the authenticated token, so it can't be spoofed here.
+        body: JSON.stringify({ reason, actorType: "ai" })
+      }
+    );
+  } catch (e) {
+    return jsonResult({ ok: false, error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}` });
+  }
+  if (!res.ok) return errorResult(res);
+  let memory = null;
+  try {
+    memory = await res.json();
+  } catch {
+    memory = null;
+  }
+  return jsonResult({
+    ok: true,
+    candidateId,
+    memoryId: memory?.id,
+    tenantId: tenant,
+    message: "Promoted to durable team memory \u2014 it passed the deterministic govern rules and a hash-chained receipt names you as the approving actor."
+  });
+}
+async function rejectCandidate(candidateId, tenantId, reason) {
+  if (API_URL === void 0 || API_URL === "") {
+    return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+  }
+  const tenant = resolveTenant(tenantId);
+  let res;
+  try {
+    res = await fetch(
+      `${API_URL.replace(/\/+$/, "")}/api/candidates/${encodeURIComponent(candidateId)}/reject?tenantId=${encodeURIComponent(tenant)}`,
+      {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ reason, actorType: "ai" })
+      }
+    );
+  } catch (e) {
+    return jsonResult({ ok: false, error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}` });
+  }
+  if (!res.ok) return errorResult(res);
+  return jsonResult({
+    ok: true,
+    candidateId,
+    tenantId: tenant,
+    message: "Retired as rejected (row preserved); a hash-chained receipt names you + your reason."
+  });
+}
+async function startRemoteServer() {
+  const transport = new StdioServerTransport();
+  const shutdown = async (sig) => {
+    process.stderr.write(`[governed-brain:team] ${sig}, shutting down
+`);
+    await server.close();
+    process.exit(0);
+  };
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  await server.connect(transport);
+  process.stderr.write(
+    `[governed-brain:team] started \u2014 brain=${API_URL ?? "(TEAMKB_API_URL unset)"} token=${API_TOKEN ? "set" : "none"}
+`
+  );
+}
+var import_node_crypto, import_promises, import_node_os2, import_node_path2, import_zod2, VERSION, API_URL, API_TOKEN, TENANT_ID, ORIGIN_SECRET, TEAM_ORIGIN_CHANNEL, CATEGORIES, CANDIDATE_ID_NAMESPACE, draining, server;
+var init_remote_server = __esm({
+  "src/remote-server.ts"() {
+    "use strict";
+    import_node_crypto = require("node:crypto");
+    import_promises = require("node:fs/promises");
+    import_node_os2 = require("node:os");
+    import_node_path2 = require("node:path");
+    init_mcp();
+    init_stdio2();
+    import_zod2 = __toESM(require_zod(), 1);
+    VERSION = "1.1.0";
+    API_URL = process.env["TEAMKB_API_URL"];
+    API_TOKEN = process.env["TEAMKB_API_TOKEN"];
+    TENANT_ID = process.env["TEAMKB_TENANT_ID"]?.trim() || "intent-solutions";
+    ORIGIN_SECRET = process.env["TEAMKB_ORIGIN_SECRET"]?.trim() || void 0;
+    TEAM_ORIGIN_CHANNEL = "team-mcp";
+    CATEGORIES = [
+      "decision",
+      "pattern",
+      "convention",
+      "architecture",
+      "troubleshooting",
+      "onboarding",
+      "reference"
+    ];
+    CANDIDATE_ID_NAMESPACE = "6ba7b8f0-9dad-11d1-80b4-00c04fd430c8";
+    draining = false;
+    server = new McpServer({ name: "governed-brain", version: VERSION });
+    server.tool(
+      "brain_search",
+      "Search your team's governed knowledge brain and return qmd:// citations. Every hit is anchored to a verifiable source \u2014 receipts, not recall. Read-only; curated scope by default. Proxies to the governed brain over the tailnet (team mode).",
+      {
+        query: import_zod2.z.string().min(1).describe("Natural-language search query"),
+        scope: import_zod2.z.enum(["curated", "all", "inbox", "archived"]).optional().describe("Search scope: curated (default), all, inbox, or archived"),
+        limit: import_zod2.z.number().int().min(1).max(50).optional().describe("Maximum number of cited hits to return (default 10)")
+      },
+      async (params) => search(params.query, params.scope ?? "curated", params.limit ?? 10)
+    );
+    server.tool(
+      "brain_status",
+      "Check your connection to the team brain: are you in team mode, is TEAMKB_API_URL reachable, and is a per-user token set? Calls the brain's health probe (no auth) and reports { mode, apiUrl, tokenSet, healthy, version }. Read-only \u2014 no query, touches no data.",
+      {},
+      async () => status()
+    );
+    server.tool(
+      "brain_capture",
+      "Propose a fact, decision, pattern, or convention to your team's governed brain \u2014 a PROPOSAL, not a promotion. Member-allowed: the server queues it as a candidate and the deterministic govern pipeline disposes; it is not durable memory until promoted. Proxies to the brain over the tailnet (team mode). For SessionEnd: pass sessionId + learningIndex (0..4) so each learning is its own slot and re-distill of that slot collapses.",
+      {
+        title: import_zod2.z.string().min(1).describe("Short, specific title for the memory"),
+        content: import_zod2.z.string().min(1).describe("The fact to remember, in full"),
+        category: import_zod2.z.enum(CATEGORIES).optional().describe("Memory category (default: reference)"),
+        filePaths: import_zod2.z.array(import_zod2.z.string()).optional().describe("Related file paths, if any"),
+        sessionId: import_zod2.z.string().optional().describe(
+          "Stable session id (Claude Code session). With learningIndex, forms a per-learning slot so re-distill does not duplicate and multi-learning sessions keep separate rows."
+        ),
+        learningIndex: import_zod2.z.number().int().min(0).max(4).optional().describe(
+          "0-based index of this learning within the session (SessionEnd: 0..4 for up to 5 learnings). Defaults to 0 when sessionId is set."
+        )
+      },
+      async (params) => capture(
+        params.title,
+        params.content,
+        params.category,
+        params.filePaths,
+        params.sessionId,
+        params.learningIndex
+      )
+    );
+    server.tool(
+      "brain_transition",
+      "Change the lifecycle state of an existing governed memory (e.g. retire an outdated one). ADMIN-ONLY in team mode \u2014 a member token gets a clear 403 and nothing is applied. The server writes a hash-chained audit event. Valid moves: active\u2192{deprecated,superseded,archived}, deprecated\u2192{active,archived}, superseded\u2192archived.",
+      {
+        memoryId: import_zod2.z.string().uuid().describe("UUID of the memory to transition"),
+        to: import_zod2.z.enum(["active", "deprecated", "superseded", "archived"]).describe("Target lifecycle state"),
+        reason: import_zod2.z.string().min(1).describe("Human-readable justification (lands in the audit trail)"),
+        actor: import_zod2.z.string().optional().describe("Who is making the change (default: owner)"),
+        supersededBy: import_zod2.z.string().uuid().optional().describe('Required UUID when transitioning to "superseded"')
+      },
+      async (params) => {
+        if (API_URL === void 0 || API_URL === "") {
+          return jsonResult({ ok: false, error: "unconfigured \u2014 set TEAMKB_API_URL to your team brain" });
+        }
+        const body = {
+          to: params.to,
+          reason: params.reason,
+          actor: { type: "human", id: params.actor ?? "owner" }
+        };
+        if (params.supersededBy !== void 0) body["supersededBy"] = params.supersededBy;
+        let res;
+        try {
+          res = await fetch(`${API_URL.replace(/\/+$/, "")}/api/memories/${params.memoryId}/transition`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          });
+        } catch (e) {
+          return jsonResult({ ok: false, error: `could not reach the brain API: ${e instanceof Error ? e.message : String(e)}` });
+        }
+        if (!res.ok) return errorResult(res);
+        return jsonResult({
+          ok: true,
+          memoryId: params.memoryId,
+          to: params.to,
+          message: "Transition applied; hash-chained audit event written server-side."
+        });
+      }
+    );
+    server.tool(
+      "brain_inbox",
+      "List your team brain's quarantined capture queue \u2014 member proposals held for review, awaiting an admin's promote/reject. ADMIN-ONLY in team mode (a member token gets a clear 403). Read-only; returns { id, title, category, author, capturedAt } per candidate so you can review then brain_approve / brain_reject by id. Proxies to the governed brain over the tailnet.",
+      {
+        tenantId: import_zod2.z.string().optional().describe("Tenant to inspect (default: the team tenant)"),
+        limit: import_zod2.z.number().int().min(1).max(200).optional().describe("Max candidates to return (default 50)")
+      },
+      async (params) => listInbox(params.tenantId, params.limit ?? 50)
+    );
+    server.tool(
+      "brain_approve",
+      "Promote a quarantined candidate to durable team memory \u2014 the agent-review 'this is worth keeping' verdict. ADMIN-ONLY (member token \u2192 403, nothing applied). The server re-runs the deterministic govern rules (dedupe / policy / secret-scan) as a hard floor you CANNOT override, then writes a hash-chained receipt naming you (the acting token) + your reason. A secret or duplicate is refused server-side (422) \u2014 it cannot be laundered through an approval.",
+      {
+        candidateId: import_zod2.z.string().uuid().describe("UUID of the quarantined candidate (from brain_inbox)"),
+        tenantId: import_zod2.z.string().optional().describe("Tenant the candidate belongs to (default: the team tenant)"),
+        reason: import_zod2.z.string().min(1).describe("Why it should become durable memory (lands in the receipt)")
+      },
+      async (params) => approveCandidate(params.candidateId, params.tenantId, params.reason)
+    );
+    server.tool(
+      "brain_reject",
+      "Retire a quarantined candidate as noise WITHOUT promoting it \u2014 the agent-review 'don't keep proposing this' verdict. ADMIN-ONLY (member token \u2192 403). Non-destructive: the candidate row survives (never deleted), stamped `rejected`, and a hash-chained receipt names you + your reason. Proxies to the governed brain over the tailnet.",
+      {
+        candidateId: import_zod2.z.string().uuid().describe("UUID of the quarantined candidate (from brain_inbox)"),
+        tenantId: import_zod2.z.string().optional().describe("Tenant the candidate belongs to (default: the team tenant)"),
+        reason: import_zod2.z.string().min(1).describe("Why it is being retired (lands in the receipt)")
+      },
+      async (params) => rejectCandidate(params.candidateId, params.tenantId, params.reason)
+    );
+  }
+});
 
-// src/local-server.ts
-var import_zod16 = __toESM(require_zod(), 1);
-var import_node_path13 = require("node:path");
-
-// ../qmd-team-intent-kb/packages/store/dist/database.js
-var import_node_fs = require("node:fs");
-var import_node_path = require("node:path");
-var import_better_sqlite3 = __toESM(require("better-sqlite3"), 1);
-
-// ../qmd-team-intent-kb/packages/store/dist/schema.js
-var CANDIDATES_DDL = `
+// ../bobs-big-brain-registrar/packages/store/dist/schema.js
+function applyCheckConstraintBackfill(db) {
+  const row = db.prepare("SELECT sql FROM sqlite_schema WHERE type = 'table' AND name = 'curated_memories'").get();
+  if (row !== void 0 && /CHECK\s*\(\s*category\s+IN/i.test(row.sql)) {
+    return;
+  }
+  db.exec(CURATED_MEMORIES_V9_REBUILD);
+  db.exec("INSERT INTO curated_memories_fts(curated_memories_fts) VALUES ('rebuild');");
+}
+var CANDIDATES_DDL, CURATED_MEMORIES_DDL, GOVERNANCE_POLICIES_DDL, AUDIT_EVENTS_DDL, EXPORT_STATE_DDL, SCHEMA_MIGRATIONS_DDL, TABLE_DDL, CURATED_MEMORIES_V9_REBUILD, MIGRATIONS;
+var init_schema = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/schema.js"() {
+    "use strict";
+    CANDIDATES_DDL = `
 CREATE TABLE IF NOT EXISTS candidates (
   id TEXT PRIMARY KEY,
   status TEXT NOT NULL DEFAULT 'inbox',
@@ -35151,20 +36089,20 @@ CREATE TABLE IF NOT EXISTS candidates (
 CREATE INDEX IF NOT EXISTS idx_candidates_tenant ON candidates(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_candidates_hash ON candidates(content_hash);
 `.trim();
-var CURATED_MEMORIES_DDL = `
+    CURATED_MEMORIES_DDL = `
 CREATE TABLE IF NOT EXISTS curated_memories (
   id TEXT PRIMARY KEY,
   candidate_id TEXT NOT NULL,
-  source TEXT NOT NULL,
+  source TEXT NOT NULL CHECK (source IN ('claude_session', 'manual', 'import', 'mcp', 'bulk_import')),
   content TEXT NOT NULL,
   title TEXT NOT NULL,
-  category TEXT NOT NULL,
-  trust_level TEXT NOT NULL,
-  sensitivity TEXT NOT NULL DEFAULT 'internal',
+  category TEXT NOT NULL CHECK (category IN ('decision', 'pattern', 'convention', 'architecture', 'troubleshooting', 'reference', 'onboarding')),
+  trust_level TEXT NOT NULL CHECK (trust_level IN ('high', 'medium', 'low', 'untrusted')),
+  sensitivity TEXT NOT NULL DEFAULT 'internal' CHECK (sensitivity IN ('public', 'internal', 'confidential', 'restricted')),
   author_json TEXT NOT NULL,
   tenant_id TEXT NOT NULL,
   metadata_json TEXT NOT NULL DEFAULT '{}',
-  lifecycle TEXT NOT NULL DEFAULT 'active',
+  lifecycle TEXT NOT NULL DEFAULT 'active' CHECK (lifecycle IN ('active', 'deprecated', 'superseded', 'archived')),
   content_hash TEXT NOT NULL,
   policy_evaluations_json TEXT NOT NULL DEFAULT '[]',
   supersession_json TEXT,
@@ -35178,7 +36116,7 @@ CREATE INDEX IF NOT EXISTS idx_memories_hash ON curated_memories(content_hash);
 CREATE INDEX IF NOT EXISTS idx_memories_lifecycle ON curated_memories(lifecycle);
 CREATE INDEX IF NOT EXISTS idx_memories_updated ON curated_memories(updated_at);
 `.trim();
-var GOVERNANCE_POLICIES_DDL = `
+    GOVERNANCE_POLICIES_DDL = `
 CREATE TABLE IF NOT EXISTS governance_policies (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -35191,7 +36129,7 @@ CREATE TABLE IF NOT EXISTS governance_policies (
 );
 CREATE INDEX IF NOT EXISTS idx_policies_tenant ON governance_policies(tenant_id);
 `.trim();
-var AUDIT_EVENTS_DDL = `
+    AUDIT_EVENTS_DDL = `
 CREATE TABLE IF NOT EXISTS audit_events (
   id TEXT PRIMARY KEY,
   action TEXT NOT NULL,
@@ -35202,51 +36140,110 @@ CREATE TABLE IF NOT EXISTS audit_events (
   details_json TEXT NOT NULL DEFAULT '{}',
   timestamp TEXT NOT NULL
 );
--- entry_hash / prev_entry_hash columns added via MIGRATIONS[5] so the
--- migration runs against both fresh and pre-existing databases. Adding
--- them here would cause a 'duplicate column' error when migration 5
--- replays on a fresh DB.
+-- entry_hash / prev_entry_hash columns added via migration 5, and
+-- hash_version via migration 6, so each migration runs against both fresh
+-- and pre-existing databases. Adding them here would cause a 'duplicate
+-- column' error when the migration replays on a fresh DB.
 CREATE INDEX IF NOT EXISTS idx_audit_memory ON audit_events(memory_id);
 CREATE INDEX IF NOT EXISTS idx_audit_tenant ON audit_events(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_events(action);
 `.trim();
-var EXPORT_STATE_DDL = `
+    EXPORT_STATE_DDL = `
 CREATE TABLE IF NOT EXISTS export_state (
   target_id TEXT PRIMARY KEY,
   last_exported_at TEXT NOT NULL,
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `.trim();
-var SCHEMA_MIGRATIONS_DDL = `
+    SCHEMA_MIGRATIONS_DDL = `
 CREATE TABLE IF NOT EXISTS schema_migrations (
   version INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   applied_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `.trim();
-var TABLE_DDL = [
-  CANDIDATES_DDL,
-  CURATED_MEMORIES_DDL,
-  GOVERNANCE_POLICIES_DDL,
-  AUDIT_EVENTS_DDL,
-  EXPORT_STATE_DDL,
-  SCHEMA_MIGRATIONS_DDL
-];
-var MIGRATIONS = [
-  {
-    version: 1,
-    name: "add_compound_indexes",
-    sql: `
+    TABLE_DDL = [
+      CANDIDATES_DDL,
+      CURATED_MEMORIES_DDL,
+      GOVERNANCE_POLICIES_DDL,
+      AUDIT_EVENTS_DDL,
+      EXPORT_STATE_DDL,
+      SCHEMA_MIGRATIONS_DDL
+    ];
+    CURATED_MEMORIES_V9_REBUILD = `
+CREATE TABLE curated_memories_v9_new (
+  id TEXT PRIMARY KEY,
+  candidate_id TEXT NOT NULL,
+  source TEXT NOT NULL CHECK (source IN ('claude_session', 'manual', 'import', 'mcp', 'bulk_import')),
+  content TEXT NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('decision', 'pattern', 'convention', 'architecture', 'troubleshooting', 'reference', 'onboarding')),
+  trust_level TEXT NOT NULL CHECK (trust_level IN ('high', 'medium', 'low', 'untrusted')),
+  sensitivity TEXT NOT NULL DEFAULT 'internal' CHECK (sensitivity IN ('public', 'internal', 'confidential', 'restricted')),
+  author_json TEXT NOT NULL,
+  tenant_id TEXT NOT NULL,
+  metadata_json TEXT NOT NULL DEFAULT '{}',
+  lifecycle TEXT NOT NULL DEFAULT 'active' CHECK (lifecycle IN ('active', 'deprecated', 'superseded', 'archived')),
+  content_hash TEXT NOT NULL,
+  policy_evaluations_json TEXT NOT NULL DEFAULT '[]',
+  supersession_json TEXT,
+  promoted_at TEXT NOT NULL,
+  promoted_by_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1
+);
+INSERT INTO curated_memories_v9_new (
+  rowid, id, candidate_id, source, content, title, category, trust_level, sensitivity,
+  author_json, tenant_id, metadata_json, lifecycle, content_hash, policy_evaluations_json,
+  supersession_json, promoted_at, promoted_by_json, updated_at, version
+)
+SELECT
+  rowid, id, candidate_id, source, content, title, category, trust_level, sensitivity,
+  author_json, tenant_id, metadata_json, lifecycle, content_hash, policy_evaluations_json,
+  supersession_json, promoted_at, promoted_by_json, updated_at, version
+FROM curated_memories;
+DROP TABLE curated_memories;
+ALTER TABLE curated_memories_v9_new RENAME TO curated_memories;
+CREATE INDEX idx_memories_tenant ON curated_memories(tenant_id);
+CREATE INDEX idx_memories_hash ON curated_memories(content_hash);
+CREATE INDEX idx_memories_lifecycle ON curated_memories(lifecycle);
+CREATE INDEX idx_memories_updated ON curated_memories(updated_at);
+CREATE INDEX idx_memories_tenant_lifecycle ON curated_memories(tenant_id, lifecycle);
+CREATE INDEX idx_memories_lifecycle_updated ON curated_memories(lifecycle, updated_at);
+CREATE INDEX idx_memories_tenant_category ON curated_memories(tenant_id, category);
+CREATE TRIGGER curated_memories_fts_insert
+AFTER INSERT ON curated_memories BEGIN
+  INSERT INTO curated_memories_fts(rowid, title, content)
+  VALUES (new.rowid, new.title, new.content);
+END;
+CREATE TRIGGER curated_memories_fts_delete
+AFTER DELETE ON curated_memories BEGIN
+  INSERT INTO curated_memories_fts(curated_memories_fts, rowid, title, content)
+  VALUES ('delete', old.rowid, old.title, old.content);
+END;
+CREATE TRIGGER curated_memories_fts_update
+AFTER UPDATE ON curated_memories BEGIN
+  INSERT INTO curated_memories_fts(curated_memories_fts, rowid, title, content)
+  VALUES ('delete', old.rowid, old.title, old.content);
+  INSERT INTO curated_memories_fts(rowid, title, content)
+  VALUES (new.rowid, new.title, new.content);
+END;
+`.trim();
+    MIGRATIONS = [
+      {
+        version: 1,
+        name: "add_compound_indexes",
+        sql: `
 CREATE INDEX IF NOT EXISTS idx_memories_tenant_lifecycle ON curated_memories(tenant_id, lifecycle);
 CREATE INDEX IF NOT EXISTS idx_memories_lifecycle_updated ON curated_memories(lifecycle, updated_at);
 CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_events(timestamp);
 CREATE INDEX IF NOT EXISTS idx_memories_tenant_category ON curated_memories(tenant_id, category);
     `.trim()
-  },
-  {
-    version: 2,
-    name: "add_fts5_search",
-    sql: `
+      },
+      {
+        version: 2,
+        name: "add_fts5_search",
+        sql: `
 CREATE VIRTUAL TABLE IF NOT EXISTS curated_memories_fts USING fts5(
   title,
   content,
@@ -35279,11 +36276,11 @@ AFTER UPDATE ON curated_memories BEGIN
   VALUES (new.rowid, new.title, new.content);
 END;
     `.trim()
-  },
-  {
-    version: 3,
-    name: "add_memory_links_and_import_batches",
-    sql: `
+      },
+      {
+        version: 3,
+        name: "add_memory_links_and_import_batches",
+        sql: `
 CREATE TABLE IF NOT EXISTS memory_links (
   id TEXT PRIMARY KEY,
   source_memory_id TEXT NOT NULL REFERENCES curated_memories(id),
@@ -35316,51 +36313,174 @@ CREATE TABLE IF NOT EXISTS import_batches (
 CREATE INDEX IF NOT EXISTS idx_batches_tenant ON import_batches(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_batches_status ON import_batches(status);
     `.trim()
-  },
-  {
-    version: 4,
-    name: "add_import_batch_id_to_candidates",
-    sql: `
+      },
+      {
+        version: 4,
+        name: "add_import_batch_id_to_candidates",
+        sql: `
 ALTER TABLE candidates ADD COLUMN import_batch_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_candidates_batch ON candidates(import_batch_id);
     `.trim()
-  },
-  {
-    // Adds a SHA-256 hash chain to audit_events so auditors can verify
-    // integrity end-to-end (bead qmd-team-intent-kb-kmr / gvt).
-    //
-    // Each post-migration row carries:
-    //   entry_hash       — sha256 of canonical JSON of the row fields
-    //                       plus the previous row's entry_hash
-    //   prev_entry_hash  — the entry_hash of the chronologically previous
-    //                       row, NULL for the first hashed row
-    //
-    // Pre-migration rows retain both columns NULL — the verifier flags
-    // these as `unverified` rather than `broken` because they predate
-    // the hash-chain contract. Operators can backfill via a separate
-    // tool if cryptographic continuity over pre-migration history is
-    // required for compliance.
-    version: 5,
-    name: "add_audit_hash_chain",
-    sql: `
+      },
+      {
+        // Adds a SHA-256 hash chain to audit_events so auditors can verify
+        // integrity end-to-end (bead qmd-team-intent-kb-kmr / gvt).
+        //
+        // Each post-migration row carries:
+        //   entry_hash       — sha256 of canonical JSON of the row fields
+        //                       plus the previous row's entry_hash
+        //   prev_entry_hash  — the entry_hash of the chronologically previous
+        //                       row, NULL for the first hashed row
+        //
+        // Pre-migration rows retain both columns NULL — the verifier flags
+        // these as `unverified` rather than `broken` because they predate
+        // the hash-chain contract. Operators can backfill via a separate
+        // tool if cryptographic continuity over pre-migration history is
+        // required for compliance.
+        version: 5,
+        name: "add_audit_hash_chain",
+        sql: `
 ALTER TABLE audit_events ADD COLUMN entry_hash TEXT;
 ALTER TABLE audit_events ADD COLUMN prev_entry_hash TEXT;
     `.trim()
+      },
+      {
+        // Cross-clone determinism for the audit hash chain (bead
+        // qmd-team-intent-kb-8da.6).
+        //
+        // The original (v1) canonical hash body included `timestamp`, which is
+        // sourced from `new Date().toISOString()` at write time. Two clones
+        // processing the same logical event at different instants minted
+        // different timestamps, hence different entry_hash values, so the chain
+        // was reproducible only within a single DB, not across clones.
+        //
+        // This migration adds a `hash_version` discriminant. Existing rows take
+        // the DEFAULT 1 (still hashed WITH timestamp; their stored hashes are
+        // unchanged and remain valid v1 tamper-evidence). New rows are inserted
+        // with hash_version = 2, whose canonical body EXCLUDES timestamp, so the
+        // entry_hash is a pure function of the logical event and reproducible on
+        // every clone. The timestamp column is untouched: it is still stored,
+        // just no longer fed into the v2 hash. Chain ordering is unaffected; it
+        // rides on prev_entry_hash, which never depended on the timestamp value.
+        //
+        // v1 rows are NOT backfilled to v2: rehashing them would erase the very
+        // tamper-evidence those v1 hashes provide. verifyAuditChain dispatches
+        // per row on hash_version (NULL/absent => 1), so a DB with both v1 and
+        // v2 rows verifies in a single pass. `ico audit verify` stays valid
+        // before and after; pre-existing rows are byte-for-byte unchanged.
+        version: 6,
+        name: "rehash_audit_chain_v2",
+        sql: `
+ALTER TABLE audit_events ADD COLUMN hash_version INTEGER NOT NULL DEFAULT 1;
+    `.trim()
+      },
+      {
+        // Order the audit hash chain by a monotonic write-order key instead of
+        // (timestamp, id) — bead qmd-team-intent-kb-yxp.
+        //
+        // `id` is a random UUID, so when two events share one timestamp (a
+        // promotion that supersedes writes a `promoted` and a `superseded` event
+        // in the same instant) the equal-timestamp tiebreak sorted by UUID,
+        // flipping ~half the pairs relative to true insertion order. The
+        // prev_entry_hash links were always built in insertion order (the
+        // write-time prev lookup returned the sole same-timestamp predecessor
+        // present at write time), so the verifier's (timestamp, id) read
+        // disagreed with the stored links and reported PREV_LINK_MISMATCH on
+        // every flipped pair — even though every entry_hash was intact (no
+        // tampering, only a stale ordering contract).
+        //
+        // Fix: add an explicit monotonic `seq`, backfill existing rows by rowid
+        // (which reflects insertion order for this append-only, delete-free
+        // table), and order both the verifier walk and the write-time prev lookup
+        // by seq. No row data is rewritten and no entry_hash changes — the
+        // existing chain verifies clean immediately. An explicit column (rather
+        // than relying on SQLite's rowid) keeps the ordering contract portable to
+        // Dolt/Postgres, where rowid has no stable equivalent.
+        version: 7,
+        name: "add_audit_seq_ordering",
+        sql: `
+ALTER TABLE audit_events ADD COLUMN seq INTEGER;
+UPDATE audit_events SET seq = rowid WHERE seq IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_seq ON audit_events(seq);
+    `.trim()
+      },
+      {
+        // Index the auto-govern inbox sweep's hot lookup (B1, bead
+        // compile-then-govern-jfv.2.1). The nightly sweep calls
+        // `CandidateRepository.findByStatus('inbox', tenantId)` — a filter on
+        // (status, tenant_id) — to drain the remote-capture inbox. Purely additive:
+        // no column change (the `candidates.status` column is already TEXT with a
+        // DEFAULT of 'inbox'; the B1 enum widening is enforced in Zod, not by a DB
+        // CHECK), just a compound index so the sweep does not table-scan `candidates`
+        // as the inbox grows. `IF NOT EXISTS` keeps it replay-safe on fresh and
+        // pre-existing databases alike.
+        version: 8,
+        name: "add_candidates_status_tenant_index",
+        sql: `
+CREATE INDEX IF NOT EXISTS idx_candidates_status_tenant ON candidates(status, tenant_id);
+    `.trim()
+      },
+      {
+        version: 9,
+        name: "backfill_curated_memories_enum_check_constraints",
+        apply: applyCheckConstraintBackfill,
+        rebuildsTable: true
+      },
+      {
+        // Index-freshness tracking (D1/D2 — promote→search latency observability).
+        //
+        // One row per tenant recording when the derived search index (kb-export
+        // markdown tree + qmd/FTS5 index) last COMPLETED its export→reindex chain.
+        // The "index dirty" signal is DERIVED, not stored: a tenant is dirty when
+        // any curated_memories.promoted_at is newer than last_indexed_at — see
+        // IndexStateRepository for the rationale (atomic-by-construction with the
+        // promotion transaction; no caller can forget to set it).
+        //
+        // last_indexed_at is an ISO-8601 UTC string written by app code (NOT
+        // datetime('now'), whose 'YYYY-MM-DD HH:MM:SS' shape would break the
+        // lexicographic comparison against promoted_at's toISOString format).
+        version: 10,
+        name: "add_index_state",
+        sql: `
+CREATE TABLE IF NOT EXISTS index_state (
+  tenant_id TEXT PRIMARY KEY,
+  last_indexed_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+    `.trim()
+      },
+      {
+        // Write-time provenance (GSB Wave-2 H1). One nullable JSON column holding
+        // the candidate's optional `origin` attestation ({ tokenHmac, channel,
+        // mintedAt } — validated by the Zod `CandidateOrigin` schema, mirroring the
+        // other *_json columns; no CHECK constraint, so future origin fields need
+        // no further migration). NULL = unattested (every pre-H1 row), which the
+        // govern path accepts for backward compatibility — only a PRESENT-but-
+        // unverifiable origin rejects. Purely additive: no existing row changes, no
+        // index (origin is never a query key; verification reads the row it
+        // already has).
+        version: 11,
+        name: "add_candidates_origin",
+        sql: `
+ALTER TABLE candidates ADD COLUMN origin_json TEXT;
+    `.trim()
+      }
+    ];
   }
-];
+});
 
-// ../qmd-team-intent-kb/packages/store/dist/database.js
+// ../bobs-big-brain-registrar/packages/store/dist/database.js
 function ensureSecureDirectory(dbPath) {
   if (dbPath === ":memory:")
     return;
-  const dir = (0, import_node_path.dirname)(dbPath);
-  (0, import_node_fs.mkdirSync)(dir, { recursive: true, mode: 448 });
+  const dir = (0, import_node_path3.dirname)(dbPath);
+  (0, import_node_fs2.mkdirSync)(dir, { recursive: true, mode: 448 });
 }
 function secureDbFile(dbPath) {
   if (dbPath === ":memory:")
     return;
   try {
-    (0, import_node_fs.chmodSync)(dbPath, 384);
+    (0, import_node_fs2.chmodSync)(dbPath, 384);
   } catch {
   }
 }
@@ -35389,262 +36509,397 @@ function runMigrations(db) {
   const pending = MIGRATIONS.filter((m) => m.version > currentVersion.v).sort((a, b) => a.version - b.version);
   if (pending.length === 0)
     return;
+  const needsForeignKeysOff = pending.some((m) => m.rebuildsTable === true);
+  if (needsForeignKeysOff) {
+    db.pragma("foreign_keys = OFF");
+  }
   const applyAll = db.transaction(() => {
     for (const migration of pending) {
-      db.exec(migration.sql);
+      if (migration.apply !== void 0) {
+        migration.apply(db);
+      } else if (migration.sql !== void 0) {
+        db.exec(migration.sql);
+      } else {
+        throw new Error(`Migration ${migration.version} (${migration.name}) has neither sql nor apply`);
+      }
       db.prepare("INSERT INTO schema_migrations (version, name) VALUES (?, ?)").run(migration.version, migration.name);
     }
+    if (needsForeignKeysOff) {
+      const violations = db.pragma("foreign_key_check");
+      if (Array.isArray(violations) && violations.length > 0) {
+        throw new Error(`Migration foreign_key_check found ${violations.length} violation(s): ${JSON.stringify(violations)}`);
+      }
+    }
   });
-  applyAll();
-}
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/candidate-repository.js
-var import_zod10 = __toESM(require_zod(), 1);
-
-// ../qmd-team-intent-kb/packages/schema/dist/enums.js
-var import_zod2 = __toESM(require_zod(), 1);
-var MemorySource = import_zod2.z.enum(["claude_session", "manual", "import", "mcp"]);
-var TrustLevel = import_zod2.z.enum(["high", "medium", "low", "untrusted"]);
-var MemoryCategory = import_zod2.z.enum([
-  "decision",
-  "pattern",
-  "convention",
-  "architecture",
-  "troubleshooting",
-  "onboarding",
-  "reference"
-]);
-var MemoryLifecycleState = import_zod2.z.enum(["active", "deprecated", "superseded", "archived"]);
-var CandidateStatus = import_zod2.z.literal("inbox");
-var SearchScope = import_zod2.z.enum(["curated", "all", "inbox", "archived"]).default("curated");
-var PolicyRuleType = import_zod2.z.enum([
-  "secret_detection",
-  "dedup_check",
-  "relevance_score",
-  "content_length",
-  "source_trust",
-  "tenant_match",
-  "sensitivity_gate",
-  "content_sanitization"
-]);
-var PolicyRuleAction = import_zod2.z.enum(["reject", "flag", "approve", "require_review"]);
-var AuditAction = import_zod2.z.enum([
-  "promoted",
-  "demoted",
-  "superseded",
-  "archived",
-  "deleted",
-  "searched",
-  "exported",
-  // Evidence Bundle emission on a curation/promotion cycle (IEP unification
-  // thesis, DR-010 Q3). Added for the eval-surface emit path (bead tr08.15/.17/.19).
-  "eval-result"
-]);
-var Confidence = import_zod2.z.enum(["high", "medium", "low"]);
-var Sensitivity = import_zod2.z.enum(["public", "internal", "confidential", "restricted"]);
-var AuthorType = import_zod2.z.enum(["human", "ai", "system"]);
-var LinkType = import_zod2.z.enum([
-  "relates_to",
-  "supersedes",
-  "contradicts",
-  "depends_on",
-  "part_of"
-]);
-var LinkSource = import_zod2.z.enum(["curator", "import", "manual", "mcp"]);
-var ImportBatchStatus = import_zod2.z.enum(["active", "completed", "rolled_back"]);
-
-// ../qmd-team-intent-kb/packages/schema/dist/common.js
-var import_zod3 = __toESM(require_zod(), 1);
-var Uuid = import_zod3.z.string().uuid();
-var Sha256Hash = import_zod3.z.string().regex(/^[a-f0-9]{64}$/, "Must be a valid SHA-256 hex hash");
-var IsoDatetime = import_zod3.z.string().datetime();
-var NonEmptyString = import_zod3.z.string().trim().min(1);
-var SemVer = import_zod3.z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/, "Must be a valid semver string");
-var Tag = import_zod3.z.string().regex(/^[a-z0-9][a-z0-9-]*$/, "Must be a lowercase tag");
-var Author = import_zod3.z.object({
-  type: AuthorType,
-  id: NonEmptyString,
-  name: NonEmptyString.optional()
-});
-var TenantId = NonEmptyString;
-var ContentMetadata = import_zod3.z.object({
-  filePaths: import_zod3.z.array(import_zod3.z.string()).default([]),
-  language: import_zod3.z.string().optional(),
-  projectContext: import_zod3.z.string().optional(),
-  sessionId: import_zod3.z.string().optional(),
-  repoUrl: import_zod3.z.string().optional(),
-  branch: import_zod3.z.string().optional(),
-  confidence: Confidence.optional(),
-  sensitivity: Sensitivity.optional(),
-  tags: import_zod3.z.array(Tag).default([])
-});
-
-// ../qmd-team-intent-kb/packages/schema/dist/memory-candidate.js
-var import_zod4 = __toESM(require_zod(), 1);
-var PrePolicyFlags = import_zod4.z.object({
-  potentialSecret: import_zod4.z.boolean().default(false),
-  lowConfidence: import_zod4.z.boolean().default(false),
-  duplicateSuspect: import_zod4.z.boolean().default(false)
-});
-var MemoryCandidate = import_zod4.z.object({
-  id: Uuid,
-  status: CandidateStatus,
-  source: MemorySource,
-  content: NonEmptyString,
-  title: NonEmptyString,
-  category: MemoryCategory,
-  trustLevel: TrustLevel.default("medium"),
-  author: Author,
-  tenantId: TenantId,
-  metadata: ContentMetadata.default({ filePaths: [], tags: [] }),
-  prePolicyFlags: PrePolicyFlags.default({
-    potentialSecret: false,
-    lowConfidence: false,
-    duplicateSuspect: false
-  }),
-  capturedAt: IsoDatetime
-});
-
-// ../qmd-team-intent-kb/packages/schema/dist/curated-memory.js
-var import_zod5 = __toESM(require_zod(), 1);
-var PolicyEvaluation = import_zod5.z.object({
-  policyId: Uuid,
-  ruleId: NonEmptyString,
-  result: import_zod5.z.enum(["pass", "fail", "flag"]),
-  reason: import_zod5.z.string().optional(),
-  evaluatedAt: IsoDatetime
-});
-var SupersessionLink = import_zod5.z.object({
-  supersededBy: Uuid,
-  reason: NonEmptyString,
-  linkedAt: IsoDatetime
-});
-var CuratedMemory = import_zod5.z.object({
-  id: Uuid,
-  candidateId: Uuid,
-  source: MemorySource,
-  content: NonEmptyString,
-  title: NonEmptyString,
-  category: MemoryCategory,
-  trustLevel: TrustLevel,
-  sensitivity: Sensitivity.default("internal"),
-  author: Author,
-  tenantId: TenantId,
-  metadata: ContentMetadata.default({ filePaths: [], tags: [] }),
-  lifecycle: MemoryLifecycleState,
-  contentHash: Sha256Hash,
-  policyEvaluations: import_zod5.z.array(PolicyEvaluation).default([]),
-  supersession: SupersessionLink.optional(),
-  promotedAt: IsoDatetime,
-  promotedBy: Author,
-  updatedAt: IsoDatetime,
-  version: import_zod5.z.number().int().positive().default(1)
-}).refine((data) => {
-  if (data.lifecycle === "superseded") {
-    return data.supersession !== void 0;
+  try {
+    applyAll();
+  } finally {
+    if (needsForeignKeysOff) {
+      db.pragma("foreign_keys = ON");
+    }
   }
-  return true;
-}, {
-  message: 'supersession must be defined when lifecycle is "superseded"',
-  path: ["supersession"]
+}
+var import_node_fs2, import_node_path3, import_better_sqlite3;
+var init_database = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/database.js"() {
+    "use strict";
+    import_node_fs2 = require("node:fs");
+    import_node_path3 = require("node:path");
+    import_better_sqlite3 = __toESM(require("better-sqlite3"), 1);
+    init_schema();
+  }
 });
 
-// ../qmd-team-intent-kb/packages/schema/dist/governance-policy.js
-var import_zod6 = __toESM(require_zod(), 1);
-var PolicyRule = import_zod6.z.object({
-  id: NonEmptyString,
-  type: PolicyRuleType,
-  action: PolicyRuleAction,
-  enabled: import_zod6.z.boolean().default(true),
-  priority: import_zod6.z.number().int().min(0).default(0),
-  parameters: import_zod6.z.record(import_zod6.z.string(), import_zod6.z.unknown()).default({}),
-  description: import_zod6.z.string().optional()
-});
-var GovernancePolicy = import_zod6.z.object({
-  id: Uuid,
-  name: NonEmptyString,
-  tenantId: TenantId,
-  rules: import_zod6.z.array(PolicyRule).min(1),
-  enabled: import_zod6.z.boolean().default(true),
-  version: import_zod6.z.number().int().positive().default(1),
-  createdAt: IsoDatetime,
-  updatedAt: IsoDatetime
+// ../bobs-big-brain-registrar/packages/schema/dist/enums.js
+var import_zod3, MemorySource, TrustLevel, MemoryCategory, MemoryLifecycleState, CandidateStatus, SearchScope, PolicyRuleType, PolicyRuleAction, AuditAction, ProposerRole, Confidence, Sensitivity, AuthorType, LinkType, LinkSource, ImportBatchStatus;
+var init_enums = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/enums.js"() {
+    "use strict";
+    import_zod3 = __toESM(require_zod(), 1);
+    MemorySource = import_zod3.z.enum(["claude_session", "manual", "import", "mcp", "bulk_import"]);
+    TrustLevel = import_zod3.z.enum(["high", "medium", "low", "untrusted"]);
+    MemoryCategory = import_zod3.z.enum([
+      "decision",
+      "pattern",
+      "convention",
+      "architecture",
+      "troubleshooting",
+      "onboarding",
+      "reference"
+    ]);
+    MemoryLifecycleState = import_zod3.z.enum(["active", "deprecated", "superseded", "archived"]);
+    CandidateStatus = import_zod3.z.enum([
+      "inbox",
+      "promoted",
+      "rejected",
+      "flagged",
+      "duplicate",
+      "quarantined"
+    ]);
+    SearchScope = import_zod3.z.enum(["curated", "all", "inbox", "archived", "bulk"]).default("curated");
+    PolicyRuleType = import_zod3.z.enum([
+      "secret_detection",
+      "dedup_check",
+      "relevance_score",
+      "content_length",
+      "source_trust",
+      "tenant_match",
+      "sensitivity_gate",
+      "content_sanitization",
+      "contradiction_check"
+    ]);
+    PolicyRuleAction = import_zod3.z.enum(["reject", "flag", "approve", "require_review"]);
+    AuditAction = import_zod3.z.enum([
+      "promoted",
+      "demoted",
+      "superseded",
+      "archived",
+      "deleted",
+      "searched",
+      "exported",
+      // Governed in-place category correction (5bm.7). A miscategorized memory —
+      // category is assigned probabilistically at compile time — is corrected with a
+      // receipted audit event carrying {fromCategory, toCategory}, instead of the
+      // supersede-and-recreate path that inflated the superseded-churn the audit found.
+      "recategorized",
+      // Evidence Bundle emission on a curation/promotion cycle (IEP unification
+      // thesis, DR-010 Q3). Added for the eval-surface emit path (bead tr08.15/.17/.19).
+      "eval-result",
+      // Candidate-intake receipt — a proposal enters the pre-governance inbox (R8,
+      // bead compile-then-govern-jfv.6.7). Written at intake so every candidate has a
+      // provenance receipt (actor + contentHash + tenant) from byte one, before any
+      // promotion. `memoryId` on this row is the candidate's UUID.
+      "proposed",
+      // Batch-level receipt for one auto-govern inbox SWEEP (B1, bead
+      // compile-then-govern-jfv.2.1). ONE event per sweep that changed durable state,
+      // recording the per-candidate outcomes (candidate ids + outcome, NEVER content)
+      // so the drain of the remote-capture inbox is on the append-only chain. Replaces
+      // the per-candidate reject receipts the sweep would otherwise emit (which would
+      // re-fire every night for a candidate left in the inbox → unbounded chain bloat).
+      // `memoryId` is a fixed sweep sentinel UUID (the sweep is not tied to one memory).
+      "governed",
+      // Receipt for a governed-policy upgrade (5bm.2's migration path): the curator
+      // `upgrade-policy` command replaces a store's dormant-rule policy shape with
+      // RECOMMENDED_POLICY_RULES. `memoryId` on this row is the POLICY's UUID (the
+      // policy row is the mutated durable state); `details` carries the previous
+      // rules so the change is reversible from the receipt alone. The audit_events
+      // `action` column has no CHECK constraint, so this member needs no migration.
+      "policy_upgraded"
+    ]);
+    ProposerRole = import_zod3.z.enum(["admin", "member"]);
+    Confidence = import_zod3.z.enum(["high", "medium", "low"]);
+    Sensitivity = import_zod3.z.enum(["public", "internal", "confidential", "restricted"]);
+    AuthorType = import_zod3.z.enum(["human", "ai", "system"]);
+    LinkType = import_zod3.z.enum([
+      "relates_to",
+      "supersedes",
+      "contradicts",
+      "depends_on",
+      "part_of"
+    ]);
+    LinkSource = import_zod3.z.enum(["curator", "import", "manual", "mcp"]);
+    ImportBatchStatus = import_zod3.z.enum(["active", "completed", "rolled_back"]);
+  }
 });
 
-// ../qmd-team-intent-kb/packages/schema/dist/search.js
-var import_zod7 = __toESM(require_zod(), 1);
-var Pagination = import_zod7.z.object({
-  page: import_zod7.z.number().int().min(1).default(1),
-  pageSize: import_zod7.z.number().int().min(1).max(100).default(20)
-});
-var SearchQuery = import_zod7.z.object({
-  query: NonEmptyString,
-  scope: SearchScope,
-  tenantId: TenantId.optional(),
-  categories: import_zod7.z.array(MemoryCategory).optional(),
-  dateFrom: IsoDatetime.optional(),
-  dateTo: IsoDatetime.optional(),
-  pagination: Pagination.default({ page: 1, pageSize: 20 })
-});
-var SearchHit = import_zod7.z.object({
-  /**
-   * UUID of the governed memory this hit resolves to. Present on the SQLite
-   * metadata path; absent on the qmd retrieval path, where a hit is anchored
-   * by its `citation` (qmd:// URI) rather than a store row.
-   */
-  memoryId: Uuid.optional(),
-  title: NonEmptyString,
-  snippet: import_zod7.z.string(),
-  score: import_zod7.z.number().min(0).max(1),
-  /** Governed memory category. Absent on qmd hits, which carry `collection`. */
-  category: MemoryCategory.optional(),
-  /**
-   * The tamper-evident citation for this hit — a `qmd://<collection>/<file>`
-   * URI emitted by qmd. This is the wedge: every retrieved answer is anchored
-   * to a verifiable source, not just recalled. Present on the qmd path.
-   */
-  citation: import_zod7.z.string().optional(),
-  /** qmd collection the hit came from (e.g. `kb-curated`). Present on the qmd path. */
-  collection: import_zod7.z.string().optional(),
-  highlightedContent: import_zod7.z.string().optional(),
-  matchedAt: IsoDatetime
-});
-var SearchResult = import_zod7.z.object({
-  hits: import_zod7.z.array(SearchHit),
-  totalCount: import_zod7.z.number().int().min(0),
-  query: NonEmptyString,
-  scope: SearchScope,
-  page: import_zod7.z.number().int().min(1),
-  pageSize: import_zod7.z.number().int().min(1),
-  hasMore: import_zod7.z.boolean()
+// ../bobs-big-brain-registrar/packages/schema/dist/common.js
+var import_zod4, Uuid, Sha256Hash, IsoDatetime, NonEmptyString, SemVer, Tag, Author, TenantId, ContentMetadata;
+var init_common = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/common.js"() {
+    "use strict";
+    import_zod4 = __toESM(require_zod(), 1);
+    init_enums();
+    Uuid = import_zod4.z.string().uuid();
+    Sha256Hash = import_zod4.z.string().regex(/^[a-f0-9]{64}$/, "Must be a valid SHA-256 hex hash");
+    IsoDatetime = import_zod4.z.string().datetime();
+    NonEmptyString = import_zod4.z.string().trim().min(1);
+    SemVer = import_zod4.z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/, "Must be a valid semver string");
+    Tag = import_zod4.z.string().regex(/^[a-z0-9][a-z0-9-]*$/, "Must be a lowercase tag");
+    Author = import_zod4.z.object({
+      type: AuthorType,
+      id: NonEmptyString,
+      name: NonEmptyString.optional()
+    });
+    TenantId = NonEmptyString;
+    ContentMetadata = import_zod4.z.object({
+      filePaths: import_zod4.z.array(import_zod4.z.string()).default([]),
+      language: import_zod4.z.string().optional(),
+      projectContext: import_zod4.z.string().optional(),
+      sessionId: import_zod4.z.string().optional(),
+      repoUrl: import_zod4.z.string().optional(),
+      branch: import_zod4.z.string().optional(),
+      confidence: Confidence.optional(),
+      sensitivity: Sensitivity.optional(),
+      tags: import_zod4.z.array(Tag).default([]),
+      /**
+       * The role of the token that proposed this candidate, stamped server-side at
+       * intake (R8, bead compile-then-govern-jfv.6.7). Never client-supplied — the
+       * intake path overwrites it from the bearer-token identity so a member cannot
+       * masquerade as an admin-authored proposal. A closed enum (`admin` | `member`),
+       * so the disclosure scanner and the enum-membership backstop treat it as
+       * closed-vocabulary. Optional/absent on legacy records and non-token (dev)
+       * intake; present on every token-authenticated proposal. Flows through
+       * promotion onto the curated memory so a later auto-govern step (B1) can
+       * quarantine member-authored content behind admin review.
+       */
+      proposedByRole: ProposerRole.optional()
+    });
+  }
 });
 
-// ../qmd-team-intent-kb/packages/schema/dist/audit-event.js
-var import_zod8 = __toESM(require_zod(), 1);
-var AuditEvent = import_zod8.z.object({
-  id: Uuid,
-  action: AuditAction,
-  memoryId: Uuid,
-  tenantId: TenantId,
-  actor: Author,
-  reason: NonEmptyString.optional(),
-  details: import_zod8.z.record(import_zod8.z.string(), import_zod8.z.unknown()).default({}),
-  timestamp: IsoDatetime
+// ../bobs-big-brain-registrar/packages/schema/dist/memory-candidate.js
+var import_zod5, PrePolicyFlags, MEMORY_CANDIDATE_SCHEMA_VERSION, OriginChannel, CandidateOrigin, MemoryCandidate;
+var init_memory_candidate = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/memory-candidate.js"() {
+    "use strict";
+    import_zod5 = __toESM(require_zod(), 1);
+    init_enums();
+    init_common();
+    PrePolicyFlags = import_zod5.z.object({
+      potentialSecret: import_zod5.z.boolean().default(false),
+      lowConfidence: import_zod5.z.boolean().default(false),
+      duplicateSuspect: import_zod5.z.boolean().default(false)
+    });
+    MEMORY_CANDIDATE_SCHEMA_VERSION = "1";
+    OriginChannel = import_zod5.z.string().regex(/^[a-z0-9][a-z0-9-]*$/).max(64);
+    CandidateOrigin = import_zod5.z.object({
+      /** HMAC-SHA256 of (id, tenantId, capturedAt) under the installation secret — lowercase hex. */
+      tokenHmac: import_zod5.z.string().regex(/^[0-9a-f]{64}$/),
+      /** Which capture surface minted this (e.g. `local-mcp`, `team-mcp`). Self-asserted in local mode (H4). */
+      channel: OriginChannel,
+      /** When the token was minted (ISO-8601). Informational; the HMAC binds `capturedAt`, not this. */
+      mintedAt: IsoDatetime
+    }).refine((o) => o.channel !== "unattested", {
+      message: "origin.channel 'unattested' is reserved receipt vocabulary for candidates without an origin \u2014 a client cannot claim it",
+      path: ["channel"]
+    });
+    MemoryCandidate = import_zod5.z.object({
+      schemaVersion: import_zod5.z.literal(MEMORY_CANDIDATE_SCHEMA_VERSION).default(MEMORY_CANDIDATE_SCHEMA_VERSION),
+      id: Uuid,
+      status: CandidateStatus,
+      source: MemorySource,
+      content: NonEmptyString,
+      title: NonEmptyString,
+      category: MemoryCategory,
+      trustLevel: TrustLevel.default("medium"),
+      author: Author,
+      tenantId: TenantId,
+      metadata: ContentMetadata.default({ filePaths: [], tags: [] }),
+      prePolicyFlags: PrePolicyFlags.default({
+        potentialSecret: false,
+        lowConfidence: false,
+        duplicateSuspect: false
+      }),
+      capturedAt: IsoDatetime,
+      /** Optional write-time provenance attestation (H1) — verified before promotion when present. */
+      origin: CandidateOrigin.optional()
+    }).refine((c) => c.source !== "bulk_import" || c.trustLevel === "low" || c.trustLevel === "untrusted", {
+      message: "source 'bulk_import' requires trustLevel 'low' or 'untrusted' \u2014 a bulk digestion cannot claim curated-grade trust",
+      path: ["trustLevel"]
+    });
+  }
 });
 
-// ../qmd-team-intent-kb/packages/schema/dist/lifecycle.js
-var import_zod9 = __toESM(require_zod(), 1);
-var TransitionRequest = import_zod9.z.object({
-  reason: NonEmptyString,
-  actor: Author,
-  supersededBy: Uuid.optional()
+// ../bobs-big-brain-registrar/packages/schema/dist/curated-memory.js
+var import_zod6, PolicyEvaluation, SupersessionLink, CuratedMemory;
+var init_curated_memory = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/curated-memory.js"() {
+    "use strict";
+    import_zod6 = __toESM(require_zod(), 1);
+    init_enums();
+    init_common();
+    PolicyEvaluation = import_zod6.z.object({
+      policyId: Uuid,
+      ruleId: NonEmptyString,
+      result: import_zod6.z.enum(["pass", "fail", "flag"]),
+      reason: import_zod6.z.string().optional(),
+      evaluatedAt: IsoDatetime
+    });
+    SupersessionLink = import_zod6.z.object({
+      supersededBy: Uuid,
+      reason: NonEmptyString,
+      linkedAt: IsoDatetime
+    });
+    CuratedMemory = import_zod6.z.object({
+      id: Uuid,
+      candidateId: Uuid,
+      source: MemorySource,
+      content: NonEmptyString,
+      title: NonEmptyString,
+      category: MemoryCategory,
+      trustLevel: TrustLevel,
+      sensitivity: Sensitivity.default("internal"),
+      author: Author,
+      tenantId: TenantId,
+      metadata: ContentMetadata.default({ filePaths: [], tags: [] }),
+      lifecycle: MemoryLifecycleState,
+      contentHash: Sha256Hash,
+      policyEvaluations: import_zod6.z.array(PolicyEvaluation).default([]),
+      supersession: SupersessionLink.optional(),
+      promotedAt: IsoDatetime,
+      promotedBy: Author,
+      updatedAt: IsoDatetime,
+      version: import_zod6.z.number().int().positive().default(1)
+    }).refine((data) => {
+      if (data.lifecycle === "superseded") {
+        return data.supersession !== void 0;
+      }
+      return true;
+    }, {
+      message: 'supersession must be defined when lifecycle is "superseded"',
+      path: ["supersession"]
+    });
+  }
 });
-var ALLOWED_TRANSITIONS = {
-  active: ["deprecated", "superseded", "archived"],
-  deprecated: ["active", "archived"],
-  superseded: ["archived"],
-  archived: []
-};
+
+// ../bobs-big-brain-registrar/packages/schema/dist/governance-policy.js
+var import_zod7, PolicyRule, GovernancePolicy;
+var init_governance_policy = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/governance-policy.js"() {
+    "use strict";
+    import_zod7 = __toESM(require_zod(), 1);
+    init_enums();
+    init_common();
+    PolicyRule = import_zod7.z.object({
+      id: NonEmptyString,
+      type: PolicyRuleType,
+      action: PolicyRuleAction,
+      enabled: import_zod7.z.boolean().default(true),
+      priority: import_zod7.z.number().int().min(0).default(0),
+      parameters: import_zod7.z.record(import_zod7.z.string(), import_zod7.z.unknown()).default({}),
+      description: import_zod7.z.string().optional()
+    });
+    GovernancePolicy = import_zod7.z.object({
+      id: Uuid,
+      name: NonEmptyString,
+      tenantId: TenantId,
+      rules: import_zod7.z.array(PolicyRule).min(1),
+      enabled: import_zod7.z.boolean().default(true),
+      version: import_zod7.z.number().int().positive().default(1),
+      createdAt: IsoDatetime,
+      updatedAt: IsoDatetime
+    });
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/schema/dist/search.js
+var import_zod8, Pagination, SearchQuery, SearchHit, SearchResult;
+var init_search = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/search.js"() {
+    "use strict";
+    import_zod8 = __toESM(require_zod(), 1);
+    init_enums();
+    init_common();
+    Pagination = import_zod8.z.object({
+      page: import_zod8.z.number().int().min(1).default(1),
+      pageSize: import_zod8.z.number().int().min(1).max(100).default(20)
+    });
+    SearchQuery = import_zod8.z.object({
+      query: NonEmptyString,
+      scope: SearchScope,
+      tenantId: TenantId.optional(),
+      categories: import_zod8.z.array(MemoryCategory).optional(),
+      dateFrom: IsoDatetime.optional(),
+      dateTo: IsoDatetime.optional(),
+      pagination: Pagination.default({ page: 1, pageSize: 20 })
+    });
+    SearchHit = import_zod8.z.object({
+      /**
+       * UUID of the governed memory this hit resolves to. Present on the SQLite
+       * metadata path; absent on the qmd retrieval path, where a hit is anchored
+       * by its `citation` (qmd:// URI) rather than a store row.
+       */
+      memoryId: Uuid.optional(),
+      title: NonEmptyString,
+      snippet: import_zod8.z.string(),
+      score: import_zod8.z.number().min(0).max(1),
+      /** Governed memory category. Absent on qmd hits, which carry `collection`. */
+      category: MemoryCategory.optional(),
+      /**
+       * The tamper-evident citation for this hit — a `qmd://<collection>/<file>`
+       * URI emitted by qmd. This is the wedge: every retrieved answer is anchored
+       * to a verifiable source, not just recalled. Present on the qmd path.
+       */
+      citation: import_zod8.z.string().optional(),
+      /** qmd collection the hit came from (e.g. `kb-curated`). Present on the qmd path. */
+      collection: import_zod8.z.string().optional(),
+      highlightedContent: import_zod8.z.string().optional(),
+      matchedAt: IsoDatetime
+    });
+    SearchResult = import_zod8.z.object({
+      hits: import_zod8.z.array(SearchHit),
+      totalCount: import_zod8.z.number().int().min(0),
+      query: NonEmptyString,
+      scope: SearchScope,
+      page: import_zod8.z.number().int().min(1),
+      pageSize: import_zod8.z.number().int().min(1),
+      hasMore: import_zod8.z.boolean()
+    });
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/schema/dist/audit-event.js
+var import_zod9, AuditEvent;
+var init_audit_event = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/audit-event.js"() {
+    "use strict";
+    import_zod9 = __toESM(require_zod(), 1);
+    init_enums();
+    init_common();
+    AuditEvent = import_zod9.z.object({
+      id: Uuid,
+      action: AuditAction,
+      memoryId: Uuid,
+      tenantId: TenantId,
+      actor: Author,
+      reason: NonEmptyString.optional(),
+      details: import_zod9.z.record(import_zod9.z.string(), import_zod9.z.unknown()).default({}),
+      timestamp: IsoDatetime
+    });
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/schema/dist/lifecycle.js
 function isTransitionAllowed(from, to) {
   return ALLOWED_TRANSITIONS[from].includes(to);
 }
@@ -35663,24 +36918,617 @@ function validateTransition(from, to, request) {
   }
   return { valid: true };
 }
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/candidate-repository.js
-var CandidateRowSchema = import_zod10.z.object({
-  id: import_zod10.z.string(),
-  status: import_zod10.z.string(),
-  source: import_zod10.z.string(),
-  content: import_zod10.z.string(),
-  title: import_zod10.z.string(),
-  category: import_zod10.z.string(),
-  trust_level: import_zod10.z.string(),
-  author_json: import_zod10.z.string(),
-  tenant_id: import_zod10.z.string(),
-  metadata_json: import_zod10.z.string(),
-  pre_policy_flags_json: import_zod10.z.string(),
-  content_hash: import_zod10.z.string(),
-  captured_at: import_zod10.z.string(),
-  created_at: import_zod10.z.string()
+var import_zod10, TransitionRequest, RecategorizeRequest, ALLOWED_TRANSITIONS;
+var init_lifecycle = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/lifecycle.js"() {
+    "use strict";
+    init_enums();
+    init_common();
+    import_zod10 = __toESM(require_zod(), 1);
+    TransitionRequest = import_zod10.z.object({
+      reason: NonEmptyString,
+      actor: Author,
+      supersededBy: Uuid.optional()
+    });
+    RecategorizeRequest = import_zod10.z.object({
+      category: MemoryCategory,
+      reason: NonEmptyString,
+      actor: Author
+    });
+    ALLOWED_TRANSITIONS = {
+      active: ["deprecated", "superseded", "archived"],
+      deprecated: ["active", "archived"],
+      superseded: ["archived"],
+      archived: []
+    };
+  }
 });
+
+// ../bobs-big-brain-registrar/packages/schema/dist/index.js
+var init_dist = __esm({
+  "../bobs-big-brain-registrar/packages/schema/dist/index.js"() {
+    "use strict";
+    init_enums();
+    init_common();
+    init_memory_candidate();
+    init_curated_memory();
+    init_governance_policy();
+    init_search();
+    init_audit_event();
+    init_lifecycle();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/result.js
+var init_result = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/result.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/hash.js
+function computeContentHash(content) {
+  return (0, import_node_crypto2.createHash)("sha256").update(content, "utf8").digest("hex");
+}
+var import_node_crypto2;
+var init_hash = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/hash.js"() {
+    "use strict";
+    import_node_crypto2 = require("node:crypto");
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/uuid-v5.js
+function uuidStringToBytes(uuid) {
+  const hex = uuid.replace(/-/g, "");
+  if (hex.length !== 32) {
+    throw new Error(`Invalid UUID: ${uuid}`);
+  }
+  return Buffer.from(hex, "hex");
+}
+function uuidBytesToString(bytes) {
+  const hex = bytes.toString("hex");
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20, 32)
+  ].join("-");
+}
+function uuidV5(namespace, name) {
+  const nsBytes = uuidStringToBytes(namespace);
+  const nameBytes = Buffer.from(name, "utf8");
+  const hash = (0, import_node_crypto3.createHash)("sha1").update(nsBytes).update(nameBytes).digest();
+  const bytes = Buffer.from(hash.subarray(0, 16));
+  bytes[6] = bytes[6] & 15 | 80;
+  bytes[8] = bytes[8] & 63 | 128;
+  return uuidBytesToString(bytes);
+}
+function deriveMemoryId(candidateId, contentHash) {
+  const name = ["memory", candidateId, contentHash].join(NAME_FIELD_SEPARATOR);
+  return uuidV5(SPOOL_UUID_NAMESPACE, name);
+}
+function deriveAuditEventId(memoryId, action, discriminator = "") {
+  const name = ["audit", memoryId, action, discriminator].join(NAME_FIELD_SEPARATOR);
+  return uuidV5(SPOOL_UUID_NAMESPACE, name);
+}
+function derivePolicyEvaluationId(memoryId, ruleId, discriminator = "") {
+  const name = ["policy", memoryId, ruleId, discriminator].join(NAME_FIELD_SEPARATOR);
+  return uuidV5(SPOOL_UUID_NAMESPACE, name);
+}
+function deriveLinkId(sourceMemoryId, targetMemoryId, linkType) {
+  const name = ["link", sourceMemoryId, targetMemoryId, linkType].join(NAME_FIELD_SEPARATOR);
+  return uuidV5(SPOOL_UUID_NAMESPACE, name);
+}
+var import_node_crypto3, SPOOL_UUID_NAMESPACE, NAME_FIELD_SEPARATOR;
+var init_uuid_v5 = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/uuid-v5.js"() {
+    "use strict";
+    import_node_crypto3 = require("node:crypto");
+    SPOOL_UUID_NAMESPACE = ["6c6f6e67-7368-6f72", "6500-69636f73706c"].join("-");
+    NAME_FIELD_SEPARATOR = String.fromCharCode(0);
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/paths.js
+function getTeamKbBasePath() {
+  const basePath = process.env["TEAMKB_BASE_PATH"];
+  if (typeof basePath === "string" && basePath.trim() !== "") {
+    return basePath.trim();
+  }
+  const teamKbHome = process.env["TEAMKB_HOME"];
+  if (typeof teamKbHome === "string" && teamKbHome.trim() !== "") {
+    return teamKbHome.trim();
+  }
+  return DEFAULT_TEAMKB_BASE;
+}
+function resolveTeamKbPath(subdir) {
+  return (0, import_node_path4.join)(getTeamKbBasePath(), subdir);
+}
+var import_node_path4, import_node_os3, DEFAULT_TEAMKB_BASE;
+var init_paths = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/paths.js"() {
+    "use strict";
+    import_node_path4 = require("node:path");
+    import_node_os3 = require("node:os");
+    DEFAULT_TEAMKB_BASE = (0, import_node_path4.join)((0, import_node_os3.homedir)(), ".teamkb");
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/origin-token.js
+function buildOriginTokenPayload(identity) {
+  return [identity.candidateId, identity.tenantId, identity.capturedAt].join(FIELD_SEPARATOR);
+}
+function mintOriginToken2(secret, identity) {
+  return (0, import_node_crypto4.createHmac)("sha256", secret).update(buildOriginTokenPayload(identity), "utf8").digest("hex");
+}
+function verifyOriginToken(secret, identity, tokenHmac) {
+  if (!/^[0-9a-f]{64}$/.test(tokenHmac))
+    return false;
+  const expected = Buffer.from(mintOriginToken2(secret, identity), "hex");
+  const presented = Buffer.from(tokenHmac, "hex");
+  if (expected.length !== presented.length)
+    return false;
+  return (0, import_node_crypto4.timingSafeEqual)(expected, presented);
+}
+function hashOriginToken(tokenHmac) {
+  return (0, import_node_crypto4.createHash)("sha256").update(tokenHmac, "utf8").digest("hex");
+}
+function loadOriginSecret(basePath) {
+  const env = process.env[ORIGIN_SECRET_ENV]?.trim();
+  if (env !== void 0 && env.length > 0)
+    return env;
+  const path = originSecretPath(basePath);
+  try {
+    const secret = (0, import_node_fs3.readFileSync)(path, "utf8").trim();
+    if (secret.length === 0)
+      return void 0;
+    try {
+      if (((0, import_node_fs3.statSync)(path).mode & 511) !== 384)
+        (0, import_node_fs3.chmodSync)(path, 384);
+    } catch {
+    }
+    return secret;
+  } catch {
+    return void 0;
+  }
+}
+function loadOrCreateOriginSecret(basePath) {
+  const env = process.env[ORIGIN_SECRET_ENV]?.trim();
+  if (env !== void 0 && env.length > 0)
+    return env;
+  const path = originSecretPath(basePath);
+  const minted = (0, import_node_crypto4.randomBytes)(32).toString("hex");
+  (0, import_node_fs3.mkdirSync)((0, import_node_path5.dirname)(path), { recursive: true });
+  try {
+    (0, import_node_fs3.writeFileSync)(path, `${minted}
+`, { encoding: "utf8", flag: "wx", mode: 384 });
+    return minted;
+  } catch (e) {
+    if (e.code !== "EEXIST")
+      throw e;
+  }
+  const existing = loadOriginSecret(basePath);
+  if (existing === void 0) {
+    throw new Error(`origin secret file exists but is empty or unreadable: ${path} \u2014 refusing to overwrite a concurrent writer; inspect/remove it and retry`);
+  }
+  return existing;
+}
+function originSecretPath(basePath) {
+  return (0, import_node_path5.join)(basePath ?? getTeamKbBasePath(), ORIGIN_SECRET_FILENAME);
+}
+var import_node_crypto4, import_node_fs3, import_node_path5, ORIGIN_SECRET_FILENAME, ORIGIN_SECRET_ENV, UNATTESTED_CHANNEL, FIELD_SEPARATOR, ORIGIN_TOKEN_HASH_SURFACE_LEN;
+var init_origin_token = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/origin-token.js"() {
+    "use strict";
+    import_node_crypto4 = require("node:crypto");
+    import_node_fs3 = require("node:fs");
+    import_node_path5 = require("node:path");
+    init_paths();
+    ORIGIN_SECRET_FILENAME = "origin-secret";
+    ORIGIN_SECRET_ENV = "TEAMKB_ORIGIN_SECRET";
+    UNATTESTED_CHANNEL = "unattested";
+    FIELD_SEPARATOR = String.fromCharCode(0);
+    ORIGIN_TOKEN_HASH_SURFACE_LEN = 16;
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/path-safety.js
+function isPathSafe(path, allowedRoots) {
+  if (path.includes("\0")) {
+    return { safe: false, reason: "Path contains null byte" };
+  }
+  const segments = path.split(/[/\\]/);
+  if (segments.includes("..")) {
+    return { safe: false, reason: "Path contains directory traversal (..)" };
+  }
+  const isAbsolute = path.startsWith("/") || /^[A-Za-z]:[\\/]/.test(path);
+  if (isAbsolute) {
+    if (allowedRoots === void 0 || allowedRoots.length === 0) {
+      return { safe: false, reason: "Absolute path not allowed (no allowed roots configured)" };
+    }
+    const normalized = path.replace(/\\/g, "/");
+    const isUnderAllowedRoot = allowedRoots.some((root) => {
+      const normalizedRoot = root.replace(/\\/g, "/");
+      return normalized.startsWith(normalizedRoot);
+    });
+    if (!isUnderAllowedRoot) {
+      return { safe: false, reason: "Absolute path not under any allowed root" };
+    }
+  }
+  return { safe: true };
+}
+var init_path_safety = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/path-safety.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/freshness.js
+function computeFreshnessScore(updatedAt, nowIso, halfLifeDays = 90) {
+  const updatedMs = new Date(updatedAt).getTime();
+  const nowMs = new Date(nowIso).getTime();
+  const ageDays = Math.max(0, (nowMs - updatedMs) / (1e3 * 60 * 60 * 24));
+  const lambda = Math.LN2 / halfLifeDays;
+  return Math.exp(-lambda * ageDays);
+}
+function rerankSearchHits(hits, nowIso, halfLifeDays = 90) {
+  return hits.map((hit) => {
+    const freshness = computeFreshnessScore(hit.updatedAt, nowIso, halfLifeDays);
+    const categoryBoost = CATEGORY_BOOST[hit.category] ?? 1;
+    const finalScore = Math.round(hit.score * freshness * categoryBoost * 1e3) / 1e3;
+    return { ...hit, finalScore };
+  }).sort((a, b) => b.finalScore - a.finalScore);
+}
+function extractMemoryIdFromCitation(citation) {
+  const lastSlash = citation.lastIndexOf("/");
+  const base = lastSlash === -1 ? citation : citation.slice(lastSlash + 1);
+  const stripped = base.replace(/\.[^.]+$/, "");
+  return stripped.length > 0 ? stripped : null;
+}
+function rerankCitedHits(hits, resolveMetadata, nowIso, halfLifeDays = 90) {
+  const enriched = hits.map((h) => {
+    const id = extractMemoryIdFromCitation(h.file);
+    const meta = id === null ? null : resolveMetadata(id);
+    return {
+      ...h,
+      memoryId: meta === null ? null : id,
+      category: meta?.category ?? "",
+      updatedAt: meta?.updatedAt ?? nowIso,
+      // Unresolvable hit (orphaned citation) is not an identifiable sensitive
+      // memory — treat as public/searchable; a resolved hit carries its real level.
+      sensitivity: meta?.sensitivity ?? "public"
+    };
+  });
+  return rerankSearchHits(enriched, nowIso, halfLifeDays);
+}
+var CATEGORY_BOOST;
+var init_freshness = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/freshness.js"() {
+    "use strict";
+    CATEGORY_BOOST = {
+      decision: 1.2,
+      architecture: 1.15,
+      convention: 1.1,
+      pattern: 1.1,
+      troubleshooting: 1,
+      onboarding: 0.95,
+      reference: 0.9
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/disclosure-filter.js
+function foldHomoglyphs(text) {
+  let out = "";
+  for (const ch of text) {
+    out += HOMOGLYPH_MAP.get(ch) ?? ch;
+  }
+  return out;
+}
+function decodeOnce(text) {
+  if (!text.includes("%"))
+    return text;
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return text;
+  }
+}
+function normalizeForScan(text) {
+  const decoded = decodeOnce(text);
+  const nfkc = decoded.normalize("NFKC");
+  const stripped = nfkc.replace(INVISIBLE_CHARS, "");
+  return foldHomoglyphs(stripped);
+}
+function scanNormalized(text) {
+  for (const pat of SECRET_PATTERNS) {
+    if (pat.test(text))
+      return { category: "secret" };
+  }
+  if (PII_PATTERN.test(text))
+    return { category: "pii" };
+  if (COMPENSATION_TERMS_PATTERN.test(text))
+    return { category: "compensation" };
+  if (RATIO_SPLIT_PATTERN.test(text) && COMP_CONTEXT_PATTERN.test(text)) {
+    return { category: "compensation" };
+  }
+  return null;
+}
+function scanForDisclosure(text) {
+  try {
+    return scanNormalized(normalizeForScan(text));
+  } catch {
+    return { category: "secret" };
+  }
+}
+function scanDisclosureFields(fields) {
+  for (const field of fields) {
+    const violation = scanForDisclosure(field);
+    if (violation !== null)
+      return violation;
+  }
+  return null;
+}
+function collectFreeTextFields(input) {
+  const out = [];
+  const seen = /* @__PURE__ */ new WeakSet();
+  const MAX_DEPTH = 16;
+  const walk = (value, depth) => {
+    if (depth > MAX_DEPTH)
+      return;
+    if (typeof value === "string") {
+      out.push(value);
+      return;
+    }
+    if (value === null || typeof value !== "object")
+      return;
+    if (seen.has(value))
+      return;
+    seen.add(value);
+    if (Array.isArray(value)) {
+      for (const item of value)
+        walk(item, depth + 1);
+      return;
+    }
+    for (const [key, child] of Object.entries(value)) {
+      if (ENUM_CONSTRAINED_FIELDS.has(key))
+        continue;
+      walk(child, depth + 1);
+    }
+  };
+  walk(input, 0);
+  return out;
+}
+function assertDisclosureClean(candidate) {
+  const fields = collectFreeTextFields(candidate);
+  const violation = scanDisclosureFields(fields);
+  if (violation !== null) {
+    throw new DisclosureRejectedError(violation.category);
+  }
+}
+var COMPENSATION_TERMS_PATTERN, RATIO_SPLIT_PATTERN, COMP_CONTEXT_PATTERN, PII_PATTERN, SECRET_PATTERNS, INVISIBLE_CHARS, HOMOGLYPH_MAP, ENUM_CONSTRAINED_FIELDS, DisclosureRejectedError;
+var init_disclosure_filter = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/disclosure-filter.js"() {
+    "use strict";
+    COMPENSATION_TERMS_PATTERN = /\bsalary\b|base pay\b|take[- ]home pay\b|(?:launch|signing|sign[- ]on) bonus|equity\s+(?:stakes?|grants?|granted|options?)\b|equity\s+[0-9]|\bvesting\b|\bRSUs?\b|stock options?\b|revenue[- ]share\s*[0-9]|7[- ]bucket/i;
+    RATIO_SPLIT_PATTERN = /[0-9]{1,3}\s*\/\s*[0-9]{1,3}\s*(?:split|share)|[0-9]{1,2}\s*\/\s*[0-9]{1,2}\s*(?:max|→|->)\s*[0-9]{1,2}\s*\/\s*[0-9]{1,2}/i;
+    COMP_CONTEXT_PATTERN = /\b(?:compensation|comp|revenue|profit|equity|payout|royalty|salary|wage|bonus|earnings)\b|take[- ]home/i;
+    PII_PATTERN = /[0-9]{3}-[0-9]{2}-[0-9]{4}|\bSSN\b|social security (?:number|no)|background[- ]check (?:result|report|passed|failed)|date of birth|\bDOB\b\s*[:=]/i;
+    SECRET_PATTERNS = [
+      // AWS access key id
+      /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/,
+      // GitHub tokens (PAT classic/fine-grained, OAuth, app, refresh)
+      /\bgh[pousr]_[0-9A-Za-z]{36,255}\b/,
+      // GitLab personal access token
+      /\bglpat-[0-9A-Za-z_-]{20,22}\b/,
+      // Slack token
+      /\bxox[baprs]-[0-9A-Za-z-]{10,72}\b/,
+      // Stripe secret/restricted key
+      /\b(?:sk|rk)_(?:live|test)_[0-9A-Za-z]{16,99}\b/,
+      // Google API key
+      /\bAIza[0-9A-Za-z_-]{35}\b/,
+      // OpenAI / Anthropic style provider keys
+      /\bsk-(?:ant-)?[0-9A-Za-z_-]{20,200}\b/,
+      // npm token
+      /\bnpm_[0-9A-Za-z]{36}\b/,
+      // SendGrid
+      /\bSG\.[0-9A-Za-z_-]{16,32}\.[0-9A-Za-z_-]{16,64}\b/,
+      // JWT (header.payload.signature, base64url segments)
+      /\beyJ[0-9A-Za-z_-]{10,}\.eyJ[0-9A-Za-z_-]{10,}\.[0-9A-Za-z_-]{10,}\b/,
+      // PEM private-key block headers (RSA/EC/OPENSSH/PGP/generic)
+      /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----/
+    ];
+    INVISIBLE_CHARS = new RegExp("[" + [
+      173,
+      // soft hyphen
+      1564,
+      // Arabic letter mark
+      6158,
+      // Mongolian vowel separator
+      8203,
+      // zero-width space
+      8204,
+      // zero-width non-joiner
+      8205,
+      // zero-width joiner
+      8206,
+      // left-to-right mark
+      8207,
+      // right-to-left mark
+      8234,
+      // LTR embedding
+      8235,
+      // RTL embedding
+      8236,
+      // pop directional formatting
+      8237,
+      // LTR override
+      8238,
+      // RTL override
+      8288,
+      // word joiner
+      8289,
+      // function application
+      8290,
+      // invisible times
+      8291,
+      // invisible separator
+      8292,
+      // invisible plus
+      8294,
+      // LTR isolate
+      8295,
+      // RTL isolate
+      8296,
+      // first strong isolate
+      8297,
+      // pop directional isolate
+      65279
+      // BOM / zero-width no-break space
+    ].map((cp) => String.fromCodePoint(cp)).join("") + "]", "g");
+    HOMOGLYPH_MAP = /* @__PURE__ */ new Map([
+      // Cyrillic look-alikes
+      ["\u0430", "a"],
+      ["\u0435", "e"],
+      ["\u043E", "o"],
+      ["\u0440", "p"],
+      ["\u0441", "c"],
+      ["\u0443", "y"],
+      ["\u0445", "x"],
+      ["\u0455", "s"],
+      ["\u0456", "i"],
+      ["\u0458", "j"],
+      ["\u0501", "d"],
+      ["\u041C", "M"],
+      ["\u0405", "S"],
+      ["\u0406", "I"],
+      ["\u0408", "J"],
+      ["\u0500", "D"],
+      ["\u0422", "T"],
+      ["\u0412", "B"],
+      ["\u041D", "H"],
+      ["\u0410", "A"],
+      ["\u0415", "E"],
+      ["\u041E", "O"],
+      ["\u0420", "P"],
+      ["\u0421", "C"],
+      ["\u0423", "Y"],
+      ["\u0425", "X"],
+      // Greek look-alikes
+      ["\u03BF", "o"],
+      ["\u03BD", "v"],
+      ["\u03B1", "a"],
+      ["\u03C1", "p"],
+      ["\u0399", "I"],
+      ["\u0392", "B"],
+      ["\u0391", "A"],
+      ["\u0395", "E"],
+      ["\u039F", "O"],
+      ["\u03A1", "P"],
+      ["\u03A5", "Y"],
+      ["\u03A7", "X"]
+    ]);
+    ENUM_CONSTRAINED_FIELDS = /* @__PURE__ */ new Set([
+      "status",
+      "source",
+      "category",
+      "trustLevel",
+      "confidence",
+      "sensitivity",
+      "type"
+    ]);
+    DisclosureRejectedError = class extends Error {
+      category;
+      constructor(category) {
+        const kind = category === "pii" ? "PII" : category === "secret" ? "a credential / secret" : "compensation / comp-split";
+        super(`Candidate rejected: content contains disallowed ${kind} material and cannot enter the governed brain.`);
+        this.name = "DisclosureRejectedError";
+        this.category = category;
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/common/dist/index.js
+var init_dist2 = __esm({
+  "../bobs-big-brain-registrar/packages/common/dist/index.js"() {
+    "use strict";
+    init_result();
+    init_hash();
+    init_uuid_v5();
+    init_paths();
+    init_origin_token();
+    init_path_safety();
+    init_freshness();
+    init_disclosure_filter();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/enum-membership.js
+function assertEnumMembership(candidate) {
+  runEnumChecks([
+    { field: "status", schema: CandidateStatus, value: candidate.status },
+    { field: "source", schema: MemorySource, value: candidate.source },
+    { field: "category", schema: MemoryCategory, value: candidate.category },
+    { field: "trustLevel", schema: TrustLevel, value: candidate.trustLevel },
+    { field: "author.type", schema: AuthorType, value: candidate.author?.type },
+    {
+      field: "metadata.confidence",
+      schema: Confidence,
+      value: candidate.metadata?.confidence
+    },
+    {
+      field: "metadata.sensitivity",
+      schema: Sensitivity,
+      value: candidate.metadata?.sensitivity
+    }
+  ]);
+}
+function assertMemoryEnumMembership(memory) {
+  runEnumChecks([
+    { field: "source", schema: MemorySource, value: memory.source },
+    { field: "category", schema: MemoryCategory, value: memory.category },
+    { field: "trustLevel", schema: TrustLevel, value: memory.trustLevel },
+    { field: "sensitivity", schema: Sensitivity, value: memory.sensitivity },
+    { field: "lifecycle", schema: MemoryLifecycleState, value: memory.lifecycle },
+    { field: "author.type", schema: AuthorType, value: memory.author?.type }
+  ]);
+}
+function runEnumChecks(checks) {
+  for (const { field, schema, value } of checks) {
+    if (value === void 0)
+      continue;
+    if (schema.safeParse(value).success)
+      continue;
+    if (typeof value === "string") {
+      const violation = scanForDisclosure(value);
+      if (violation !== null) {
+        throw new DisclosureRejectedError(violation.category);
+      }
+    }
+    throw new EnumConstraintViolationError(field);
+  }
+}
+var EnumConstraintViolationError;
+var init_enum_membership = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/enum-membership.js"() {
+    "use strict";
+    init_dist();
+    init_dist2();
+    EnumConstraintViolationError = class extends Error {
+      field;
+      constructor(field) {
+        super(`Candidate rejected: field '${field}' carries a value outside its closed vocabulary and cannot enter the governed brain.`);
+        this.name = "EnumConstraintViolationError";
+        this.field = field;
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/candidate-repository.js
 function rowToCandidate(row) {
   const flatResult = CandidateRowSchema.safeParse(row);
   if (!flatResult.success) {
@@ -35691,6 +37539,7 @@ function rowToCandidate(row) {
   let author;
   let metadata;
   let prePolicyFlags;
+  let origin;
   try {
     author = JSON.parse(flat.author_json);
   } catch (e) {
@@ -35706,6 +37555,11 @@ function rowToCandidate(row) {
   } catch (e) {
     throw new Error(`candidates row id=${flat.id}: pre_policy_flags_json is not valid JSON: ${String(e)}`);
   }
+  try {
+    origin = flat.origin_json === null ? void 0 : JSON.parse(flat.origin_json);
+  } catch (e) {
+    throw new Error(`candidates row id=${flat.id}: origin_json is not valid JSON: ${String(e)}`);
+  }
   const domainResult = MemoryCandidate.safeParse({
     id: flat.id,
     status: flat.status,
@@ -35718,7 +37572,8 @@ function rowToCandidate(row) {
     tenantId: flat.tenant_id,
     metadata,
     prePolicyFlags,
-    capturedAt: flat.captured_at
+    capturedAt: flat.captured_at,
+    origin
   });
   if (!domainResult.success) {
     const issues = domainResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
@@ -35726,127 +37581,255 @@ function rowToCandidate(row) {
   }
   return domainResult.data;
 }
-var CandidateRepository = class {
-  stmtInsert;
-  stmtFindById;
-  stmtFindByTenant;
-  stmtFindByHash;
-  stmtCount;
-  stmtCountByTenant;
-  stmtDeleteByBatch;
-  constructor(db) {
-    this.stmtInsert = db.prepare(`
+function rowToCandidateSafe(row) {
+  try {
+    return rowToCandidate(row);
+  } catch (e) {
+    const id = row !== null && typeof row === "object" && "id" in row ? String(row.id) : "<unknown>";
+    process.stderr.write(`[candidate-repository] skipping unparseable candidate row id=${id}: ${e instanceof Error ? e.message : String(e)}
+`);
+    return null;
+  }
+}
+var import_zod11, CandidateRowSchema, CandidateRepository;
+var init_candidate_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/candidate-repository.js"() {
+    "use strict";
+    import_zod11 = __toESM(require_zod(), 1);
+    init_dist();
+    init_dist2();
+    init_enum_membership();
+    CandidateRowSchema = import_zod11.z.object({
+      id: import_zod11.z.string(),
+      status: import_zod11.z.string(),
+      source: import_zod11.z.string(),
+      content: import_zod11.z.string(),
+      title: import_zod11.z.string(),
+      category: import_zod11.z.string(),
+      trust_level: import_zod11.z.string(),
+      author_json: import_zod11.z.string(),
+      tenant_id: import_zod11.z.string(),
+      metadata_json: import_zod11.z.string(),
+      pre_policy_flags_json: import_zod11.z.string(),
+      content_hash: import_zod11.z.string(),
+      captured_at: import_zod11.z.string(),
+      created_at: import_zod11.z.string(),
+      /** Optional write-time provenance attestation (H1) — NULL on every pre-H1 row. */
+      origin_json: import_zod11.z.string().nullable()
+    });
+    CandidateRepository = class {
+      stmtInsert;
+      stmtFindById;
+      stmtFindByTenant;
+      stmtFindByStatus;
+      stmtFindByHash;
+      stmtFindByHashAndTenant;
+      stmtCount;
+      stmtCountByTenant;
+      stmtDeleteByBatch;
+      stmtUpdateStatus;
+      constructor(db) {
+        this.stmtInsert = db.prepare(`
       INSERT INTO candidates (
         id, status, source, content, title, category,
         trust_level, author_json, tenant_id,
         metadata_json, pre_policy_flags_json, content_hash, captured_at,
-        import_batch_id
+        import_batch_id, origin_json
       ) VALUES (
         @id, @status, @source, @content, @title, @category,
         @trust_level, @author_json, @tenant_id,
         @metadata_json, @pre_policy_flags_json, @content_hash, @captured_at,
-        @import_batch_id
+        @import_batch_id, @origin_json
       )
     `);
-    this.stmtFindById = db.prepare(`
+        this.stmtFindById = db.prepare(`
       SELECT * FROM candidates WHERE id = ?
     `);
-    this.stmtFindByTenant = db.prepare(`
+        this.stmtFindByTenant = db.prepare(`
       SELECT * FROM candidates WHERE tenant_id = ?
     `);
-    this.stmtFindByHash = db.prepare(`
+        this.stmtFindByStatus = db.prepare(`
+      SELECT * FROM candidates WHERE status = ? AND tenant_id = ?
+    `);
+        this.stmtFindByHash = db.prepare(`
       SELECT * FROM candidates WHERE content_hash = ? LIMIT 1
     `);
-    this.stmtCount = db.prepare(`
+        this.stmtFindByHashAndTenant = db.prepare(`
+      SELECT * FROM candidates WHERE content_hash = ? AND tenant_id = ? LIMIT 1
+    `);
+        this.stmtUpdateStatus = db.prepare(`
+      UPDATE candidates SET status = @status WHERE id = @id AND tenant_id = @tenantId
+    `);
+        this.stmtCount = db.prepare(`
       SELECT COUNT(*) as cnt FROM candidates
     `);
-    this.stmtCountByTenant = db.prepare(`
+        this.stmtCountByTenant = db.prepare(`
       SELECT tenant_id, COUNT(*) as cnt FROM candidates GROUP BY tenant_id
     `);
-    this.stmtDeleteByBatch = db.prepare(`
+        this.stmtDeleteByBatch = db.prepare(`
       DELETE FROM candidates WHERE import_batch_id = ?
     `);
+      }
+      /**
+       * Insert a new candidate. The contentHash must be provided by the caller.
+       *
+       * **Disclosure / secret choke point (Epic 0, compile-then-govern-c5k).** Every
+       * candidate write path in the system funnels through this single SQL INSERT —
+       * API intake, curator bulk-import, spool-intake / ICO ingest, MCP propose→spool,
+       * and promotion re-scan. Enforcing the PII / comp-secret / credential gate here
+       * (rather than only in the API service layer, which three paths bypassed) means
+       * no caller can write disallowed material regardless of how it arrived.
+       *
+       * The scan normalizes (NFKC + invisible-strip + homoglyph-fold + decode-once)
+       * before matching, is ReDoS-safe, fails closed, and never logs the matched
+       * value. A violating candidate throws `DisclosureRejectedError` and is never
+       * written.
+       *
+       * **Enum-membership re-assertion (Epic 0 residual hardening).** The disclosure
+       * scan deliberately SKIPS the closed-vocabulary fields (`status`, `source`,
+       * `category`, `trustLevel`, `confidence`, `sensitivity`, `author.type`) - safe
+       * only while those fields actually hold a vocabulary member. A raw `insert()`
+       * caller that bypassed `MemoryCandidate.parse()` could otherwise smuggle an
+       * SSN / comp / secret-shaped value into an enum field and ride the skip into
+       * durable state. `assertEnumMembership` closes that gap here: an off-vocabulary
+       * value is rejected (routed through the disclosure scan first so a
+       * disclosure-shaped value is caught with its precise category); a valid enum
+       * value is left untouched.
+       *
+       * @throws {DisclosureRejectedError} when content/title/tags contain disallowed
+       *   PII, compensation, or credential/secret material - or when a disclosure-shaped
+       *   value is smuggled into an enum-constrained field.
+       * @throws {EnumConstraintViolationError} when an enum-constrained field carries a
+       *   non-vocabulary value that is not itself disclosure-shaped.
+       */
+      insert(candidate, contentHash, importBatchId) {
+        assertDisclosureClean(candidate);
+        assertEnumMembership(candidate);
+        this.stmtInsert.run({
+          id: candidate.id,
+          status: candidate.status,
+          source: candidate.source,
+          content: candidate.content,
+          title: candidate.title,
+          category: candidate.category,
+          trust_level: candidate.trustLevel,
+          author_json: JSON.stringify(candidate.author),
+          tenant_id: candidate.tenantId,
+          metadata_json: JSON.stringify(candidate.metadata),
+          pre_policy_flags_json: JSON.stringify(candidate.prePolicyFlags),
+          content_hash: contentHash,
+          captured_at: candidate.capturedAt,
+          import_batch_id: importBatchId ?? null,
+          origin_json: candidate.origin !== void 0 ? JSON.stringify(candidate.origin) : null
+        });
+      }
+      /** Find a candidate by its primary key, or return null if not found. */
+      findById(id) {
+        const row = this.stmtFindById.get(id);
+        return row !== void 0 ? rowToCandidate(row) : null;
+      }
+      /** Return all candidates belonging to the given tenant. */
+      findByTenant(tenantId) {
+        const rows = this.stmtFindByTenant.all(tenantId);
+        return rows.map(rowToCandidate);
+      }
+      /**
+       * Return every candidate in the given `status`, scoped to `tenantId` (B1, bead
+       * compile-then-govern-jfv.2.1). The auto-govern sweep calls
+       * `findByStatus('inbox', config.tenantId)` to drain the pre-governance inbox.
+       *
+       * TOLERANT read: a row that fails validation is skipped and reported to stderr
+       * (via {@link rowToCandidateSafe}) rather than thrown, so a single malformed
+       * candidate can never abort the whole sweep — the inbox always drains. Tenant
+       * scoping is mandatory (not optional) so a sweep can never read across the
+       * tenant boundary.
+       */
+      findByStatus(status2, tenantId) {
+        const rows = this.stmtFindByStatus.all(status2, tenantId);
+        const out = [];
+        for (const row of rows) {
+          const c = rowToCandidateSafe(row);
+          if (c !== null)
+            out.push(c);
+        }
+        return out;
+      }
+      /**
+       * Stamp a candidate's terminal status IN PLACE (B1) — the non-destructive
+       * retirement primitive the sweep uses instead of DELETE. `candidates` is
+       * insert-only Tier-A source of truth, so a governed candidate LEAVES the inbox
+       * by changing its status marker, never by deletion (which would destroy the only
+       * copy of a remote teammate's proposal + the human review queue).
+       *
+       * Validates `status` against the closed {@link CandidateStatus} vocabulary before
+       * writing (a raw UPDATE otherwise bypasses the enum-membership backstop that
+       * `insert()` enforces). Scoped to `tenantId` so the primitive cannot flip a row
+       * outside the caller's tenant. Returns the number of rows changed (0 if no row
+       * matches `id` AND `tenantId`).
+       *
+       * @throws {z.ZodError} if `status` is not a valid CandidateStatus value.
+       */
+      updateStatus(id, status2, tenantId) {
+        const validated = CandidateStatus.parse(status2);
+        return this.stmtUpdateStatus.run({ id, status: validated, tenantId }).changes;
+      }
+      /**
+       * Return the first candidate with the given content hash, or null.
+       * Useful for duplicate detection before insertion.
+       */
+      findByContentHash(hash) {
+        const row = this.stmtFindByHash.get(hash);
+        return row !== void 0 ? rowToCandidate(row) : null;
+      }
+      /**
+       * Return the first candidate with the given content hash FOR A TENANT, or null —
+       * the tenant-scoped dedup the idempotent intake path uses (jfv.9). Prefer this
+       * over {@link findByContentHash} on any per-tenant write path: the unscoped
+       * variant can return another tenant's row.
+       */
+      findByContentHashAndTenant(hash, tenantId) {
+        const row = this.stmtFindByHashAndTenant.get(hash, tenantId);
+        return row !== void 0 ? rowToCandidate(row) : null;
+      }
+      /** Return the total number of candidates in the store. */
+      count() {
+        const result = this.stmtCount.get();
+        return result.cnt;
+      }
+      /** Delete all candidates associated with an import batch. Returns count deleted. */
+      deleteByBatch(batchId) {
+        return this.stmtDeleteByBatch.run(batchId).changes;
+      }
+      /** Count candidates grouped by tenant */
+      countByTenant() {
+        const rows = this.stmtCountByTenant.all();
+        const result = {};
+        for (const row of rows) {
+          result[row.tenant_id] = row.cnt;
+        }
+        return result;
+      }
+    };
   }
-  /** Insert a new candidate. The contentHash must be provided by the caller. */
-  insert(candidate, contentHash, importBatchId) {
-    this.stmtInsert.run({
-      id: candidate.id,
-      status: candidate.status,
-      source: candidate.source,
-      content: candidate.content,
-      title: candidate.title,
-      category: candidate.category,
-      trust_level: candidate.trustLevel,
-      author_json: JSON.stringify(candidate.author),
-      tenant_id: candidate.tenantId,
-      metadata_json: JSON.stringify(candidate.metadata),
-      pre_policy_flags_json: JSON.stringify(candidate.prePolicyFlags),
-      content_hash: contentHash,
-      captured_at: candidate.capturedAt,
-      import_batch_id: importBatchId ?? null
-    });
-  }
-  /** Find a candidate by its primary key, or return null if not found. */
-  findById(id) {
-    const row = this.stmtFindById.get(id);
-    return row !== void 0 ? rowToCandidate(row) : null;
-  }
-  /** Return all candidates belonging to the given tenant. */
-  findByTenant(tenantId) {
-    const rows = this.stmtFindByTenant.all(tenantId);
-    return rows.map(rowToCandidate);
-  }
-  /**
-   * Return the first candidate with the given content hash, or null.
-   * Useful for duplicate detection before insertion.
-   */
-  findByContentHash(hash) {
-    const row = this.stmtFindByHash.get(hash);
-    return row !== void 0 ? rowToCandidate(row) : null;
-  }
-  /** Return the total number of candidates in the store. */
-  count() {
-    const result = this.stmtCount.get();
-    return result.cnt;
-  }
-  /** Delete all candidates associated with an import batch. Returns count deleted. */
-  deleteByBatch(batchId) {
-    return this.stmtDeleteByBatch.run(batchId).changes;
-  }
-  /** Count candidates grouped by tenant */
-  countByTenant() {
-    const rows = this.stmtCountByTenant.all();
-    const result = {};
-    for (const row of rows) {
-      result[row.tenant_id] = row.cnt;
-    }
-    return result;
-  }
-};
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/memory-repository.js
-var import_zod11 = __toESM(require_zod(), 1);
-var MemoryRowSchema = import_zod11.z.object({
-  id: import_zod11.z.string(),
-  candidate_id: import_zod11.z.string(),
-  source: import_zod11.z.string(),
-  content: import_zod11.z.string(),
-  title: import_zod11.z.string(),
-  category: import_zod11.z.string(),
-  trust_level: import_zod11.z.string(),
-  sensitivity: import_zod11.z.string(),
-  author_json: import_zod11.z.string(),
-  tenant_id: import_zod11.z.string(),
-  metadata_json: import_zod11.z.string(),
-  lifecycle: import_zod11.z.string(),
-  content_hash: import_zod11.z.string(),
-  policy_evaluations_json: import_zod11.z.string(),
-  supersession_json: import_zod11.z.string().nullable(),
-  promoted_at: import_zod11.z.string(),
-  promoted_by_json: import_zod11.z.string(),
-  updated_at: import_zod11.z.string(),
-  version: import_zod11.z.number()
 });
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/memory-repository.js
+function deserializeRowsResilient(rows) {
+  const memories = [];
+  const failures = [];
+  for (const row of rows) {
+    try {
+      memories.push(rowToMemory(row));
+    } catch (err2) {
+      const rawId = row?.id;
+      failures.push({
+        id: typeof rawId === "string" ? rawId : "<unknown>",
+        reason: err2 instanceof Error ? err2.message : String(err2)
+      });
+    }
+  }
+  return { memories, failures };
+}
 function rowToMemory(row) {
   const flatResult = MemoryRowSchema.safeParse(row);
   if (!flatResult.success) {
@@ -35926,32 +37909,74 @@ function appendOptionalFilters(conditions, params, tenantId, categories, prefix)
     });
   }
 }
-var MemoryRepository = class {
-  db;
-  hasFts5;
-  stmtInsert;
-  stmtFindById;
-  stmtFindByTenant;
-  stmtFindByHash;
-  stmtFindByLifecycle;
-  stmtUpdateLifecycle;
-  stmtUpdate;
-  stmtCount;
-  stmtAllHashes;
-  stmtCountByLifecycle;
-  stmtCountByCategory;
-  stmtCountByTenant;
-  stmtFindStale;
-  stmtFindByTenantAndLifecycle;
-  constructor(db) {
-    this.db = db;
-    try {
-      db.prepare("SELECT 1 FROM curated_memories_fts WHERE curated_memories_fts MATCH 'test' LIMIT 0").run();
-      this.hasFts5 = true;
-    } catch {
-      this.hasFts5 = false;
-    }
-    this.stmtInsert = db.prepare(`
+var import_zod12, InvalidLifecycleTransitionError, MemoryRowSchema, MemoryRepository;
+var init_memory_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/memory-repository.js"() {
+    "use strict";
+    import_zod12 = __toESM(require_zod(), 1);
+    init_dist();
+    init_enum_membership();
+    InvalidLifecycleTransitionError = class extends Error {
+      from;
+      to;
+      constructor(from, to) {
+        super(`Invalid lifecycle transition: "${from}" -> "${to}" is not allowed`);
+        this.from = from;
+        this.to = to;
+        this.name = "InvalidLifecycleTransitionError";
+      }
+    };
+    MemoryRowSchema = import_zod12.z.object({
+      id: import_zod12.z.string(),
+      candidate_id: import_zod12.z.string(),
+      source: import_zod12.z.string(),
+      content: import_zod12.z.string(),
+      title: import_zod12.z.string(),
+      category: import_zod12.z.string(),
+      trust_level: import_zod12.z.string(),
+      sensitivity: import_zod12.z.string(),
+      author_json: import_zod12.z.string(),
+      tenant_id: import_zod12.z.string(),
+      metadata_json: import_zod12.z.string(),
+      lifecycle: import_zod12.z.string(),
+      content_hash: import_zod12.z.string(),
+      policy_evaluations_json: import_zod12.z.string(),
+      supersession_json: import_zod12.z.string().nullable(),
+      promoted_at: import_zod12.z.string(),
+      promoted_by_json: import_zod12.z.string(),
+      updated_at: import_zod12.z.string(),
+      version: import_zod12.z.number()
+    });
+    MemoryRepository = class {
+      db;
+      hasFts5;
+      stmtInsert;
+      stmtFindById;
+      stmtFindByTenant;
+      stmtFindByHash;
+      stmtFindByHashAndTenant;
+      stmtTenantHashes;
+      stmtFindByLifecycle;
+      stmtUpdateLifecycle;
+      stmtGetLifecycle;
+      stmtUpdate;
+      stmtCount;
+      stmtAllHashes;
+      stmtCountByLifecycle;
+      stmtCountByCategory;
+      stmtCountByTenant;
+      stmtFindStale;
+      stmtFindByTenantAndLifecycle;
+      stmtFindByTenantAndLifecycleAndCategory;
+      constructor(db) {
+        this.db = db;
+        try {
+          db.prepare("SELECT 1 FROM curated_memories_fts WHERE curated_memories_fts MATCH 'test' LIMIT 0").run();
+          this.hasFts5 = true;
+        } catch {
+          this.hasFts5 = false;
+        }
+        this.stmtInsert = db.prepare(`
       INSERT INTO curated_memories (
         id, candidate_id, source, content, title, category,
         trust_level, sensitivity, author_json, tenant_id,
@@ -35966,22 +37991,31 @@ var MemoryRepository = class {
         @promoted_at, @promoted_by_json, @updated_at, @version
       )
     `);
-    this.stmtFindById = db.prepare(`
+        this.stmtFindById = db.prepare(`
       SELECT * FROM curated_memories WHERE id = ?
     `);
-    this.stmtFindByTenant = db.prepare(`
+        this.stmtFindByTenant = db.prepare(`
       SELECT * FROM curated_memories WHERE tenant_id = ?
     `);
-    this.stmtFindByHash = db.prepare(`
+        this.stmtFindByHash = db.prepare(`
       SELECT * FROM curated_memories WHERE content_hash = ? LIMIT 1
     `);
-    this.stmtFindByLifecycle = db.prepare(`
+        this.stmtFindByHashAndTenant = db.prepare(`
+      SELECT * FROM curated_memories WHERE content_hash = ? AND tenant_id = ? LIMIT 1
+    `);
+        this.stmtTenantHashes = db.prepare(`
+      SELECT content_hash FROM curated_memories WHERE tenant_id = ?
+    `);
+        this.stmtFindByLifecycle = db.prepare(`
       SELECT * FROM curated_memories WHERE lifecycle = ?
     `);
-    this.stmtUpdateLifecycle = db.prepare(`
+        this.stmtUpdateLifecycle = db.prepare(`
       UPDATE curated_memories SET lifecycle = @lifecycle, updated_at = @updated_at WHERE id = @id
     `);
-    this.stmtUpdate = db.prepare(`
+        this.stmtGetLifecycle = db.prepare(`
+      SELECT lifecycle FROM curated_memories WHERE id = ?
+    `);
+        this.stmtUpdate = db.prepare(`
       UPDATE curated_memories SET
         candidate_id = @candidate_id,
         source = @source,
@@ -36003,180 +38037,253 @@ var MemoryRepository = class {
         version = @version
       WHERE id = @id
     `);
-    this.stmtCount = db.prepare(`
+        this.stmtCount = db.prepare(`
       SELECT COUNT(*) as cnt FROM curated_memories
     `);
-    this.stmtAllHashes = db.prepare(`
+        this.stmtAllHashes = db.prepare(`
       SELECT content_hash FROM curated_memories
     `);
-    this.stmtCountByLifecycle = db.prepare(`
+        this.stmtCountByLifecycle = db.prepare(`
       SELECT lifecycle, COUNT(*) as cnt FROM curated_memories GROUP BY lifecycle
     `);
-    this.stmtCountByCategory = db.prepare(`
+        this.stmtCountByCategory = db.prepare(`
       SELECT category, COUNT(*) as cnt FROM curated_memories GROUP BY category
     `);
-    this.stmtCountByTenant = db.prepare(`
+        this.stmtCountByTenant = db.prepare(`
       SELECT tenant_id, COUNT(*) as cnt FROM curated_memories GROUP BY tenant_id
     `);
-    this.stmtFindStale = db.prepare(`
+        this.stmtFindStale = db.prepare(`
       SELECT * FROM curated_memories WHERE lifecycle = 'active' AND updated_at < ?
     `);
-    this.stmtFindByTenantAndLifecycle = db.prepare(`
+        this.stmtFindByTenantAndLifecycle = db.prepare(`
       SELECT * FROM curated_memories WHERE tenant_id = ? AND lifecycle = ?
     `);
-  }
-  /** Insert a new curated memory. */
-  insert(memory) {
-    this.stmtInsert.run({
-      id: memory.id,
-      candidate_id: memory.candidateId,
-      source: memory.source,
-      content: memory.content,
-      title: memory.title,
-      category: memory.category,
-      trust_level: memory.trustLevel,
-      sensitivity: memory.sensitivity,
-      author_json: JSON.stringify(memory.author),
-      tenant_id: memory.tenantId,
-      metadata_json: JSON.stringify(memory.metadata),
-      lifecycle: memory.lifecycle,
-      content_hash: memory.contentHash,
-      policy_evaluations_json: JSON.stringify(memory.policyEvaluations),
-      supersession_json: memory.supersession !== void 0 ? JSON.stringify(memory.supersession) : null,
-      promoted_at: memory.promotedAt,
-      promoted_by_json: JSON.stringify(memory.promotedBy),
-      updated_at: memory.updatedAt,
-      version: memory.version
-    });
-  }
-  /** Find a memory by its primary key, or return null if not found. */
-  findById(id) {
-    const row = this.stmtFindById.get(id);
-    return row !== void 0 ? rowToMemory(row) : null;
-  }
-  /** Return all curated memories belonging to the given tenant. */
-  findByTenant(tenantId) {
-    const rows = this.stmtFindByTenant.all(tenantId);
-    return rows.map(rowToMemory);
-  }
-  /**
-   * Return the first memory with the given content hash, or null.
-   * Useful for duplicate detection before promotion.
-   */
-  findByContentHash(hash) {
-    const row = this.stmtFindByHash.get(hash);
-    return row !== void 0 ? rowToMemory(row) : null;
-  }
-  /** Return all memories in the given lifecycle state. */
-  findByLifecycle(lifecycle) {
-    const rows = this.stmtFindByLifecycle.all(lifecycle);
-    return rows.map(rowToMemory);
-  }
-  /**
-   * Update only the lifecycle state and updatedAt timestamp.
-   * Returns true if a row was modified, false if the id was not found.
-   */
-  updateLifecycle(id, lifecycle, updatedAt) {
-    const result = this.stmtUpdateLifecycle.run({ id, lifecycle, updated_at: updatedAt });
-    return result.changes > 0;
-  }
-  /**
-   * Perform a full update of a curated memory record.
-   * Returns true if a row was modified, false if the id was not found.
-   */
-  update(memory) {
-    const result = this.stmtUpdate.run({
-      id: memory.id,
-      candidate_id: memory.candidateId,
-      source: memory.source,
-      content: memory.content,
-      title: memory.title,
-      category: memory.category,
-      trust_level: memory.trustLevel,
-      sensitivity: memory.sensitivity,
-      author_json: JSON.stringify(memory.author),
-      tenant_id: memory.tenantId,
-      metadata_json: JSON.stringify(memory.metadata),
-      lifecycle: memory.lifecycle,
-      content_hash: memory.contentHash,
-      policy_evaluations_json: JSON.stringify(memory.policyEvaluations),
-      supersession_json: memory.supersession !== void 0 ? JSON.stringify(memory.supersession) : null,
-      promoted_at: memory.promotedAt,
-      promoted_by_json: JSON.stringify(memory.promotedBy),
-      updated_at: memory.updatedAt,
-      version: memory.version
-    });
-    return result.changes > 0;
-  }
-  /** Return the total number of curated memories in the store. */
-  count() {
-    const result = this.stmtCount.get();
-    return result.cnt;
-  }
-  /** Return all distinct content hashes present in the store. */
-  getAllContentHashes() {
-    const rows = this.stmtAllHashes.all();
-    return rows.map((r) => r.content_hash);
-  }
-  /** Count memories grouped by lifecycle state */
-  countByLifecycle() {
-    const rows = this.stmtCountByLifecycle.all();
-    const result = {};
-    for (const row of rows) {
-      result[row.lifecycle] = row.cnt;
-    }
-    return result;
-  }
-  /** Count memories grouped by category */
-  countByCategory() {
-    const rows = this.stmtCountByCategory.all();
-    const result = {};
-    for (const row of rows) {
-      result[row.category] = row.cnt;
-    }
-    return result;
-  }
-  /** Count memories grouped by tenant */
-  countByTenant() {
-    const rows = this.stmtCountByTenant.all();
-    const result = {};
-    for (const row of rows) {
-      result[row.tenant_id] = row.cnt;
-    }
-    return result;
-  }
-  /** Find active memories not updated since the given ISO date */
-  findStale(olderThan) {
-    const rows = this.stmtFindStale.all(olderThan);
-    return rows.map(rowToMemory);
-  }
-  /** Find memories by tenant and lifecycle state */
-  findByTenantAndLifecycle(tenantId, lifecycle) {
-    const rows = this.stmtFindByTenantAndLifecycle.all(tenantId, lifecycle);
-    return rows.map(rowToMemory);
-  }
-  /**
-   * Search active curated memories by text match on title and content.
-   *
-   * Uses FTS5 MATCH when the virtual table is available (faster, ranked).
-   * Falls back to LIKE search with escaped wildcards when FTS5 is not present.
-   * Results capped at 100 rows.
-   */
-  searchByText(query, tenantId, categories) {
-    if (this.hasFts5) {
-      return this.searchByFts5(query, tenantId, categories);
-    }
-    return this.searchByLike(query, tenantId, categories);
-  }
-  /** FTS5-based search using MATCH for ranked full-text results */
-  searchByFts5(query, tenantId, categories) {
-    const ftsQuery = query.replace(/[*"^(){}:]/g, "").trim();
-    if (ftsQuery.length === 0)
-      return [];
-    const conditions = ["cm.lifecycle = 'active'"];
-    const params = { query: ftsQuery };
-    appendOptionalFilters(conditions, params, tenantId, categories, "cm.");
-    const sql = `
+        this.stmtFindByTenantAndLifecycleAndCategory = db.prepare(`
+      SELECT * FROM curated_memories WHERE tenant_id = ? AND lifecycle = ? AND category = ?
+    `);
+      }
+      /**
+       * The underlying better-sqlite3 connection this repository was built on.
+       *
+       * Exposed read-only so a caller that writes across SEVERAL repositories on the
+       * SAME connection — the curator's `promote()`, which touches curated_memories,
+       * audit_events, and memory_links — can wrap all of those writes in ONE
+       * transaction (all-or-nothing). Every repository constructed from a single
+       * `createDatabase()` (as govern.ts / the daemon / the plugin do) shares this
+       * exact handle, so a transaction opened here serializes every repo's writes on
+       * the connection. Do not use it to bypass a repository's prepared statements —
+       * it exists only to own a multi-repository transaction.
+       */
+      get connection() {
+        return this.db;
+      }
+      /** Insert a new curated memory. */
+      insert(memory) {
+        assertMemoryEnumMembership(memory);
+        this.stmtInsert.run({
+          id: memory.id,
+          candidate_id: memory.candidateId,
+          source: memory.source,
+          content: memory.content,
+          title: memory.title,
+          category: memory.category,
+          trust_level: memory.trustLevel,
+          sensitivity: memory.sensitivity,
+          author_json: JSON.stringify(memory.author),
+          tenant_id: memory.tenantId,
+          metadata_json: JSON.stringify(memory.metadata),
+          lifecycle: memory.lifecycle,
+          content_hash: memory.contentHash,
+          policy_evaluations_json: JSON.stringify(memory.policyEvaluations),
+          supersession_json: memory.supersession !== void 0 ? JSON.stringify(memory.supersession) : null,
+          promoted_at: memory.promotedAt,
+          promoted_by_json: JSON.stringify(memory.promotedBy),
+          updated_at: memory.updatedAt,
+          version: memory.version
+        });
+      }
+      /** Find a memory by its primary key, or return null if not found. */
+      findById(id) {
+        const row = this.stmtFindById.get(id);
+        return row !== void 0 ? rowToMemory(row) : null;
+      }
+      /** Return all curated memories belonging to the given tenant. */
+      findByTenant(tenantId) {
+        const rows = this.stmtFindByTenant.all(tenantId);
+        return rows.map(rowToMemory);
+      }
+      /**
+       * Return the first memory with the given content hash, or null.
+       * Useful for duplicate detection before promotion.
+       */
+      findByContentHash(hash) {
+        const row = this.stmtFindByHash.get(hash);
+        return row !== void 0 ? rowToMemory(row) : null;
+      }
+      /** Return all memories in the given lifecycle state. */
+      findByLifecycle(lifecycle) {
+        const rows = this.stmtFindByLifecycle.all(lifecycle);
+        return rows.map(rowToMemory);
+      }
+      /**
+       * Like {@link findByLifecycle} but isolates per-row deserialization failures
+       * (5bm.12) instead of throwing the whole batch when one row fails domain
+       * validation (e.g. a legacy category later removed from the enum). Used by the
+       * git-exporter so a single corrupt row is quarantined + reported, not allowed
+       * to abort the export of every healthy memory. Strict callers keep using
+       * {@link findByLifecycle}.
+       */
+      findByLifecycleResilient(lifecycle) {
+        return deserializeRowsResilient(this.stmtFindByLifecycle.all(lifecycle));
+      }
+      /** Tenant-scoped counterpart of {@link findByLifecycleResilient} (5bm.12). */
+      findByTenantResilient(tenantId) {
+        return deserializeRowsResilient(this.stmtFindByTenant.all(tenantId));
+      }
+      /**
+       * Update only the lifecycle state and updatedAt timestamp.
+       * Returns true if a row was modified, false if the id was not found.
+       */
+      updateLifecycle(id, lifecycle, updatedAt) {
+        const row = this.stmtGetLifecycle.get(id);
+        if (row === void 0)
+          return false;
+        const current = row.lifecycle;
+        if (current !== lifecycle && !isTransitionAllowed(current, lifecycle)) {
+          throw new InvalidLifecycleTransitionError(current, lifecycle);
+        }
+        const result = this.stmtUpdateLifecycle.run({ id, lifecycle, updated_at: updatedAt });
+        return result.changes > 0;
+      }
+      /**
+       * Perform a full update of a curated memory record.
+       * Returns true if a row was modified, false if the id was not found.
+       */
+      update(memory) {
+        assertMemoryEnumMembership(memory);
+        const result = this.stmtUpdate.run({
+          id: memory.id,
+          candidate_id: memory.candidateId,
+          source: memory.source,
+          content: memory.content,
+          title: memory.title,
+          category: memory.category,
+          trust_level: memory.trustLevel,
+          sensitivity: memory.sensitivity,
+          author_json: JSON.stringify(memory.author),
+          tenant_id: memory.tenantId,
+          metadata_json: JSON.stringify(memory.metadata),
+          lifecycle: memory.lifecycle,
+          content_hash: memory.contentHash,
+          policy_evaluations_json: JSON.stringify(memory.policyEvaluations),
+          supersession_json: memory.supersession !== void 0 ? JSON.stringify(memory.supersession) : null,
+          promoted_at: memory.promotedAt,
+          promoted_by_json: JSON.stringify(memory.promotedBy),
+          updated_at: memory.updatedAt,
+          version: memory.version
+        });
+        return result.changes > 0;
+      }
+      /** Return the total number of curated memories in the store. */
+      count() {
+        const result = this.stmtCount.get();
+        return result.cnt;
+      }
+      /** Return all distinct content hashes present in the store. */
+      getAllContentHashes() {
+        const rows = this.stmtAllHashes.all();
+        return rows.map((r) => r.content_hash);
+      }
+      /**
+       * Return the content hashes of the given tenant's memories only (B1). The
+       * tenant-scoped counterpart to {@link getAllContentHashes}, used by the curator's
+       * dedup so a batch/sweep never treats another tenant's memory as a duplicate.
+       */
+      getContentHashesByTenant(tenantId) {
+        const rows = this.stmtTenantHashes.all(tenantId);
+        return rows.map((r) => r.content_hash);
+      }
+      /**
+       * Return the first memory in the given tenant with the given content hash, or
+       * null (B1). The tenant-scoped counterpart to {@link findByContentHash}, so
+       * exact-hash dedup never crosses the tenant boundary.
+       */
+      findByContentHashAndTenant(hash, tenantId) {
+        const row = this.stmtFindByHashAndTenant.get(hash, tenantId);
+        return row !== void 0 ? rowToMemory(row) : null;
+      }
+      /** Count memories grouped by lifecycle state */
+      countByLifecycle() {
+        const rows = this.stmtCountByLifecycle.all();
+        const result = {};
+        for (const row of rows) {
+          result[row.lifecycle] = row.cnt;
+        }
+        return result;
+      }
+      /** Count memories grouped by category */
+      countByCategory() {
+        const rows = this.stmtCountByCategory.all();
+        const result = {};
+        for (const row of rows) {
+          result[row.category] = row.cnt;
+        }
+        return result;
+      }
+      /** Count memories grouped by tenant */
+      countByTenant() {
+        const rows = this.stmtCountByTenant.all();
+        const result = {};
+        for (const row of rows) {
+          result[row.tenant_id] = row.cnt;
+        }
+        return result;
+      }
+      /** Find active memories not updated since the given ISO date */
+      findStale(olderThan) {
+        const rows = this.stmtFindStale.all(olderThan);
+        return rows.map(rowToMemory);
+      }
+      /** Find memories by tenant and lifecycle state */
+      findByTenantAndLifecycle(tenantId, lifecycle) {
+        const rows = this.stmtFindByTenantAndLifecycle.all(tenantId, lifecycle);
+        return rows.map(rowToMemory);
+      }
+      /**
+       * Find memories by tenant, lifecycle state, AND category — the
+       * contradiction-check lookup (E1 review follow-up). The rule only ever
+       * compares against same-category actives, so filtering at the store keeps a
+       * 17k-row corpus from being loaded and deserialized per candidate just to
+       * discard the ~94% in other categories. Narrowed by
+       * `idx_memories_tenant_lifecycle`; the residual category filter runs in SQL,
+       * not on materialized domain objects.
+       */
+      findByTenantAndLifecycleAndCategory(tenantId, lifecycle, category) {
+        const rows = this.stmtFindByTenantAndLifecycleAndCategory.all(tenantId, lifecycle, category);
+        return rows.map(rowToMemory);
+      }
+      /**
+       * Search active curated memories by text match on title and content.
+       *
+       * Uses FTS5 MATCH when the virtual table is available (faster, ranked).
+       * Falls back to LIKE search with escaped wildcards when FTS5 is not present.
+       * Results capped at 100 rows.
+       */
+      searchByText(query, tenantId, categories) {
+        if (this.hasFts5) {
+          return this.searchByFts5(query, tenantId, categories);
+        }
+        return this.searchByLike(query, tenantId, categories);
+      }
+      /** FTS5-based search using MATCH for ranked full-text results */
+      searchByFts5(query, tenantId, categories) {
+        const ftsQuery = query.replace(/[*"^(){}:]/g, "").trim();
+        if (ftsQuery.length === 0)
+          return [];
+        const conditions = ["cm.lifecycle = 'active'"];
+        const params = { query: ftsQuery };
+        appendOptionalFilters(conditions, params, tenantId, categories, "cm.");
+        const sql = `
       SELECT cm.* FROM curated_memories cm
       JOIN curated_memories_fts fts ON cm.rowid = fts.rowid
       WHERE curated_memories_fts MATCH @query
@@ -36184,36 +38291,27 @@ var MemoryRepository = class {
       ORDER BY rank
       LIMIT 100
     `;
-    const rows = this.db.prepare(sql).all(params);
-    return rows.map(rowToMemory);
+        const rows = this.db.prepare(sql).all(params);
+        return rows.map(rowToMemory);
+      }
+      /** LIKE-based fallback search with escaped wildcards */
+      searchByLike(query, tenantId, categories) {
+        const escapedQuery = query.replace(/[%_\\]/g, "\\$&");
+        const conditions = [
+          "lifecycle = 'active'",
+          "(title LIKE @pattern ESCAPE '\\' OR content LIKE @pattern ESCAPE '\\')"
+        ];
+        const params = { pattern: `%${escapedQuery}%` };
+        appendOptionalFilters(conditions, params, tenantId, categories, "");
+        const sql = `SELECT * FROM curated_memories WHERE ${conditions.join(" AND ")} LIMIT 100`;
+        const rows = this.db.prepare(sql).all(params);
+        return rows.map(rowToMemory);
+      }
+    };
   }
-  /** LIKE-based fallback search with escaped wildcards */
-  searchByLike(query, tenantId, categories) {
-    const escapedQuery = query.replace(/[%_\\]/g, "\\$&");
-    const conditions = [
-      "lifecycle = 'active'",
-      "(title LIKE @pattern ESCAPE '\\' OR content LIKE @pattern ESCAPE '\\')"
-    ];
-    const params = { pattern: `%${escapedQuery}%` };
-    appendOptionalFilters(conditions, params, tenantId, categories, "");
-    const sql = `SELECT * FROM curated_memories WHERE ${conditions.join(" AND ")} LIMIT 100`;
-    const rows = this.db.prepare(sql).all(params);
-    return rows.map(rowToMemory);
-  }
-};
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/policy-repository.js
-var import_zod12 = __toESM(require_zod(), 1);
-var PolicyRowSchema = import_zod12.z.object({
-  id: import_zod12.z.string(),
-  name: import_zod12.z.string(),
-  tenant_id: import_zod12.z.string(),
-  rules_json: import_zod12.z.string(),
-  enabled: import_zod12.z.number(),
-  version: import_zod12.z.number(),
-  created_at: import_zod12.z.string(),
-  updated_at: import_zod12.z.string()
 });
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/policy-repository.js
 function rowToPolicy(row) {
   const flatResult = PolicyRowSchema.safeParse(row);
   if (!flatResult.success) {
@@ -36243,27 +38341,45 @@ function rowToPolicy(row) {
   }
   return domainResult.data;
 }
-var PolicyRepository = class {
-  stmtInsert;
-  stmtFindById;
-  stmtFindByTenant;
-  stmtUpdate;
-  stmtDelete;
-  constructor(db) {
-    this.stmtInsert = db.prepare(`
+var import_zod13, PolicyRowSchema, PolicyRepository;
+var init_policy_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/policy-repository.js"() {
+    "use strict";
+    import_zod13 = __toESM(require_zod(), 1);
+    init_dist();
+    PolicyRowSchema = import_zod13.z.object({
+      id: import_zod13.z.string(),
+      name: import_zod13.z.string(),
+      tenant_id: import_zod13.z.string(),
+      rules_json: import_zod13.z.string(),
+      enabled: import_zod13.z.number(),
+      version: import_zod13.z.number(),
+      created_at: import_zod13.z.string(),
+      updated_at: import_zod13.z.string()
+    });
+    PolicyRepository = class {
+      stmtInsert;
+      stmtFindById;
+      stmtFindByTenant;
+      stmtList;
+      stmtUpdate;
+      stmtDelete;
+      constructor(db) {
+        this.stmtList = db.prepare("SELECT * FROM governance_policies");
+        this.stmtInsert = db.prepare(`
       INSERT INTO governance_policies (
         id, name, tenant_id, rules_json, enabled, version, created_at, updated_at
       ) VALUES (
         @id, @name, @tenant_id, @rules_json, @enabled, @version, @created_at, @updated_at
       )
     `);
-    this.stmtFindById = db.prepare(`
+        this.stmtFindById = db.prepare(`
       SELECT * FROM governance_policies WHERE id = ?
     `);
-    this.stmtFindByTenant = db.prepare(`
+        this.stmtFindByTenant = db.prepare(`
       SELECT * FROM governance_policies WHERE tenant_id = ?
     `);
-    this.stmtUpdate = db.prepare(`
+        this.stmtUpdate = db.prepare(`
       UPDATE governance_policies SET
         name = @name,
         tenant_id = @tenant_id,
@@ -36273,65 +38389,70 @@ var PolicyRepository = class {
         updated_at = @updated_at
       WHERE id = @id
     `);
-    this.stmtDelete = db.prepare(`
+        this.stmtDelete = db.prepare(`
       DELETE FROM governance_policies WHERE id = ?
     `);
+      }
+      /** Insert a new governance policy. */
+      insert(policy) {
+        this.stmtInsert.run({
+          id: policy.id,
+          name: policy.name,
+          tenant_id: policy.tenantId,
+          rules_json: JSON.stringify(policy.rules),
+          enabled: policy.enabled ? 1 : 0,
+          version: policy.version,
+          created_at: policy.createdAt,
+          updated_at: policy.updatedAt
+        });
+      }
+      /** Find a policy by its primary key, or return null if not found. */
+      findById(id) {
+        const row = this.stmtFindById.get(id);
+        return row !== void 0 ? rowToPolicy(row) : null;
+      }
+      /** Return all policies belonging to the given tenant. */
+      findByTenant(tenantId) {
+        const rows = this.stmtFindByTenant.all(tenantId);
+        return rows.map(rowToPolicy);
+      }
+      /**
+       * Return every policy across all tenants (5bm.10) — used by the health/status
+       * dormancy check to find policies that leave registered rules unenforced.
+       */
+      list() {
+        return this.stmtList.all().map(rowToPolicy);
+      }
+      /**
+       * Perform a full update of an existing policy record.
+       * Returns true if a row was modified, false if the id was not found.
+       */
+      update(policy) {
+        const result = this.stmtUpdate.run({
+          id: policy.id,
+          name: policy.name,
+          tenant_id: policy.tenantId,
+          rules_json: JSON.stringify(policy.rules),
+          enabled: policy.enabled ? 1 : 0,
+          version: policy.version,
+          updated_at: policy.updatedAt
+        });
+        return result.changes > 0;
+      }
+      /**
+       * Delete a policy by id.
+       * Returns true if a row was deleted, false if the id was not found.
+       */
+      delete(id) {
+        const result = this.stmtDelete.run(id);
+        return result.changes > 0;
+      }
+    };
   }
-  /** Insert a new governance policy. */
-  insert(policy) {
-    this.stmtInsert.run({
-      id: policy.id,
-      name: policy.name,
-      tenant_id: policy.tenantId,
-      rules_json: JSON.stringify(policy.rules),
-      enabled: policy.enabled ? 1 : 0,
-      version: policy.version,
-      created_at: policy.createdAt,
-      updated_at: policy.updatedAt
-    });
-  }
-  /** Find a policy by its primary key, or return null if not found. */
-  findById(id) {
-    const row = this.stmtFindById.get(id);
-    return row !== void 0 ? rowToPolicy(row) : null;
-  }
-  /** Return all policies belonging to the given tenant. */
-  findByTenant(tenantId) {
-    const rows = this.stmtFindByTenant.all(tenantId);
-    return rows.map(rowToPolicy);
-  }
-  /**
-   * Perform a full update of an existing policy record.
-   * Returns true if a row was modified, false if the id was not found.
-   */
-  update(policy) {
-    const result = this.stmtUpdate.run({
-      id: policy.id,
-      name: policy.name,
-      tenant_id: policy.tenantId,
-      rules_json: JSON.stringify(policy.rules),
-      enabled: policy.enabled ? 1 : 0,
-      version: policy.version,
-      updated_at: policy.updatedAt
-    });
-    return result.changes > 0;
-  }
-  /**
-   * Delete a policy by id.
-   * Returns true if a row was deleted, false if the id was not found.
-   */
-  delete(id) {
-    const result = this.stmtDelete.run(id);
-    return result.changes > 0;
-  }
-};
+});
 
-// ../qmd-team-intent-kb/packages/store/dist/repositories/audit-repository.js
-var import_zod13 = __toESM(require_zod(), 1);
-
-// ../qmd-team-intent-kb/packages/store/dist/audit-chain.js
-var import_node_crypto = require("node:crypto");
-function canonicalRowJson(row) {
+// ../bobs-big-brain-registrar/packages/store/dist/audit-chain.js
+function canonicalRowJsonV1(row) {
   return JSON.stringify({
     id: row.id,
     action: row.action,
@@ -36344,23 +38465,34 @@ function canonicalRowJson(row) {
     prev_entry_hash: row.prev_entry_hash
   });
 }
-function computeEntryHash(row) {
-  return (0, import_node_crypto.createHash)("sha256").update(canonicalRowJson(row), "utf8").digest("hex");
+function canonicalRowJsonV2(row) {
+  return JSON.stringify({
+    id: row.id,
+    action: row.action,
+    memory_id: row.memory_id,
+    tenant_id: row.tenant_id,
+    actor_json: row.actor_json,
+    reason: row.reason,
+    details_json: row.details_json,
+    prev_entry_hash: row.prev_entry_hash
+  });
 }
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/audit-repository.js
-var AuditRowSchema = import_zod13.z.object({
-  id: import_zod13.z.string(),
-  action: import_zod13.z.string(),
-  memory_id: import_zod13.z.string(),
-  tenant_id: import_zod13.z.string(),
-  actor_json: import_zod13.z.string(),
-  reason: import_zod13.z.string().nullable(),
-  details_json: import_zod13.z.string(),
-  timestamp: import_zod13.z.string(),
-  entry_hash: import_zod13.z.string().nullable().optional(),
-  prev_entry_hash: import_zod13.z.string().nullable().optional()
+function canonicalRowJson(row, hashVersion = CURRENT_AUDIT_HASH_VERSION) {
+  return hashVersion === 1 ? canonicalRowJsonV1(row) : canonicalRowJsonV2(row);
+}
+function computeEntryHash(row, hashVersion = CURRENT_AUDIT_HASH_VERSION) {
+  return (0, import_node_crypto5.createHash)("sha256").update(canonicalRowJson(row, hashVersion), "utf8").digest("hex");
+}
+var import_node_crypto5, CURRENT_AUDIT_HASH_VERSION;
+var init_audit_chain = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/audit-chain.js"() {
+    "use strict";
+    import_node_crypto5 = require("node:crypto");
+    CURRENT_AUDIT_HASH_VERSION = 2;
+  }
 });
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/audit-repository.js
 function rowToEvent(row) {
   const flatResult = AuditRowSchema.safeParse(row);
   if (!flatResult.success) {
@@ -36396,183 +38528,226 @@ function rowToEvent(row) {
   }
   return domainResult.data;
 }
-var AuditRepository = class {
-  stmtInsert;
-  stmtFindByMemory;
-  stmtFindByMemoryAndTenant;
-  stmtFindByTenant;
-  stmtFindByAction;
-  stmtFindByTenantAndAction;
-  stmtCountByAction;
-  stmtFindInRange;
-  stmtCountByTenantAndAction;
-  stmtLastHash;
-  stmtFindAllChronological;
-  constructor(db) {
-    this.stmtInsert = db.prepare(`
+var import_zod14, AuditRowSchema, AuditRepository;
+var init_audit_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/audit-repository.js"() {
+    "use strict";
+    import_zod14 = __toESM(require_zod(), 1);
+    init_dist();
+    init_audit_chain();
+    AuditRowSchema = import_zod14.z.object({
+      id: import_zod14.z.string(),
+      action: import_zod14.z.string(),
+      memory_id: import_zod14.z.string(),
+      tenant_id: import_zod14.z.string(),
+      actor_json: import_zod14.z.string(),
+      reason: import_zod14.z.string().nullable(),
+      details_json: import_zod14.z.string(),
+      timestamp: import_zod14.z.string(),
+      entry_hash: import_zod14.z.string().nullable().optional(),
+      prev_entry_hash: import_zod14.z.string().nullable().optional(),
+      hash_version: import_zod14.z.number().int().nullable().optional()
+    });
+    AuditRepository = class {
+      stmtInsert;
+      stmtFindByMemory;
+      stmtFindByMemoryAndTenant;
+      stmtFindByTenant;
+      stmtFindByAction;
+      stmtFindByTenantAndAction;
+      stmtCountByAction;
+      stmtFindInRange;
+      stmtCountByTenantAndAction;
+      stmtLastHash;
+      stmtFindAllChronological;
+      /** Atomic (BEGIN IMMEDIATE) prev-read + INSERT — see the constructor. */
+      appendTxn;
+      constructor(db) {
+        this.stmtInsert = db.prepare(`
       INSERT INTO audit_events (
         id, action, memory_id, tenant_id, actor_json, reason, details_json,
-        timestamp, entry_hash, prev_entry_hash
+        timestamp, entry_hash, prev_entry_hash, hash_version, seq
       ) VALUES (
         @id, @action, @memory_id, @tenant_id, @actor_json, @reason, @details_json,
-        @timestamp, @entry_hash, @prev_entry_hash
+        @timestamp, @entry_hash, @prev_entry_hash, @hash_version,
+        (SELECT COALESCE(MAX(seq), 0) + 1 FROM audit_events)
       )
     `);
-    this.stmtLastHash = db.prepare(`
+        this.stmtLastHash = db.prepare(`
       SELECT entry_hash FROM audit_events
       WHERE entry_hash IS NOT NULL
-      ORDER BY timestamp DESC, id DESC
+      ORDER BY seq DESC
       LIMIT 1
     `);
-    this.stmtFindAllChronological = db.prepare(`
-      SELECT * FROM audit_events ORDER BY timestamp ASC, id ASC
+        this.stmtFindAllChronological = db.prepare(`
+      SELECT * FROM audit_events ORDER BY seq ASC
     `);
-    this.stmtFindByMemory = db.prepare(`
+        this.stmtFindByMemory = db.prepare(`
       SELECT * FROM audit_events WHERE memory_id = ? ORDER BY timestamp ASC
     `);
-    this.stmtFindByMemoryAndTenant = db.prepare(`
+        this.stmtFindByMemoryAndTenant = db.prepare(`
       SELECT * FROM audit_events WHERE memory_id = ? AND tenant_id = ? ORDER BY timestamp ASC
     `);
-    this.stmtFindByTenant = db.prepare(`
+        this.stmtFindByTenant = db.prepare(`
       SELECT * FROM audit_events WHERE tenant_id = ? ORDER BY timestamp ASC
     `);
-    this.stmtFindByAction = db.prepare(`
+        this.stmtFindByAction = db.prepare(`
       SELECT * FROM audit_events WHERE action = ? ORDER BY timestamp ASC
     `);
-    this.stmtFindByTenantAndAction = db.prepare(`
+        this.stmtFindByTenantAndAction = db.prepare(`
       SELECT * FROM audit_events WHERE tenant_id = ? AND action = ? ORDER BY timestamp ASC
     `);
-    this.stmtCountByAction = db.prepare(`
+        this.stmtCountByAction = db.prepare(`
       SELECT action, COUNT(*) as cnt FROM audit_events GROUP BY action
     `);
-    this.stmtFindInRange = db.prepare(`
+        this.stmtFindInRange = db.prepare(`
       SELECT * FROM audit_events WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC
     `);
-    this.stmtCountByTenantAndAction = db.prepare(`
+        this.stmtCountByTenantAndAction = db.prepare(`
       SELECT action, COUNT(*) as cnt FROM audit_events WHERE tenant_id = ? GROUP BY action
     `);
+        this.appendTxn = db.transaction((p) => {
+          const prevRow = this.stmtLastHash.get();
+          const prev_entry_hash = prevRow?.entry_hash ?? null;
+          const entry_hash = computeEntryHash({
+            id: p.event.id,
+            action: p.event.action,
+            memory_id: p.event.memoryId,
+            tenant_id: p.event.tenantId,
+            actor_json: p.actor_json,
+            reason: p.reason,
+            details_json: p.details_json,
+            timestamp: p.event.timestamp,
+            prev_entry_hash
+          }, p.hash_version);
+          this.stmtInsert.run({
+            id: p.event.id,
+            action: p.event.action,
+            memory_id: p.event.memoryId,
+            tenant_id: p.event.tenantId,
+            actor_json: p.actor_json,
+            reason: p.reason,
+            details_json: p.details_json,
+            timestamp: p.event.timestamp,
+            entry_hash,
+            prev_entry_hash,
+            hash_version: p.hash_version
+          });
+        });
+      }
+      /**
+       * Append a new audit event. This is the only write operation permitted.
+       *
+       * Computes the SHA-256 hash chain at insert time: each new row's
+       * `prev_entry_hash` equals the chronologically previous row's
+       * `entry_hash`, or NULL if this is the first chained row in the table.
+       * Tampering with any stored row will be detected by `verifyAuditChain`.
+       *
+       * New rows are written under the CURRENT hash version (v2, with `timestamp`
+       * excluded from the canonical body), so the `entry_hash` is reproducible
+       * across clones for the same logical event (bead `8da.6`). The version is
+       * stored alongside the row so the verifier knows which serialiser to use.
+       */
+      insert(event) {
+        this.appendTxn.immediate({
+          event,
+          actor_json: JSON.stringify(event.actor),
+          details_json: JSON.stringify(event.details),
+          reason: event.reason ?? null,
+          hash_version: CURRENT_AUDIT_HASH_VERSION
+        });
+      }
+      /**
+       * Return every audit row in monotonic write-order (`seq`, i.e. insertion
+       * order) with the raw hash-chain columns intact. Used by the chain verifier;
+       * `seq` ordering is what makes the walk match the order the prev-links were
+       * built in, so same-timestamp pairs verify correctly (bead yxp).
+       */
+      findAllChronological() {
+        return this.stmtFindAllChronological.all();
+      }
+      /**
+       * Return all events associated with the given memory, in chronological order.
+       *
+       * NOTE: this is NOT tenant-scoped — it returns rows across all tenants for the
+       * given memory_id. Any caller serving a single tenant (e.g. an HTTP read API)
+       * MUST use {@link findByMemoryAndTenant} instead to avoid leaking another
+       * tenant's audit rows. This unscoped method exists for internal /
+       * operator-global use only.
+       */
+      findByMemory(memoryId) {
+        const rows = this.stmtFindByMemory.all(memoryId);
+        return rows.map(rowToEvent);
+      }
+      /**
+       * Tenant-scoped memory lookup — the safe path for single-tenant callers.
+       * Returns only the given tenant's audit events for the memory.
+       */
+      findByMemoryAndTenant(memoryId, tenantId) {
+        const rows = this.stmtFindByMemoryAndTenant.all(memoryId, tenantId);
+        return rows.map(rowToEvent);
+      }
+      /** Return all events for the given tenant, in chronological order. */
+      findByTenant(tenantId) {
+        const rows = this.stmtFindByTenant.all(tenantId);
+        return rows.map(rowToEvent);
+      }
+      /**
+       * Return all events of the given action type, in chronological order.
+       *
+       * NOTE: NOT tenant-scoped — returns every tenant's rows for the action.
+       * Single-tenant callers MUST use {@link findByTenantAndAction}.
+       */
+      findByAction(action) {
+        const rows = this.stmtFindByAction.all(action);
+        return rows.map(rowToEvent);
+      }
+      /**
+       * Tenant-scoped action lookup — the safe path for single-tenant callers.
+       * Returns only the given tenant's audit events for the action.
+       */
+      findByTenantAndAction(tenantId, action) {
+        const rows = this.stmtFindByTenantAndAction.all(tenantId, action);
+        return rows.map(rowToEvent);
+      }
+      /** Count events grouped by action type */
+      countByAction() {
+        const rows = this.stmtCountByAction.all();
+        const result = {};
+        for (const row of rows) {
+          result[row.action] = row.cnt;
+        }
+        return result;
+      }
+      /** Find events within a time range (ISO string comparison) */
+      findInRange(startDate, endDate) {
+        const rows = this.stmtFindInRange.all(startDate, endDate);
+        return rows.map(rowToEvent);
+      }
+      /** Count events by action for a specific tenant */
+      countByTenantAndAction(tenantId) {
+        const rows = this.stmtCountByTenantAndAction.all(tenantId);
+        const result = {};
+        for (const row of rows) {
+          result[row.action] = row.cnt;
+        }
+        return result;
+      }
+    };
   }
-  /**
-   * Append a new audit event. This is the only write operation permitted.
-   *
-   * Computes the SHA-256 hash chain at insert time: each new row's
-   * `prev_entry_hash` equals the chronologically previous row's
-   * `entry_hash`, or NULL if this is the first chained row in the table.
-   * Tampering with any stored row will be detected by `verifyAuditChain`.
-   */
-  insert(event) {
-    const actor_json = JSON.stringify(event.actor);
-    const details_json = JSON.stringify(event.details);
-    const reason = event.reason ?? null;
-    const prevRow = this.stmtLastHash.get();
-    const prev_entry_hash = prevRow?.entry_hash ?? null;
-    const entry_hash = computeEntryHash({
-      id: event.id,
-      action: event.action,
-      memory_id: event.memoryId,
-      tenant_id: event.tenantId,
-      actor_json,
-      reason,
-      details_json,
-      timestamp: event.timestamp,
-      prev_entry_hash
-    });
-    this.stmtInsert.run({
-      id: event.id,
-      action: event.action,
-      memory_id: event.memoryId,
-      tenant_id: event.tenantId,
-      actor_json,
-      reason,
-      details_json,
-      timestamp: event.timestamp,
-      entry_hash,
-      prev_entry_hash
-    });
-  }
-  /**
-   * Return every audit row in chronological (timestamp, id) order with
-   * the raw hash-chain columns intact. Used by the chain verifier.
-   */
-  findAllChronological() {
-    return this.stmtFindAllChronological.all();
-  }
-  /**
-   * Return all events associated with the given memory, in chronological order.
-   *
-   * NOTE: this is NOT tenant-scoped — it returns rows across all tenants for the
-   * given memory_id. Any caller serving a single tenant (e.g. an HTTP read API)
-   * MUST use {@link findByMemoryAndTenant} instead to avoid leaking another
-   * tenant's audit rows. This unscoped method exists for internal /
-   * operator-global use only.
-   */
-  findByMemory(memoryId) {
-    const rows = this.stmtFindByMemory.all(memoryId);
-    return rows.map(rowToEvent);
-  }
-  /**
-   * Tenant-scoped memory lookup — the safe path for single-tenant callers.
-   * Returns only the given tenant's audit events for the memory.
-   */
-  findByMemoryAndTenant(memoryId, tenantId) {
-    const rows = this.stmtFindByMemoryAndTenant.all(memoryId, tenantId);
-    return rows.map(rowToEvent);
-  }
-  /** Return all events for the given tenant, in chronological order. */
-  findByTenant(tenantId) {
-    const rows = this.stmtFindByTenant.all(tenantId);
-    return rows.map(rowToEvent);
-  }
-  /**
-   * Return all events of the given action type, in chronological order.
-   *
-   * NOTE: NOT tenant-scoped — returns every tenant's rows for the action.
-   * Single-tenant callers MUST use {@link findByTenantAndAction}.
-   */
-  findByAction(action) {
-    const rows = this.stmtFindByAction.all(action);
-    return rows.map(rowToEvent);
-  }
-  /**
-   * Tenant-scoped action lookup — the safe path for single-tenant callers.
-   * Returns only the given tenant's audit events for the action.
-   */
-  findByTenantAndAction(tenantId, action) {
-    const rows = this.stmtFindByTenantAndAction.all(tenantId, action);
-    return rows.map(rowToEvent);
-  }
-  /** Count events grouped by action type */
-  countByAction() {
-    const rows = this.stmtCountByAction.all();
-    const result = {};
-    for (const row of rows) {
-      result[row.action] = row.cnt;
-    }
-    return result;
-  }
-  /** Find events within a time range (ISO string comparison) */
-  findInRange(startDate, endDate) {
-    const rows = this.stmtFindInRange.all(startDate, endDate);
-    return rows.map(rowToEvent);
-  }
-  /** Count events by action for a specific tenant */
-  countByTenantAndAction(tenantId) {
-    const rows = this.stmtCountByTenantAndAction.all(tenantId);
-    const result = {};
-    for (const row of rows) {
-      result[row.action] = row.cnt;
-    }
-    return result;
-  }
-};
+});
 
-// ../qmd-team-intent-kb/packages/store/dist/audit-verify.js
+// ../bobs-big-brain-registrar/packages/store/dist/audit-verify.js
+function rowHashVersion(row) {
+  return row.hash_version === 2 ? 2 : 1;
+}
 function verifyAuditChain(repo) {
   const rows = repo.findAllChronological();
   const breaks = [];
   let unverifiedRows = 0;
   let cleanRows = 0;
   let expectedPrev = null;
+  const seenEntryHashes = /* @__PURE__ */ new Set();
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (row.entry_hash === null && row.prev_entry_hash === null) {
@@ -36589,16 +38764,20 @@ function verifyAuditChain(repo) {
       details_json: row.details_json,
       timestamp: row.timestamp,
       prev_entry_hash: row.prev_entry_hash
-    });
+    }, rowHashVersion(row));
     const prevMatches = row.prev_entry_hash === expectedPrev;
     const entryMatches = row.entry_hash === expectedHash;
     if (prevMatches && entryMatches) {
       cleanRows++;
       expectedPrev = row.entry_hash;
+      if (row.entry_hash !== null)
+        seenEntryHashes.add(row.entry_hash);
       continue;
     }
     let reason;
-    if (!prevMatches && !entryMatches) {
+    if (entryMatches && row.prev_entry_hash !== null && seenEntryHashes.has(row.prev_entry_hash)) {
+      reason = "CHAIN_FORK";
+    } else if (!prevMatches && !entryMatches) {
       reason = "PREV_LINK_AND_ENTRY_HASH_MISMATCH";
     } else if (!prevMatches) {
       reason = "PREV_LINK_MISMATCH";
@@ -36618,6 +38797,8 @@ function verifyAuditChain(repo) {
       reason
     });
     expectedPrev = row.entry_hash;
+    if (entryMatches && row.entry_hash !== null)
+      seenEntryHashes.add(row.entry_hash);
   }
   return {
     totalRows: rows.length,
@@ -36626,10 +38807,14 @@ function verifyAuditChain(repo) {
     breaks
   };
 }
+var init_audit_verify = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/audit-verify.js"() {
+    "use strict";
+    init_audit_chain();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/store/dist/audit-anchor.js
-var import_node_crypto2 = require("node:crypto");
-var import_node_fs2 = require("node:fs");
+// ../bobs-big-brain-registrar/packages/store/dist/audit-anchor.js
 function anchorBodyJson(b) {
   return JSON.stringify({
     schemaVersion: b.schemaVersion,
@@ -36641,21 +38826,25 @@ function anchorBodyJson(b) {
   });
 }
 function computeAnchorHash(body) {
-  return (0, import_node_crypto2.createHash)("sha256").update(anchorBodyJson(body), "utf8").digest("hex");
+  return (0, import_node_crypto6.createHash)("sha256").update(anchorBodyJson(body), "utf8").digest("hex");
 }
 function chainedRowsOf(repo) {
   return repo.findAllChronological().filter((r) => r.entry_hash !== null);
 }
 function readAnchors(anchorPath) {
-  if (!(0, import_node_fs2.existsSync)(anchorPath))
+  if (!(0, import_node_fs4.existsSync)(anchorPath))
     return [];
-  return (0, import_node_fs2.readFileSync)(anchorPath, "utf8").split("\n").filter((l) => l.trim().length > 0).map((l) => JSON.parse(l));
+  return (0, import_node_fs4.readFileSync)(anchorPath, "utf8").split("\n").filter((l) => l.trim().length > 0).map((l) => JSON.parse(l));
 }
 function appendAnchor(repo, anchorPath, opts) {
   const now = opts.nowFn ?? (() => (/* @__PURE__ */ new Date()).toISOString());
   const rows = chainedRowsOf(repo);
   const head = rows.length > 0 ? rows[rows.length - 1].entry_hash ?? "" : "";
   const existing = readAnchors(anchorPath);
+  const lastAnchor = existing.length > 0 ? existing[existing.length - 1] : null;
+  if (lastAnchor !== null && lastAnchor.chainHead === head && lastAnchor.chainedRows === rows.length) {
+    return lastAnchor;
+  }
   const prevAnchorHash = existing.length > 0 ? existing[existing.length - 1].anchorHash : null;
   const body = {
     schemaVersion: 1,
@@ -36666,7 +38855,7 @@ function appendAnchor(repo, anchorPath, opts) {
     prevAnchorHash
   };
   const record2 = { ...body, anchorHash: computeAnchorHash(body) };
-  (0, import_node_fs2.appendFileSync)(anchorPath, JSON.stringify(record2) + "\n", { mode: 384 });
+  (0, import_node_fs4.appendFileSync)(anchorPath, JSON.stringify(record2) + "\n", { mode: 384 });
   return record2;
 }
 function verifyAnchors(repo, anchorPath) {
@@ -36728,14 +38917,187 @@ function verifyAnchors(repo, anchorPath) {
     ok: chain.breaks.length === 0 && anchorBreaks.length === 0
   };
 }
-
-// ../qmd-team-intent-kb/packages/store/dist/repositories/export-state-repository.js
-var import_zod14 = __toESM(require_zod(), 1);
-var ExportStateRowSchema = import_zod14.z.object({
-  target_id: import_zod14.z.string(),
-  last_exported_at: import_zod14.z.string(),
-  updated_at: import_zod14.z.string()
+var import_node_crypto6, import_node_fs4;
+var init_audit_anchor = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/audit-anchor.js"() {
+    "use strict";
+    import_node_crypto6 = require("node:crypto");
+    import_node_fs4 = require("node:fs");
+    init_audit_verify();
+  }
 });
+
+// ../bobs-big-brain-registrar/packages/store/dist/exception-manifest.js
+function sortedEntries(entries) {
+  return [...entries].sort((a, b) => {
+    if (a.seq !== b.seq)
+      return a.seq - b.seq;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
+}
+function manifestBodyJson(body) {
+  return JSON.stringify({
+    schemaVersion: body.schemaVersion,
+    brainId: body.brainId ?? null,
+    generatedAt: body.generatedAt,
+    entryCount: body.entryCount,
+    entries: sortedEntries(body.entries).map((e) => ({
+      id: e.id,
+      entryHash: e.entryHash,
+      prevEntryHash: e.prevEntryHash,
+      hashVersion: e.hashVersion,
+      seq: e.seq,
+      reason: e.reason
+    }))
+  });
+}
+function computeManifestHash(body) {
+  return (0, import_node_crypto7.createHash)("sha256").update(manifestBodyJson(body), "utf8").digest("hex");
+}
+function readManifest(path) {
+  let raw;
+  try {
+    raw = (0, import_node_fs5.readFileSync)(path, "utf8");
+  } catch (e) {
+    throw new ExceptionManifestError(`cannot read manifest at ${path}: ${String(e)}`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new ExceptionManifestError(`manifest at ${path} is not valid JSON: ${String(e)}`);
+  }
+  const result = ExceptionManifestSchema.safeParse(parsed);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `${i.path.join(".") || "<root>"}: ${i.message}`);
+    throw new ExceptionManifestError(`manifest at ${path} failed schema validation: ${issues.join("; ")}`);
+  }
+  const m = result.data;
+  if (m.entries.length !== m.entryCount) {
+    throw new ExceptionManifestError(`manifest at ${path}: entryCount ${m.entryCount} != entries.length ${m.entries.length} (count drift / tampered manifest)`);
+  }
+  const body = {
+    schemaVersion: 1,
+    ...m.brainId !== void 0 && m.brainId !== null ? { brainId: m.brainId } : {},
+    generatedAt: m.generatedAt,
+    entryCount: m.entryCount,
+    entries: m.entries
+  };
+  const recomputed = computeManifestHash(body);
+  if (recomputed !== m.manifestHash) {
+    throw new ExceptionManifestError(`manifest at ${path}: manifestHash mismatch (recomputed ${recomputed} != stored ${m.manifestHash}) \u2014 manifest content was edited`);
+  }
+  return { ...body, manifestHash: m.manifestHash };
+}
+function classifyChainBreaks(breaks, manifest, rowsById) {
+  const manifestById = /* @__PURE__ */ new Map();
+  if (manifest) {
+    for (const e of manifest.entries)
+      manifestById.set(e.id, e);
+  }
+  const documentedExceptions = [];
+  const tamperSignatures = [];
+  const chainForks = [];
+  for (const brk of breaks) {
+    if (brk.reason === "CHAIN_FORK") {
+      chainForks.push(brk);
+      continue;
+    }
+    const entry = manifestById.get(brk.id);
+    const stored = rowsById.get(brk.id);
+    const isDocumented = entry !== void 0 && stored !== void 0 && // Byte-match the CURRENT stored tuple against the pinned tuple. `===` is
+    // null-aware: a null pin matches a null stored hash, and a null→value (or
+    // value→null) drift is unequal, so it correctly falls through to tamper.
+    stored.entry_hash === entry.entryHash && stored.prev_entry_hash === entry.prevEntryHash && stored.hash_version === entry.hashVersion && stored.seq === entry.seq && // …and the break reason must still be the one the exception was minted for.
+    entry.reason === brk.reason && // Defence-in-depth: a manifest may only ever carry tamper-reason
+    // exceptions (the Zod enum already excludes CHAIN_FORK). If a fork reason
+    // somehow got pinned, refuse to honour it.
+    TAMPER_REASON_SET.has(entry.reason);
+    if (isDocumented) {
+      documentedExceptions.push(brk);
+    } else {
+      tamperSignatures.push(brk);
+    }
+  }
+  return {
+    verified: tamperSignatures.length === 0 && chainForks.length === 0,
+    documentedExceptions,
+    tamperSignatures,
+    chainForks
+  };
+}
+var import_node_crypto7, import_node_fs5, import_zod15, TAMPER_REASONS, TAMPER_REASON_SET, ExceptionManifestEntrySchema, ExceptionManifestSchema, ExceptionManifestError;
+var init_exception_manifest = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/exception-manifest.js"() {
+    "use strict";
+    import_node_crypto7 = require("node:crypto");
+    import_node_fs5 = require("node:fs");
+    import_zod15 = __toESM(require_zod(), 1);
+    TAMPER_REASONS = [
+      "ENTRY_HASH_MISMATCH",
+      "PREV_LINK_MISMATCH",
+      "PREV_LINK_AND_ENTRY_HASH_MISMATCH"
+    ];
+    TAMPER_REASON_SET = new Set(TAMPER_REASONS);
+    ExceptionManifestEntrySchema = import_zod15.z.object({
+      /** Audit row primary key. Names the exception uniquely. */
+      id: import_zod15.z.string(),
+      /** The row's CURRENT stored `entry_hash` at manifest-generation time (nullable). */
+      entryHash: import_zod15.z.string().nullable(),
+      /** The row's CURRENT stored `prev_entry_hash` (null for the first chained row). */
+      prevEntryHash: import_zod15.z.string().nullable(),
+      /** The row's stored `hash_version` (1 = pre-migration v1 form, 2 = v2). */
+      hashVersion: import_zod15.z.number(),
+      /** The row's monotonic write-order key. Part of the pinned identity. */
+      seq: import_zod15.z.number(),
+      /**
+       * The tamper reason this exception covers. The classifier requires the live
+       * break's reason to still match this — a documented ENTRY_HASH_MISMATCH that
+       * later reads as PREV_LINK_MISMATCH is drift, not the same exception.
+       * CHAIN_FORK is intentionally NOT a permitted value.
+       */
+      reason: import_zod15.z.enum(TAMPER_REASONS)
+    });
+    ExceptionManifestSchema = import_zod15.z.object({
+      schemaVersion: import_zod15.z.literal(1),
+      /** Optional brain identifier (a manifest is brain-specific data); null when absent. */
+      brainId: import_zod15.z.string().nullable().optional(),
+      /** ISO-8601 timestamp the manifest was generated. */
+      generatedAt: import_zod15.z.string(),
+      /** Frozen count of entries. `readManifest` HARD-asserts entries.length === this (R2). */
+      entryCount: import_zod15.z.number(),
+      /** The pinned exceptions. */
+      entries: import_zod15.z.array(ExceptionManifestEntrySchema),
+      /** SHA-256 hex over the canonical body (everything above, entries sorted). */
+      manifestHash: import_zod15.z.string()
+    });
+    ExceptionManifestError = class extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ExceptionManifestError";
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/signed-merge-anchor.js
+var init_signed_merge_anchor = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/signed-merge-anchor.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/audit-verify-merge.js
+var init_audit_verify_merge = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/audit-verify-merge.js"() {
+    "use strict";
+    init_audit_chain();
+    init_audit_verify();
+    init_signed_merge_anchor();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/export-state-repository.js
 function rowToState(row) {
   const result = ExportStateRowSchema.safeParse(row);
   if (!result.success) {
@@ -36749,349 +39111,435 @@ function rowToState(row) {
     updatedAt: flat.updated_at
   };
 }
-var ExportStateRepository = class {
-  stmtGet;
-  stmtUpsert;
-  constructor(db) {
-    this.stmtGet = db.prepare(`
+var import_zod16, ExportStateRowSchema, ExportStateRepository;
+var init_export_state_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/export-state-repository.js"() {
+    "use strict";
+    import_zod16 = __toESM(require_zod(), 1);
+    ExportStateRowSchema = import_zod16.z.object({
+      target_id: import_zod16.z.string(),
+      last_exported_at: import_zod16.z.string(),
+      updated_at: import_zod16.z.string()
+    });
+    ExportStateRepository = class {
+      stmtGet;
+      stmtUpsert;
+      constructor(db) {
+        this.stmtGet = db.prepare(`
       SELECT * FROM export_state WHERE target_id = ?
     `);
-    this.stmtUpsert = db.prepare(`
+        this.stmtUpsert = db.prepare(`
       INSERT INTO export_state (target_id, last_exported_at, updated_at)
       VALUES (@target_id, @last_exported_at, datetime('now'))
       ON CONFLICT(target_id) DO UPDATE SET
         last_exported_at = excluded.last_exported_at,
         updated_at = datetime('now')
     `);
+      }
+      /** Return the export state for the given target, or null if never exported. */
+      get(targetId) {
+        const row = this.stmtGet.get(targetId);
+        return row !== void 0 ? rowToState(row) : null;
+      }
+      /**
+       * Create or update the export state for the given target.
+       * updated_at is set to the current wall-clock time by the database.
+       */
+      set(targetId, lastExportedAt) {
+        this.stmtUpsert.run({
+          target_id: targetId,
+          last_exported_at: lastExportedAt
+        });
+      }
+    };
   }
-  /** Return the export state for the given target, or null if never exported. */
-  get(targetId) {
-    const row = this.stmtGet.get(targetId);
-    return row !== void 0 ? rowToState(row) : null;
-  }
-  /**
-   * Create or update the export state for the given target.
-   * updated_at is set to the current wall-clock time by the database.
-   */
-  set(targetId, lastExportedAt) {
-    this.stmtUpsert.run({
-      target_id: targetId,
-      last_exported_at: lastExportedAt
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/index-state-repository.js
+var import_zod17, IndexStateRowSchema;
+var init_index_state_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/index-state-repository.js"() {
+    "use strict";
+    import_zod17 = __toESM(require_zod(), 1);
+    IndexStateRowSchema = import_zod17.z.object({
+      tenant_id: import_zod17.z.string(),
+      last_indexed_at: import_zod17.z.string(),
+      updated_at: import_zod17.z.string()
     });
   }
-};
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/config.js
-var import_node_path3 = require("node:path");
-
-// ../qmd-team-intent-kb/packages/common/dist/hash.js
-var import_node_crypto3 = require("node:crypto");
-function computeContentHash(content) {
-  return (0, import_node_crypto3.createHash)("sha256").update(content, "utf8").digest("hex");
-}
-
-// ../qmd-team-intent-kb/packages/common/dist/paths.js
-var import_node_path2 = require("node:path");
-var import_node_os = require("node:os");
-var DEFAULT_TEAMKB_BASE = (0, import_node_path2.join)((0, import_node_os.homedir)(), ".teamkb");
-function getTeamKbBasePath() {
-  return process.env["TEAMKB_BASE_PATH"] ?? DEFAULT_TEAMKB_BASE;
-}
-function resolveTeamKbPath(subdir) {
-  return (0, import_node_path2.join)(getTeamKbBasePath(), subdir);
-}
-
-// ../qmd-team-intent-kb/packages/common/dist/path-safety.js
-function isPathSafe(path, allowedRoots) {
-  if (path.includes("\0")) {
-    return { safe: false, reason: "Path contains null byte" };
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/memory-links-repository.js
+var init_memory_links_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/memory-links-repository.js"() {
+    "use strict";
   }
-  const segments = path.split(/[/\\]/);
-  if (segments.includes("..")) {
-    return { safe: false, reason: "Path contains directory traversal (..)" };
-  }
-  const isAbsolute = path.startsWith("/") || /^[A-Za-z]:[\\/]/.test(path);
-  if (isAbsolute) {
-    if (allowedRoots === void 0 || allowedRoots.length === 0) {
-      return { safe: false, reason: "Absolute path not allowed (no allowed roots configured)" };
-    }
-    const normalized = path.replace(/\\/g, "/");
-    const isUnderAllowedRoot = allowedRoots.some((root) => {
-      const normalizedRoot = root.replace(/\\/g, "/");
-      return normalized.startsWith(normalizedRoot);
-    });
-    if (!isUnderAllowedRoot) {
-      return { safe: false, reason: "Absolute path not under any allowed root" };
-    }
-  }
-  return { safe: true };
-}
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/config.js
-var QMD_INDEX_DIR = "qmd-index";
+// ../bobs-big-brain-registrar/packages/store/dist/repositories/import-batch-repository.js
+var init_import_batch_repository = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/repositories/import-batch-repository.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/store/dist/index.js
+var init_dist3 = __esm({
+  "../bobs-big-brain-registrar/packages/store/dist/index.js"() {
+    "use strict";
+    init_database();
+    init_schema();
+    init_candidate_repository();
+    init_enum_membership();
+    init_memory_repository();
+    init_policy_repository();
+    init_audit_repository();
+    init_audit_verify();
+    init_audit_chain();
+    init_audit_anchor();
+    init_exception_manifest();
+    init_signed_merge_anchor();
+    init_audit_verify_merge();
+    init_export_state_repository();
+    init_index_state_repository();
+    init_memory_links_repository();
+    init_import_batch_repository();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/config.js
 function getQmdTenantIndexPath(tenantId) {
   return resolveTeamKbPath(`${QMD_INDEX_DIR}/${tenantId}`);
 }
 function getQmdTenantEnv(tenantId) {
   const base = getQmdTenantIndexPath(tenantId);
   return {
-    XDG_CONFIG_HOME: (0, import_node_path3.join)(base, "config"),
-    XDG_CACHE_HOME: (0, import_node_path3.join)(base, "cache")
+    XDG_CONFIG_HOME: (0, import_node_path6.join)(base, "config"),
+    XDG_CACHE_HOME: (0, import_node_path6.join)(base, "cache")
   };
 }
-var DEFAULT_QMD_BINARY = "qmd";
-var DEFAULT_TIMEOUT = 3e4;
-
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/executor/real-executor.js
-var import_node_child_process = require("node:child_process");
-var import_node_util = require("node:util");
-var execFileAsync = (0, import_node_util.promisify)(import_node_child_process.execFile);
-var RealQmdExecutor = class {
-  binary;
-  timeout;
-  env;
-  /**
-   * @param options.env Environment overrides merged over `process.env` for every
-   *   qmd invocation. qmd 2.x has **no `--data-dir` flag** — per-tenant index
-   *   and registry isolation is achieved by pointing `XDG_CONFIG_HOME`
-   *   (collection registry) and `XDG_CACHE_HOME` (BM25 index) at tenant-scoped
-   *   dirs. See `getQmdTenantEnv` in `config.ts` and ADR
-   *   `000-docs/037-AT-DSGN-qmd-adapter-source-index-separation.md`.
-   */
-  constructor(options) {
-    this.binary = options?.binary ?? DEFAULT_QMD_BINARY;
-    this.timeout = options?.timeout ?? DEFAULT_TIMEOUT;
-    this.env = options?.env ?? null;
+function getDefaultDenseConfig(env = process.env) {
+  const rawEnabled = env["TEAMKB_DENSE_ENABLED"]?.trim().toLowerCase();
+  const enabled = rawEnabled === void 0 || !["0", "false", "off", "no"].includes(rawEnabled);
+  return { enabled, url: DEFAULT_DENSE_URL };
+}
+var import_node_path6, QMD_INDEX_DIR, DEFAULT_DENSE_URL, DEFAULT_QMD_BINARY, DEFAULT_TIMEOUT;
+var init_config = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/config.js"() {
+    "use strict";
+    import_node_path6 = require("node:path");
+    init_dist2();
+    QMD_INDEX_DIR = "qmd-index";
+    DEFAULT_DENSE_URL = "http://127.0.0.1:8098";
+    DEFAULT_QMD_BINARY = "qmd";
+    DEFAULT_TIMEOUT = 3e4;
   }
-  async execute(args) {
-    try {
-      const { stdout, stderr } = await execFileAsync(this.binary, args, {
-        timeout: this.timeout,
-        maxBuffer: 10 * 1024 * 1024,
-        // Merge over process.env so PATH (qmd discovery) is preserved while
-        // tenant-scoped XDG_* vars isolate the registry + index.
-        ...this.env ? { env: { ...process.env, ...this.env } } : {}
-      });
-      return { stdout, stderr, exitCode: 0 };
-    } catch (e) {
-      if (e && typeof e === "object" && "stdout" in e && "stderr" in e && "code" in e) {
-        const err2 = e;
-        return {
-          stdout: err2.stdout ?? "",
-          stderr: err2.stderr ?? "",
-          exitCode: typeof err2.code === "number" ? err2.code : 1
-        };
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/executor/real-executor.js
+var import_node_child_process, import_node_util, execFileAsync, RealQmdExecutor;
+var init_real_executor = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/executor/real-executor.js"() {
+    "use strict";
+    import_node_child_process = require("node:child_process");
+    import_node_util = require("node:util");
+    init_config();
+    execFileAsync = (0, import_node_util.promisify)(import_node_child_process.execFile);
+    RealQmdExecutor = class {
+      binary;
+      timeout;
+      env;
+      /**
+       * @param options.env Environment overrides merged over `process.env` for every
+       *   qmd invocation. qmd 2.x has **no `--data-dir` flag** — per-tenant index
+       *   and registry isolation is achieved by pointing `XDG_CONFIG_HOME`
+       *   (collection registry) and `XDG_CACHE_HOME` (BM25 index) at tenant-scoped
+       *   dirs. See `getQmdTenantEnv` in `config.ts` and ADR
+       *   `000-docs/037-AT-DSGN-qmd-adapter-source-index-separation.md`.
+       */
+      constructor(options) {
+        this.binary = options?.binary ?? DEFAULT_QMD_BINARY;
+        this.timeout = options?.timeout ?? DEFAULT_TIMEOUT;
+        this.env = options?.env ?? null;
       }
-      return { stdout: "", stderr: String(e), exitCode: 1 };
-    }
+      async execute(args) {
+        try {
+          const { stdout, stderr } = await execFileAsync(this.binary, args, {
+            timeout: this.timeout,
+            maxBuffer: 10 * 1024 * 1024,
+            // Merge over process.env so PATH (qmd discovery) is preserved while
+            // tenant-scoped XDG_* vars isolate the registry + index.
+            ...this.env ? { env: { ...process.env, ...this.env } } : {}
+          });
+          return { stdout, stderr, exitCode: 0 };
+        } catch (e) {
+          if (e && typeof e === "object" && "stdout" in e && "stderr" in e && "code" in e) {
+            const err2 = e;
+            return {
+              stdout: err2.stdout ?? "",
+              stderr: err2.stderr ?? "",
+              exitCode: typeof err2.code === "number" ? err2.code : 1
+            };
+          }
+          return { stdout: "", stderr: String(e), exitCode: 1 };
+        }
+      }
+      async isAvailable() {
+        try {
+          const result = await this.execute(["--version"]);
+          return result.exitCode === 0;
+        } catch {
+          return false;
+        }
+      }
+    };
   }
-  async isAvailable() {
-    try {
-      const result = await this.execute(["--version"]);
-      return result.exitCode === 0;
-    } catch {
-      return false;
-    }
-  }
-};
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/collections/collection-registry.js
-var KNOWN_COLLECTIONS = [
-  {
-    name: "kb-curated",
-    description: "Curated, governance-approved team knowledge",
-    includeInDefaultSearch: true,
-    sourceSubdir: "curated"
-  },
-  {
-    name: "kb-decisions",
-    description: "Architectural and design decisions",
-    includeInDefaultSearch: true,
-    sourceSubdir: "decisions"
-  },
-  {
-    name: "kb-guides",
-    description: "How-to guides and onboarding documentation",
-    includeInDefaultSearch: true,
-    sourceSubdir: "guides"
-  },
-  {
-    name: "kb-inbox",
-    description: "Unreviewed memory candidates awaiting governance",
-    includeInDefaultSearch: false,
-    sourceSubdir: null
-  },
-  {
-    name: "kb-archive",
-    description: "Deprecated, superseded, or archived memories",
-    includeInDefaultSearch: false,
-    sourceSubdir: "archive"
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/executor/mock-executor.js
+var init_mock_executor = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/executor/mock-executor.js"() {
+    "use strict";
   }
-];
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/collections/collection-registry.js
 function getDefaultSearchCollections() {
   return KNOWN_COLLECTIONS.filter((c) => c.includeInDefaultSearch).map((c) => c.name);
 }
 function getExportableCollections() {
   return KNOWN_COLLECTIONS.filter((c) => c.sourceSubdir !== null);
 }
-
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/collections/collection-manager.js
-var import_node_path4 = require("node:path");
-var CollectionManager = class {
-  executor;
-  constructor(executor) {
-    this.executor = executor;
-  }
-  /** Add a collection pointing to a directory */
-  async addCollection(name, path) {
-    const result = await this.executor.execute(["collection", "add", path, "--name", name]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: `Failed to add collection "${name}"`,
-          command: `qmd collection add ${path} --name ${name}`,
-          stderr: result.stderr
-        }
-      };
-    }
-    return { ok: true, value: void 0 };
-  }
-  /** Remove a collection */
-  async removeCollection(name) {
-    const result = await this.executor.execute(["collection", "remove", name]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: `Failed to remove collection "${name}"`,
-          command: `qmd collection remove ${name}`,
-          stderr: result.stderr
-        }
-      };
-    }
-    return { ok: true, value: void 0 };
-  }
-  /** List existing collections */
-  async listCollections() {
-    const result = await this.executor.execute(["collection", "list"]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: "Failed to list collections",
-          command: "qmd collection list",
-          stderr: result.stderr
-        }
-      };
-    }
-    const collections = result.stdout.trim().split("\n").filter(Boolean).map((line) => line.trim());
-    return { ok: true, value: collections };
-  }
-  /**
-   * Ensure every exportable collection exists, creating missing ones.
-   *
-   * Each collection's source is `<exportBaseDir>/<sourceSubdir>` — the
-   * git-exporter output tree — so `qmd update` indexes the markdown the
-   * exporter actually writes. Collections with no exported source (e.g.
-   * `kb-inbox`) are skipped. Callers must ensure the source subdirs exist
-   * before this runs (the adapter facade does this); `qmd collection add`
-   * against a missing dir would fail.
-   */
-  async ensureCollections(exportBaseDir) {
-    const listResult = await this.listCollections();
-    const existing = listResult.ok ? listResult.value : [];
-    const created = [];
-    for (const def of getExportableCollections()) {
-      if (!existing.some((e) => e.includes(def.name))) {
-        const path = (0, import_node_path4.join)(exportBaseDir, def.sourceSubdir);
-        const addResult = await this.addCollection(def.name, path);
-        if (!addResult.ok)
-          return { ok: false, error: addResult.error };
-        created.push(def.name);
+var KNOWN_COLLECTIONS;
+var init_collection_registry = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/collections/collection-registry.js"() {
+    "use strict";
+    KNOWN_COLLECTIONS = [
+      {
+        name: "kb-curated",
+        description: "Curated, governance-approved team knowledge",
+        includeInDefaultSearch: true,
+        sourceSubdir: "curated"
+      },
+      {
+        name: "kb-decisions",
+        description: "Architectural and design decisions",
+        includeInDefaultSearch: true,
+        sourceSubdir: "decisions"
+      },
+      {
+        name: "kb-guides",
+        description: "How-to guides and onboarding documentation",
+        includeInDefaultSearch: true,
+        sourceSubdir: "guides"
+      },
+      {
+        name: "kb-inbox",
+        description: "Unreviewed memory candidates awaiting governance",
+        includeInDefaultSearch: false,
+        sourceSubdir: null
+      },
+      {
+        name: "kb-archive",
+        description: "Deprecated, superseded, or archived memories",
+        includeInDefaultSearch: false,
+        sourceSubdir: "archive"
+      },
+      {
+        // 5bm.8 — bulk-digestion quarantine collection. Memories whose source is
+        // `bulk_import` (whole-machine digestions, stamped low-trust at the schema
+        // boundary) export to `bulk/` instead of their category directory, so a
+        // 10k-file digestion can never flood the default `curated` search scope
+        // again (the 2026-07-16 flood put ~9.7k bulk reference files in kb-guides).
+        // Deliberately searchable via scope `bulk` or `all` — quarantined from the
+        // DEFAULT surface, not hidden.
+        name: "kb-bulk",
+        description: "Bulk-imported low-trust memories (whole-machine digestions), excluded from default search",
+        includeInDefaultSearch: false,
+        sourceSubdir: "bulk"
       }
-    }
-    return { ok: true, value: created };
+    ];
   }
-};
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/index-manager/index-lifecycle.js
-var IndexLifecycleManager = class {
-  executor;
-  constructor(executor) {
-    this.executor = executor;
-  }
-  /** Update the qmd index (re-index all collections) */
-  async update() {
-    const result = await this.executor.execute(["update"]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: "Failed to update index",
-          command: "qmd update",
-          stderr: result.stderr
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/collections/collection-manager.js
+var import_node_path7, CollectionManager;
+var init_collection_manager = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/collections/collection-manager.js"() {
+    "use strict";
+    import_node_path7 = require("node:path");
+    init_collection_registry();
+    CollectionManager = class {
+      executor;
+      constructor(executor) {
+        this.executor = executor;
+      }
+      /** Add a collection pointing to a directory */
+      async addCollection(name, path) {
+        const result = await this.executor.execute(["collection", "add", path, "--name", name]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: `Failed to add collection "${name}"`,
+              command: `qmd collection add ${path} --name ${name}`,
+              stderr: result.stderr
+            }
+          };
         }
-      };
-    }
-    return { ok: true, value: void 0 };
-  }
-  /** Generate/refresh vector embeddings */
-  async embed(force = false) {
-    const args = force ? ["embed", "-f"] : ["embed"];
-    const result = await this.executor.execute(args);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: "Failed to generate embeddings",
-          command: `qmd embed${force ? " -f" : ""}`,
-          stderr: result.stderr
+        return { ok: true, value: void 0 };
+      }
+      /** Remove a collection */
+      async removeCollection(name) {
+        const result = await this.executor.execute(["collection", "remove", name]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: `Failed to remove collection "${name}"`,
+              command: `qmd collection remove ${name}`,
+              stderr: result.stderr
+            }
+          };
         }
-      };
-    }
-    return { ok: true, value: void 0 };
-  }
-  /** Clean up caches and vacuum the database */
-  async cleanup() {
-    const result = await this.executor.execute(["cleanup"]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: "Failed to cleanup index",
-          command: "qmd cleanup",
-          stderr: result.stderr
+        return { ok: true, value: void 0 };
+      }
+      /** List existing collections */
+      async listCollections() {
+        const result = await this.executor.execute(["collection", "list"]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: "Failed to list collections",
+              command: "qmd collection list",
+              stderr: result.stderr
+            }
+          };
         }
-      };
-    }
-    return { ok: true, value: void 0 };
-  }
-  /** Get index status */
-  async status() {
-    const result = await this.executor.execute(["status"]);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: "Failed to get index status",
-          command: "qmd status",
-          stderr: result.stderr
+        const collections = result.stdout.trim().split("\n").filter(Boolean).map((line) => line.trim());
+        return { ok: true, value: collections };
+      }
+      /**
+       * Ensure every exportable collection exists, creating missing ones.
+       *
+       * Each collection's source is `<exportBaseDir>/<sourceSubdir>` — the
+       * git-exporter output tree — so `qmd update` indexes the markdown the
+       * exporter actually writes. Collections with no exported source (e.g.
+       * `kb-inbox`) are skipped. Callers must ensure the source subdirs exist
+       * before this runs (the adapter facade does this); `qmd collection add`
+       * against a missing dir would fail.
+       */
+      async ensureCollections(exportBaseDir) {
+        const listResult = await this.listCollections();
+        const existing = listResult.ok ? listResult.value : [];
+        const created = [];
+        for (const def of getExportableCollections()) {
+          if (!existing.some((e) => e.includes(def.name))) {
+            const path = (0, import_node_path7.join)(exportBaseDir, def.sourceSubdir);
+            const addResult = await this.addCollection(def.name, path);
+            if (!addResult.ok)
+              return { ok: false, error: addResult.error };
+            created.push(def.name);
+          }
         }
-      };
-    }
-    return { ok: true, value: result.stdout };
+        return { ok: true, value: created };
+      }
+    };
   }
-};
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/search/result-parser.js
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/index-manager/index-paths.js
+var init_index_paths = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/index-manager/index-paths.js"() {
+    "use strict";
+    init_config();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/index-manager/index-lifecycle.js
+var IndexLifecycleManager;
+var init_index_lifecycle = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/index-manager/index-lifecycle.js"() {
+    "use strict";
+    IndexLifecycleManager = class {
+      executor;
+      constructor(executor) {
+        this.executor = executor;
+      }
+      /** Update the qmd index (re-index all collections) */
+      async update() {
+        const result = await this.executor.execute(["update"]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: "Failed to update index",
+              command: "qmd update",
+              stderr: result.stderr
+            }
+          };
+        }
+        return { ok: true, value: void 0 };
+      }
+      /** Generate/refresh vector embeddings */
+      async embed(force = false) {
+        const args = force ? ["embed", "-f"] : ["embed"];
+        const result = await this.executor.execute(args);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: "Failed to generate embeddings",
+              command: `qmd embed${force ? " -f" : ""}`,
+              stderr: result.stderr
+            }
+          };
+        }
+        return { ok: true, value: void 0 };
+      }
+      /** Clean up caches and vacuum the database */
+      async cleanup() {
+        const result = await this.executor.execute(["cleanup"]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: "Failed to cleanup index",
+              command: "qmd cleanup",
+              stderr: result.stderr
+            }
+          };
+        }
+        return { ok: true, value: void 0 };
+      }
+      /** Get index status */
+      async status() {
+        const result = await this.executor.execute(["status"]);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: "Failed to get index status",
+              command: "qmd status",
+              stderr: result.stderr
+            }
+          };
+        }
+        return { ok: true, value: result.stdout };
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/result-parser.js
 function parseQueryOutput(stdout) {
   const trimmed = stdout.trim();
   if (!trimmed)
@@ -37122,63 +39570,104 @@ function parseQueryOutput(stdout) {
   return results;
 }
 function deriveCollectionFromPath(filePath) {
-  const knownCollections = ["kb-curated", "kb-decisions", "kb-guides", "kb-inbox", "kb-archive"];
+  const knownCollections = [
+    "kb-curated",
+    "kb-decisions",
+    "kb-guides",
+    "kb-inbox",
+    "kb-archive",
+    "kb-bulk"
+  ];
   for (const name of knownCollections) {
     if (filePath.includes(name))
       return name;
   }
   return "unknown";
 }
-
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/search/search-client.js
-var SearchClient = class {
-  executor;
-  constructor(executor) {
-    this.executor = executor;
+var init_result_parser = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/result-parser.js"() {
+    "use strict";
   }
-  /** Execute a search query, enforcing curated-only scope by default */
-  async search(query, scope = "curated") {
-    const collections = this.resolveCollections(scope);
-    const args = ["search", "--json", "--", query];
-    const result = await this.executor.execute(args);
-    if (result.exitCode !== 0) {
-      return {
-        ok: false,
-        error: {
-          code: "command_failed",
-          message: `Search failed for query "${query}"`,
-          command: `qmd search ${query}`,
-          stderr: result.stderr
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/search-client.js
+function resolveScopeCollections(scope) {
+  switch (scope) {
+    case "curated":
+      return getDefaultSearchCollections();
+    case "inbox":
+      return ["kb-inbox"];
+    case "archived":
+      return ["kb-archive"];
+    case "bulk":
+      return ["kb-bulk"];
+    case "all":
+      return [];
+    // No filtering
+    default:
+      return getDefaultSearchCollections();
+  }
+}
+var SearchClient;
+var init_search_client = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/search-client.js"() {
+    "use strict";
+    init_collection_registry();
+    init_result_parser();
+    SearchClient = class {
+      executor;
+      constructor(executor) {
+        this.executor = executor;
+      }
+      /** Execute a search query, enforcing curated-only scope by default */
+      async search(query, scope = "curated") {
+        const collections = this.resolveCollections(scope);
+        const args = ["search", "--json", "--", query];
+        const result = await this.executor.execute(args);
+        if (result.exitCode !== 0) {
+          return {
+            ok: false,
+            error: {
+              code: "command_failed",
+              message: `Search failed for query "${query}"`,
+              command: `qmd search ${query}`,
+              stderr: result.stderr
+            }
+          };
         }
-      };
-    }
-    const parsed = parseQueryOutput(result.stdout);
-    const filtered = scope === "all" ? parsed : parsed.filter((r) => collections.includes(r.collection));
-    return { ok: true, value: filtered };
+        const parsed = parseQueryOutput(result.stdout);
+        const filtered = scope === "all" ? parsed : parsed.filter((r) => collections.includes(r.collection));
+        return { ok: true, value: filtered };
+      }
+      /** Resolve which collections to include based on scope */
+      resolveCollections(scope) {
+        return resolveScopeCollections(scope);
+      }
+    };
   }
-  /** Resolve which collections to include based on scope */
-  resolveCollections(scope) {
-    switch (scope) {
-      case "curated":
-        return getDefaultSearchCollections();
-      case "inbox":
-        return ["kb-inbox"];
-      case "archived":
-        return ["kb-archive"];
-      case "all":
-        return [];
-      // No filtering
-      default:
-        return getDefaultSearchCollections();
-    }
-  }
-};
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/health/health-check.js
-async function checkHealth(executor) {
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/health/health-check.js
+function probeStaleness(probe) {
+  if (probe === void 0)
+    return null;
+  try {
+    return probe();
+  } catch {
+    return null;
+  }
+}
+async function checkHealth(executor, stalenessProbe) {
+  const stalenessSeconds = probeStaleness(stalenessProbe);
   const available = await executor.isAvailable();
   if (!available) {
-    return { available: false, version: null, initialized: false, collections: [] };
+    return {
+      available: false,
+      version: null,
+      initialized: false,
+      collections: [],
+      stalenessSeconds
+    };
   }
   let version = null;
   try {
@@ -37198,58 +39687,1390 @@ async function checkHealth(executor) {
     }
   } catch {
   }
-  return { available, version, initialized, collections };
+  return { available, version, initialized, collections, stalenessSeconds };
 }
+var init_health_check = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/health/health-check.js"() {
+    "use strict";
+  }
+});
 
-// ../qmd-team-intent-kb/packages/qmd-adapter/dist/adapter.js
-var import_node_fs3 = require("node:fs");
-var import_node_path5 = require("node:path");
-var QmdAdapter = class {
-  executor;
-  collections;
-  search;
-  indexLifecycle;
-  exportDir;
-  constructor(config2, executor) {
-    this.exportDir = config2.exportDir;
-    this.executor = executor ?? new RealQmdExecutor({
-      binary: config2.qmdBinary,
-      timeout: config2.timeout,
-      // Per-tenant isolation via XDG_* env, not the nonexistent --data-dir.
-      env: getQmdTenantEnv(config2.tenantId)
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/rrf-fusion.js
+function fuseReciprocalRank(qmdHits, nativeHits, denseHits = [], k = RRF_K) {
+  const entries = /* @__PURE__ */ new Map();
+  qmdHits.forEach((hit, i) => {
+    const rank = i + 1;
+    const entry = entries.get(hit.file) ?? { id: hit.file, score: 0, bestRank: Infinity };
+    entry.score += 1 / (k + rank);
+    entry.bestRank = Math.min(entry.bestRank, rank);
+    entry.qmdHit ??= hit;
+    entries.set(hit.file, entry);
+  });
+  nativeHits.forEach((hit, i) => {
+    const rank = i + 1;
+    const entry = entries.get(hit.id) ?? { id: hit.id, score: 0, bestRank: Infinity };
+    entry.score += 1 / (k + rank);
+    entry.bestRank = Math.min(entry.bestRank, rank);
+    entry.nativeHit ??= hit;
+    entries.set(hit.id, entry);
+  });
+  denseHits.forEach((hit, i) => {
+    const rank = i + 1;
+    const entry = entries.get(hit.id) ?? { id: hit.id, score: 0, bestRank: Infinity };
+    entry.score += 1 / (k + rank);
+    entry.bestRank = Math.min(entry.bestRank, rank);
+    entry.denseHit ??= hit;
+    entries.set(hit.id, entry);
+  });
+  return [...entries.values()].sort((a, b) => b.score - a.score || a.bestRank - b.bestRank || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map((entry) => ({
+    file: entry.id,
+    score: entry.score,
+    snippet: entry.qmdHit?.snippet !== void 0 && entry.qmdHit.snippet !== "" ? entry.qmdHit.snippet : entry.nativeHit?.snippet !== void 0 && entry.nativeHit.snippet !== "" ? entry.nativeHit.snippet : entry.denseHit?.snippet ?? "",
+    collection: entry.qmdHit?.collection ?? entry.nativeHit?.collection ?? entry.denseHit?.collection ?? "unknown"
+  }));
+}
+var RRF_K;
+var init_rrf_fusion = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/search/rrf-fusion.js"() {
+    "use strict";
+    RRF_K = 60;
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/fts5-backend.js
+function buildFts5MatchQuery(query) {
+  const tokens = query.match(/[\p{L}\p{N}]+/gu) ?? [];
+  return tokens.map((t) => `"${t}"`).join(" ");
+}
+var import_better_sqlite32, Fts5Backend;
+var init_fts5_backend = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/fts5-backend.js"() {
+    "use strict";
+    import_better_sqlite32 = __toESM(require("better-sqlite3"), 1);
+    Fts5Backend = class {
+      db;
+      insertStmt;
+      deleteStmt;
+      searchStmt;
+      countStmt;
+      constructor(opts = {}) {
+        this.db = opts.db ?? new import_better_sqlite32.default(opts.path ?? ":memory:");
+        this.db.pragma("journal_mode = WAL");
+        this.db.pragma("busy_timeout = 5000");
+        this.db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS docs USING fts5(id UNINDEXED, collection UNINDEXED, content)");
+        this.insertStmt = this.db.prepare("INSERT INTO docs(id, collection, content) VALUES (?, ?, ?)");
+        this.deleteStmt = this.db.prepare("DELETE FROM docs WHERE id = ?");
+        this.searchStmt = this.db.prepare("SELECT id, collection, snippet(docs, 2, '', '', '\u2026', 16) AS snippet, bm25(docs) AS rank FROM docs WHERE docs MATCH ? ORDER BY rank LIMIT ?");
+        this.countStmt = this.db.prepare("SELECT count(*) AS n FROM docs");
+      }
+      /** Index documents (upsert by id — a re-indexed doc replaces its prior copy). */
+      index(docs) {
+        const tx = this.db.transaction((items) => {
+          for (const doc of items) {
+            this.deleteStmt.run(doc.id);
+            this.insertStmt.run(doc.id, doc.collection ?? "", doc.content);
+          }
+        });
+        tx(docs);
+      }
+      /**
+       * Insert documents KNOWN to be absent from the index — skips the per-doc
+       * delete. `id` is UNINDEXED in the FTS5 table, so each upsert delete is a
+       * full scan of the virtual table; on a bulk first build that turns 17k
+       * inserts into O(n²) minutes. Callers that track index membership (the
+       * NativeIndexManager's files table) use this for new docs and reserve
+       * `index()`/`remove()` for the few changed/deleted ones.
+       */
+      insert(docs) {
+        const tx = this.db.transaction((items) => {
+          for (const doc of items) {
+            this.insertStmt.run(doc.id, doc.collection ?? "", doc.content);
+          }
+        });
+        tx(docs);
+      }
+      /** Remove documents by id (no-op for ids that are not indexed). */
+      remove(ids) {
+        const tx = this.db.transaction((items) => {
+          for (const id of items)
+            this.deleteStmt.run(id);
+        });
+        tx(ids);
+      }
+      /** Remove every indexed document. */
+      clear() {
+        this.db.exec("DELETE FROM docs");
+      }
+      /** BM25 keyword search → top-k hits, most relevant first. */
+      search(query, k = 10) {
+        const match = buildFts5MatchQuery(query);
+        if (match.length === 0)
+          return [];
+        const rows = this.searchStmt.all(match, k);
+        return rows.map((r) => ({
+          id: r.id,
+          collection: r.collection,
+          snippet: r.snippet,
+          score: -r.rank
+          // FTS5 bm25() is negative (best = most negative); negate so higher = better
+        }));
+      }
+      count() {
+        return this.countStmt.get().n;
+      }
+      close() {
+        this.db.close();
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/native-index-manager.js
+function getNativeIndexManager(opts) {
+  if (opts.indexPath === ":memory:")
+    return new NativeIndexManager(opts);
+  const cached = managerCache.get(opts.indexPath);
+  if (cached !== void 0)
+    return cached;
+  const manager = new NativeIndexManager(opts);
+  managerCache.set(opts.indexPath, manager);
+  return manager;
+}
+var import_node_fs6, import_node_path8, import_better_sqlite33, NativeIndexManager, managerCache;
+var init_native_index_manager = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/native-index-manager.js"() {
+    "use strict";
+    import_node_fs6 = require("node:fs");
+    import_node_path8 = require("node:path");
+    import_better_sqlite33 = __toESM(require("better-sqlite3"), 1);
+    init_collection_registry();
+    init_fts5_backend();
+    NativeIndexManager = class {
+      backend;
+      db;
+      exportDir;
+      refreshTtlMs;
+      lastRefreshMs = 0;
+      selectFiles;
+      upsertFile;
+      deleteFile;
+      constructor(opts) {
+        this.exportDir = opts.exportDir;
+        this.refreshTtlMs = opts.refreshTtlMs ?? 15e3;
+        if (opts.indexPath !== ":memory:") {
+          (0, import_node_fs6.mkdirSync)((0, import_node_path8.dirname)(opts.indexPath), { recursive: true });
+        }
+        this.db = new import_better_sqlite33.default(opts.indexPath);
+        this.backend = new Fts5Backend({ db: this.db });
+        this.db.exec("CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, doc_id TEXT NOT NULL, mtime_ms REAL NOT NULL)");
+        this.selectFiles = this.db.prepare("SELECT path, doc_id, mtime_ms FROM files");
+        this.upsertFile = this.db.prepare("INSERT INTO files(path, doc_id, mtime_ms) VALUES (?, ?, ?) ON CONFLICT(path) DO UPDATE SET doc_id = excluded.doc_id, mtime_ms = excluded.mtime_ms");
+        this.deleteFile = this.db.prepare("DELETE FROM files WHERE path = ?");
+      }
+      /**
+       * Bring the index up to date with the export tree if the TTL has elapsed.
+       * Returns the number of files (re)indexed — 0 on a no-op sweep.
+       */
+      ensureFresh(nowMs = Date.now()) {
+        if (nowMs - this.lastRefreshMs < this.refreshTtlMs)
+          return 0;
+        this.lastRefreshMs = nowMs;
+        const onDisk = /* @__PURE__ */ new Map();
+        for (const def of getExportableCollections()) {
+          const dir = (0, import_node_path8.join)(this.exportDir, def.sourceSubdir);
+          if (!(0, import_node_fs6.existsSync)(dir))
+            continue;
+          for (const name of (0, import_node_fs6.readdirSync)(dir)) {
+            if (!name.endsWith(".md"))
+              continue;
+            const path = (0, import_node_path8.join)(dir, name);
+            let mtimeMs;
+            try {
+              mtimeMs = (0, import_node_fs6.statSync)(path).mtimeMs;
+            } catch {
+              continue;
+            }
+            onDisk.set(path, { docId: `qmd://${def.name}/${name}`, mtimeMs, collection: def.name });
+          }
+        }
+        const stored = /* @__PURE__ */ new Map();
+        for (const row of this.selectFiles.all()) {
+          stored.set(row.path, { docId: row.doc_id, mtimeMs: row.mtime_ms });
+        }
+        const toInsert = [];
+        const toReplace = [];
+        const metaUpserts = [];
+        for (const [path, info] of onDisk) {
+          const prior = stored.get(path);
+          if (prior !== void 0 && prior.mtimeMs === info.mtimeMs)
+            continue;
+          let content;
+          try {
+            content = (0, import_node_fs6.readFileSync)(path, "utf8");
+          } catch {
+            continue;
+          }
+          const doc = { id: info.docId, content, collection: info.collection };
+          if (prior === void 0)
+            toInsert.push(doc);
+          else
+            toReplace.push(doc);
+          metaUpserts.push({ path, docId: info.docId, mtimeMs: info.mtimeMs });
+        }
+        const toRemove = [];
+        for (const [path, prior] of stored) {
+          if (onDisk.has(path))
+            continue;
+          toRemove.push({ path, docId: prior.docId });
+        }
+        if (toInsert.length > 0)
+          this.backend.insert(toInsert);
+        if (toReplace.length > 0)
+          this.backend.index(toReplace);
+        if (toRemove.length > 0)
+          this.backend.remove(toRemove.map((r) => r.docId));
+        if (metaUpserts.length > 0 || toRemove.length > 0) {
+          const tx = this.db.transaction(() => {
+            for (const m of metaUpserts)
+              this.upsertFile.run(m.path, m.docId, m.mtimeMs);
+            for (const r of toRemove)
+              this.deleteFile.run(r.path);
+          });
+          tx();
+        }
+        return toInsert.length + toReplace.length;
+      }
+      /**
+       * BM25 search over the export tree, filtered to `allowedCollections`
+       * (empty array = no filter). Refreshes the index first (TTL-throttled).
+       */
+      search(query, k, allowedCollections) {
+        this.ensureFresh();
+        const hits = this.backend.search(query, k);
+        if (allowedCollections.length === 0)
+          return hits;
+        return hits.filter((h) => allowedCollections.includes(h.collection));
+      }
+      count() {
+        return this.backend.count();
+      }
+      close() {
+        this.backend.close();
+      }
+    };
+    managerCache = /* @__PURE__ */ new Map();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-client.js
+function rerankScore(value) {
+  return value;
+}
+var DEFAULT_RERANK_TIMEOUT_MS, RerankClient;
+var init_rerank_client = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-client.js"() {
+    "use strict";
+    DEFAULT_RERANK_TIMEOUT_MS = 3e3;
+    RerankClient = class {
+      baseUrl;
+      timeoutMs;
+      constructor(options) {
+        this.baseUrl = options.url.replace(/\/+$/, "");
+        this.timeoutMs = options.timeoutMs ?? DEFAULT_RERANK_TIMEOUT_MS;
+      }
+      /**
+       * Score `documents` against `query` via POST /v1/rerank.
+       *
+       * Returns one scored entry per input document (the endpoint scores all
+       * documents; `top_n` is deliberately NOT sent so the caller can cache a
+       * score for every candidate). Returns `null` on ANY failure — the caller
+       * MUST treat that as "serve the fused order".
+       */
+      async rerank(query, documents) {
+        if (documents.length === 0)
+          return [];
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+          const response = await fetch(`${this.baseUrl}/v1/rerank`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: "reranker", query, documents }),
+            signal: controller.signal
+          });
+          if (!response.ok)
+            return null;
+          const parsed = await response.json();
+          if (!Array.isArray(parsed.results))
+            return null;
+          const scored = [];
+          for (const entry of parsed.results) {
+            if (typeof entry?.index !== "number" || typeof entry.relevance_score !== "number" || Number.isNaN(entry.relevance_score) || entry.index < 0 || entry.index >= documents.length) {
+              return null;
+            }
+            scored.push({ index: entry.index, score: rerankScore(entry.relevance_score) });
+          }
+          return scored;
+        } catch {
+          return null;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      /** Probe GET /health. `false` on any failure — never throws. */
+      async healthy() {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+          const response = await fetch(`${this.baseUrl}/health`, { signal: controller.signal });
+          return response.ok;
+        } catch {
+          return false;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-cache.js
+var import_node_fs7, import_node_path9, import_better_sqlite34, RerankCache;
+var init_rerank_cache = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-cache.js"() {
+    "use strict";
+    import_node_fs7 = require("node:fs");
+    import_node_path9 = require("node:path");
+    import_better_sqlite34 = __toESM(require("better-sqlite3"), 1);
+    init_dist2();
+    init_rerank_client();
+    RerankCache = class _RerankCache {
+      db;
+      getStmt;
+      setStmt;
+      modelId;
+      modelVersion;
+      broken = false;
+      constructor(opts) {
+        this.modelId = opts.modelId;
+        this.modelVersion = opts.modelVersion;
+        if (opts.path !== ":memory:") {
+          (0, import_node_fs7.mkdirSync)((0, import_node_path9.dirname)(opts.path), { recursive: true });
+        }
+        this.db = new import_better_sqlite34.default(opts.path);
+        this.db.pragma("journal_mode = WAL");
+        this.db.pragma("busy_timeout = 5000");
+        this.db.exec("CREATE TABLE IF NOT EXISTS rerank_scores (key TEXT NOT NULL, model_id TEXT NOT NULL, model_version TEXT NOT NULL, score REAL NOT NULL, created_ms INTEGER NOT NULL, PRIMARY KEY (key, model_id, model_version))");
+        this.getStmt = this.db.prepare("SELECT score FROM rerank_scores WHERE key = ? AND model_id = ? AND model_version = ?");
+        this.setStmt = this.db.prepare("INSERT INTO rerank_scores (key, model_id, model_version, score, created_ms) VALUES (?, ?, ?, ?, ?) ON CONFLICT(key, model_id, model_version) DO UPDATE SET score = excluded.score, created_ms = excluded.created_ms");
+      }
+      /** Content-addressed cache key for a (query, document-content-hash) pair. */
+      static cacheKey(query, docContentHash) {
+        return computeContentHash(query + "\0" + docContentHash);
+      }
+      /** Cached score, or null on miss (or on any cache failure — degrades silently). */
+      get(query, docContentHash) {
+        if (this.broken)
+          return null;
+        try {
+          const row = this.getStmt.get(_RerankCache.cacheKey(query, docContentHash), this.modelId, this.modelVersion);
+          return row === void 0 ? null : rerankScore(row.score);
+        } catch {
+          this.broken = true;
+          return null;
+        }
+      }
+      /** Store a score. Failures are swallowed (the cache is never load-bearing). */
+      set(query, docContentHash, score) {
+        if (this.broken)
+          return;
+        try {
+          this.setStmt.run(_RerankCache.cacheKey(query, docContentHash), this.modelId, this.modelVersion, score, Date.now());
+        } catch {
+          this.broken = true;
+        }
+      }
+      count() {
+        try {
+          return this.db.prepare("SELECT count(*) AS n FROM rerank_scores").get().n;
+        } catch {
+          return 0;
+        }
+      }
+      close() {
+        try {
+          this.db.close();
+        } catch {
+        }
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-stage.js
+function resolveCitationPath(exportDir, citation) {
+  if (!citation.startsWith("qmd://"))
+    return null;
+  const rest = citation.slice("qmd://".length);
+  const slash = rest.indexOf("/");
+  if (slash <= 0)
+    return null;
+  const collectionName = rest.slice(0, slash);
+  const fileName = rest.slice(slash + 1);
+  if (fileName.length === 0 || (0, import_node_path10.basename)(fileName) !== fileName)
+    return null;
+  const def = getExportableCollections().find((c) => c.name === collectionName);
+  if (def === void 0)
+    return null;
+  return (0, import_node_path10.join)(exportDir, def.sourceSubdir, fileName);
+}
+var import_node_fs8, import_node_path10, DEFAULT_CANDIDATE_WINDOW, DEFAULT_RERANK_TOP_N, DEFAULT_MAX_DOC_CHARS, RerankStage;
+var init_rerank_stage = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/rerank-stage.js"() {
+    "use strict";
+    import_node_fs8 = require("node:fs");
+    import_node_path10 = require("node:path");
+    init_dist2();
+    init_collection_registry();
+    DEFAULT_CANDIDATE_WINDOW = 50;
+    DEFAULT_RERANK_TOP_N = 8;
+    DEFAULT_MAX_DOC_CHARS = 1500;
+    RerankStage = class {
+      client;
+      cache;
+      exportDir;
+      candidateWindow;
+      topN;
+      maxDocChars;
+      constructor(options) {
+        this.client = options.client;
+        this.cache = options.cache ?? null;
+        this.exportDir = options.exportDir;
+        this.candidateWindow = options.candidateWindow ?? DEFAULT_CANDIDATE_WINDOW;
+        this.topN = options.topN ?? DEFAULT_RERANK_TOP_N;
+        this.maxDocChars = options.maxDocChars ?? DEFAULT_MAX_DOC_CHARS;
+      }
+      /**
+       * Re-order `fused` by cross-encoder relevance to `query`; return the top-N.
+       * Returns the ORIGINAL `fused` list unchanged on any failure (fail-open).
+       */
+      async apply(query, fused) {
+        try {
+          if (fused.length <= 1)
+            return [...fused];
+          const candidates = fused.slice(0, this.candidateWindow).map((hit, i) => {
+            const text = this.resolveDocText(hit);
+            return { hit, fusedRank: i, text, contentHash: computeContentHash(text) };
+          });
+          const misses = [];
+          for (const candidate of candidates) {
+            const cached = this.cache?.get(query, candidate.contentHash) ?? null;
+            if (cached !== null)
+              candidate.score = cached;
+            else
+              misses.push(candidate);
+          }
+          if (misses.length > 0) {
+            const scored = await this.client.rerank(query, misses.map((c) => c.text));
+            if (scored === null || scored.length !== misses.length) {
+              return [...fused];
+            }
+            for (const { index, score } of scored) {
+              const candidate = misses[index];
+              if (candidate === void 0)
+                return [...fused];
+              candidate.score = score;
+              this.cache?.set(query, candidate.contentHash, score);
+            }
+          }
+          if (candidates.some((c) => c.score === void 0))
+            return [...fused];
+          const reordered = [...candidates].sort((a, b) => b.score - a.score || a.fusedRank - b.fusedRank);
+          return reordered.slice(0, this.topN).map((c) => ({ ...c.hit, score: c.score }));
+        } catch {
+          return [...fused];
+        }
+      }
+      /** Health probe for the underlying rerank service. */
+      async healthy() {
+        return this.client.healthy();
+      }
+      /**
+       * Resolve the document text a hit's citation points at, truncated to
+       * `maxDocChars`. Falls back to the hit's snippet when the export file
+       * cannot be resolved/read — a weaker signal beats dropping the doc.
+       */
+      resolveDocText(hit) {
+        const path = resolveCitationPath(this.exportDir, hit.file);
+        if (path !== null) {
+          try {
+            return (0, import_node_fs8.readFileSync)(path, "utf8").slice(0, this.maxDocChars);
+          } catch {
+          }
+        }
+        return hit.snippet.slice(0, this.maxDocChars);
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/embed-client.js
+function denseScore(value) {
+  return value;
+}
+var EMBEDDINGGEMMA_QUERY_PREFIX, EMBEDDINGGEMMA_DOCUMENT_PREFIX, DEFAULT_EMBED_TIMEOUT_MS, EmbedClient;
+var init_embed_client = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/embed-client.js"() {
+    "use strict";
+    EMBEDDINGGEMMA_QUERY_PREFIX = "task: search result | query: ";
+    EMBEDDINGGEMMA_DOCUMENT_PREFIX = "title: none | text: ";
+    DEFAULT_EMBED_TIMEOUT_MS = 5e3;
+    EmbedClient = class {
+      baseUrl;
+      timeoutMs;
+      constructor(options) {
+        this.baseUrl = options.url.replace(/\/+$/, "");
+        this.timeoutMs = options.timeoutMs ?? DEFAULT_EMBED_TIMEOUT_MS;
+      }
+      /**
+       * Embed `texts` via POST /v1/embeddings, applying the EmbeddingGemma
+       * role prefix to each. Returns one vector per input, in input order.
+       * Returns `null` on ANY failure — the caller MUST treat that as
+       * "no dense signal available", never as an error to surface.
+       */
+      async embed(texts, role) {
+        if (texts.length === 0)
+          return [];
+        const prefix = role === "query" ? EMBEDDINGGEMMA_QUERY_PREFIX : EMBEDDINGGEMMA_DOCUMENT_PREFIX;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+          const response = await fetch(`${this.baseUrl}/v1/embeddings`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: "embedding", input: texts.map((t) => prefix + t) }),
+            signal: controller.signal
+          });
+          if (!response.ok)
+            return null;
+          const parsed = await response.json();
+          if (!Array.isArray(parsed.data) || parsed.data.length !== texts.length)
+            return null;
+          const vectors = new Array(texts.length);
+          let dims = -1;
+          for (const entry of parsed.data) {
+            if (typeof entry?.index !== "number" || entry.index < 0 || entry.index >= texts.length || !Array.isArray(entry.embedding) || entry.embedding.length === 0 || entry.embedding.some((v) => typeof v !== "number" || !Number.isFinite(v))) {
+              return null;
+            }
+            if (dims === -1)
+              dims = entry.embedding.length;
+            else if (entry.embedding.length !== dims)
+              return null;
+            vectors[entry.index] = Float32Array.from(entry.embedding);
+          }
+          for (let i = 0; i < vectors.length; i++) {
+            if (vectors[i] === void 0)
+              return null;
+          }
+          return vectors;
+        } catch {
+          return null;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      /** Probe GET /health. `false` on any failure — never throws. */
+      async healthy() {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+          const response = await fetch(`${this.baseUrl}/health`, { signal: controller.signal });
+          return response.ok;
+        } catch {
+          return false;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/dense-index.js
+var import_node_fs9, import_node_path11, import_better_sqlite35, sqliteVec, DENSE_SNIPPET_CHARS, DenseVecIndex;
+var init_dense_index = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/dense-index.js"() {
+    "use strict";
+    import_node_fs9 = require("node:fs");
+    import_node_path11 = require("node:path");
+    import_better_sqlite35 = __toESM(require("better-sqlite3"), 1);
+    sqliteVec = __toESM(require("sqlite-vec"), 1);
+    init_embed_client();
+    DENSE_SNIPPET_CHARS = 160;
+    DenseVecIndex = class {
+      db;
+      dims;
+      constructor(opts) {
+        if (opts.path !== ":memory:") {
+          (0, import_node_fs9.mkdirSync)((0, import_node_path11.dirname)(opts.path), { recursive: true });
+        }
+        this.db = new import_better_sqlite35.default(opts.path);
+        sqliteVec.load(this.db);
+        this.db.pragma("journal_mode = WAL");
+        this.db.pragma("busy_timeout = 5000");
+        this.db.exec("CREATE TABLE IF NOT EXISTS dense_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS dense_docs (rowid INTEGER PRIMARY KEY, doc_id TEXT NOT NULL UNIQUE, collection TEXT NOT NULL, content_hash TEXT NOT NULL, snippet TEXT NOT NULL, embedded_ms INTEGER NOT NULL)");
+        const storedModel = this.getMeta("model_id");
+        const storedVersion = this.getMeta("model_version");
+        if (storedModel !== null && storedModel !== opts.modelId || storedVersion !== null && storedVersion !== opts.modelVersion) {
+          this.wipe();
+        }
+        this.setMeta("model_id", opts.modelId);
+        this.setMeta("model_version", opts.modelVersion);
+        const storedDims = this.getMeta("dims");
+        this.dims = storedDims === null ? null : Number(storedDims);
+      }
+      getMeta(key) {
+        const row = this.db.prepare("SELECT value FROM dense_meta WHERE key = ?").get(key);
+        return row?.value ?? null;
+      }
+      setMeta(key, value) {
+        this.db.prepare("INSERT INTO dense_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(key, value);
+      }
+      /** Drop every embedded doc + vector (meta survives; dims reset). */
+      wipe() {
+        this.db.exec("DELETE FROM dense_docs; DROP TABLE IF EXISTS dense_vec");
+        this.db.prepare("DELETE FROM dense_meta WHERE key = ?").run("dims");
+        this.dims = null;
+      }
+      /**
+       * Ensure the vec0 table exists for `dims`-dimensional vectors. A dimension
+       * change (impossible without a model change, but belt-and-braces) wipes and
+       * recreates — mixed-dimension KNN is meaningless.
+       */
+      ensureVecTable(dims) {
+        if (this.dims === dims)
+          return;
+        if (this.dims !== null)
+          this.wipe();
+        this.db.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS dense_vec USING vec0(collection text partition key, embedding float[${dims}])`);
+        this.setMeta("dims", String(dims));
+        this.dims = dims;
+      }
+      /**
+       * Upsert one embedded document. `contentHash` MUST be the hash of the exact
+       * (truncated) text the embedding was computed from — it is the incremental
+       * re-embed key.
+       */
+      upsert(doc) {
+        this.ensureVecTable(doc.embedding.length);
+        const tx = this.db.transaction(() => {
+          const prior = this.db.prepare("SELECT rowid FROM dense_docs WHERE doc_id = ?").get(doc.docId);
+          if (prior !== void 0) {
+            this.db.prepare("DELETE FROM dense_vec WHERE rowid = ?").run(BigInt(prior.rowid));
+            this.db.prepare("DELETE FROM dense_docs WHERE rowid = ?").run(prior.rowid);
+          }
+          const inserted = this.db.prepare("INSERT INTO dense_docs (doc_id, collection, content_hash, snippet, embedded_ms) VALUES (?, ?, ?, ?, ?)").run(doc.docId, doc.collection, doc.contentHash, doc.snippet, Date.now());
+          this.db.prepare("INSERT INTO dense_vec (rowid, collection, embedding) VALUES (?, ?, ?)").run(BigInt(inserted.lastInsertRowid), doc.collection, Buffer.from(doc.embedding.buffer, doc.embedding.byteOffset, doc.embedding.byteLength));
+        });
+        tx();
+      }
+      /** Remove documents by citation id (no-op for ids that are not indexed). */
+      remove(docIds) {
+        const tx = this.db.transaction(() => {
+          for (const docId of docIds) {
+            const prior = this.db.prepare("SELECT rowid FROM dense_docs WHERE doc_id = ?").get(docId);
+            if (prior === void 0)
+              continue;
+            this.db.prepare("DELETE FROM dense_vec WHERE rowid = ?").run(BigInt(prior.rowid));
+            this.db.prepare("DELETE FROM dense_docs WHERE rowid = ?").run(prior.rowid);
+          }
+        });
+        tx();
+      }
+      /** Every indexed doc's (docId, contentHash) — the indexer's diff input. */
+      entries() {
+        return this.db.prepare("SELECT doc_id, content_hash FROM dense_docs").all().map((r) => ({ docId: r.doc_id, contentHash: r.content_hash }));
+      }
+      /**
+       * KNN search: top-`k` nearest docs to `queryEmbedding` (vec0 L2 distance;
+       * inputs are L2-normalized so the ordering equals cosine ordering, and the
+       * reported score is the exact cosine similarity `1 − d²/2`).
+       *
+       * `allowedCollections` (empty = no filter, i.e. scope `all`) is pushed INTO
+       * the KNN via the vec0 `collection` partition key, so the k returned rows are
+       * the k nearest *within scope* — out-of-scope collections (e.g. archive under
+       * a curated search) never occupy a slot. This is the correctness fix that a
+       * post-hoc `.filter()` cannot give: filtering after a top-k over ALL
+       * collections would silently shrink an in-scope result set below k.
+       */
+      search(queryEmbedding, k, allowedCollections = []) {
+        if (this.dims === null || k <= 0)
+          return [];
+        if (queryEmbedding.length !== this.dims)
+          return [];
+        const scopeClause = allowedCollections.length === 0 ? "" : `AND v.collection IN (${allowedCollections.map(() => "?").join(", ")}) `;
+        const rows = this.db.prepare(`SELECT d.doc_id AS id, v.collection AS collection, d.snippet AS snippet, v.distance AS distance FROM dense_vec v JOIN dense_docs d ON d.rowid = v.rowid WHERE v.embedding MATCH ? AND k = ? ${scopeClause}ORDER BY v.distance`).all(Buffer.from(queryEmbedding.buffer, queryEmbedding.byteOffset, queryEmbedding.byteLength), k, ...allowedCollections);
+        return rows.map((r) => ({
+          id: r.id,
+          collection: r.collection,
+          snippet: r.snippet,
+          score: denseScore(1 - r.distance * r.distance / 2)
+        }));
+      }
+      count() {
+        return this.db.prepare("SELECT count(*) AS n FROM dense_docs").get().n;
+      }
+      close() {
+        try {
+          this.db.close();
+        } catch {
+        }
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/dense-indexer.js
+function delay(ms) {
+  return new Promise((resolve3) => setTimeout(resolve3, ms));
+}
+var import_node_fs10, import_node_path12, DEFAULT_DENSE_MAX_DOC_CHARS, DEFAULT_DENSE_BATCH_SIZE, DenseIndexer;
+var init_dense_indexer = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/dense-indexer.js"() {
+    "use strict";
+    import_node_fs10 = require("node:fs");
+    import_node_path12 = require("node:path");
+    init_dist2();
+    init_collection_registry();
+    init_dense_index();
+    DEFAULT_DENSE_MAX_DOC_CHARS = 2e3;
+    DEFAULT_DENSE_BATCH_SIZE = 16;
+    DenseIndexer = class {
+      index;
+      client;
+      exportDir;
+      maxDocChars;
+      batchSize;
+      maxBatchRetries;
+      retryBackoffMs;
+      maxRetryBackoffMs;
+      constructor(options) {
+        this.index = options.index;
+        this.client = options.client;
+        this.exportDir = options.exportDir;
+        this.maxDocChars = options.maxDocChars ?? DEFAULT_DENSE_MAX_DOC_CHARS;
+        this.batchSize = options.batchSize ?? DEFAULT_DENSE_BATCH_SIZE;
+        this.maxBatchRetries = options.maxBatchRetries ?? 5;
+        this.retryBackoffMs = options.retryBackoffMs ?? 2e3;
+        this.maxRetryBackoffMs = options.maxRetryBackoffMs ?? 15e3;
+      }
+      /**
+       * Embed one batch, RE-ATTEMPTING on failure with bounded exponential backoff.
+       * Returns the vectors on success, or `null` only after the whole retry budget
+       * is spent with the service still failing (a durable outage). A `null` from
+       * `client.embed` is fail-fast (connection-refused during an auto-restart is
+       * near-instant), so the wall-clock cost of a retry round is dominated by the
+       * backoff, not by timeouts.
+       */
+      async embedBatchWithRetry(texts) {
+        let backoff = this.retryBackoffMs;
+        for (let attempt = 0; attempt <= this.maxBatchRetries; attempt++) {
+          const vectors = await this.client.embed(texts, "document");
+          if (vectors !== null)
+            return vectors;
+          if (attempt === this.maxBatchRetries)
+            break;
+          await delay(backoff);
+          backoff = Math.min(backoff * 2, this.maxRetryBackoffMs);
+        }
+        return null;
+      }
+      /**
+       * Bring the dense index up to date with the export tree: embed new/changed
+       * docs (batched), remove vanished ones, leave unchanged ones untouched.
+       */
+      async sync() {
+        const onDisk = /* @__PURE__ */ new Map();
+        for (const def of getExportableCollections()) {
+          const dir = (0, import_node_path12.join)(this.exportDir, def.sourceSubdir);
+          if (!(0, import_node_fs10.existsSync)(dir))
+            continue;
+          for (const name of (0, import_node_fs10.readdirSync)(dir)) {
+            if (!name.endsWith(".md"))
+              continue;
+            let raw;
+            try {
+              raw = (0, import_node_fs10.readFileSync)((0, import_node_path12.join)(dir, name), "utf8");
+            } catch {
+              continue;
+            }
+            const text = raw.slice(0, this.maxDocChars);
+            onDisk.set(`qmd://${def.name}/${name}`, {
+              collection: def.name,
+              text,
+              contentHash: computeContentHash(text),
+              snippet: raw.slice(0, DENSE_SNIPPET_CHARS)
+            });
+          }
+        }
+        const stored = new Map(this.index.entries().map((e) => [e.docId, e.contentHash]));
+        const toEmbed = [];
+        for (const [docId, info] of onDisk) {
+          if (stored.get(docId) !== info.contentHash)
+            toEmbed.push(docId);
+        }
+        const toRemove = [...stored.keys()].filter((docId) => !onDisk.has(docId));
+        if (toRemove.length > 0)
+          this.index.remove(toRemove);
+        if (toEmbed.length > 0 && !await this.client.healthy()) {
+          return {
+            embedded: 0,
+            removed: toRemove.length,
+            skipped: toEmbed.length,
+            totalDocs: onDisk.size,
+            serviceDown: true
+          };
+        }
+        let embedded = 0;
+        let skipped = 0;
+        for (let start = 0; start < toEmbed.length; start += this.batchSize) {
+          const batchIds = toEmbed.slice(start, start + this.batchSize);
+          const batchDocs = batchIds.map((id) => onDisk.get(id));
+          const vectors = await this.embedBatchWithRetry(batchDocs.map((d) => d?.text ?? ""));
+          if (vectors === null) {
+            if (await this.client.healthy()) {
+              skipped += batchIds.length;
+              continue;
+            }
+            skipped += toEmbed.length - start;
+            return {
+              embedded,
+              removed: toRemove.length,
+              skipped,
+              totalDocs: onDisk.size,
+              serviceDown: true
+            };
+          }
+          for (let i = 0; i < batchIds.length; i++) {
+            const docId = batchIds[i];
+            const info = docId === void 0 ? void 0 : onDisk.get(docId);
+            const embedding = vectors[i];
+            if (docId === void 0 || info === void 0 || embedding === void 0)
+              continue;
+            this.index.upsert({
+              docId,
+              collection: info.collection,
+              contentHash: info.contentHash,
+              snippet: info.snippet,
+              embedding
+            });
+            embedded++;
+          }
+        }
+        return {
+          embedded,
+          removed: toRemove.length,
+          skipped,
+          totalDocs: onDisk.size,
+          serviceDown: false
+        };
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/weights-manifest.js
+var QMD_WEIGHTS_MANIFEST;
+var init_weights_manifest = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/weights-manifest.js"() {
+    "use strict";
+    QMD_WEIGHTS_MANIFEST = {
+      schemaVersion: 1,
+      qmd: { npmPackage: "@tobilu/qmd", version: "2.5.3" },
+      note: "Embedding + query-expansion hashes captured under qmd 2.0.1; re-confirm against the canonical 2.5.3 model set before the semantic path ships (bead 0t9.3). The reranker hash was re-verified against the on-disk GGUF on 2026-07-19 (B1) and is actively served by bbb-reranker.service.",
+      models: [
+        {
+          id: "embedding",
+          role: "embedding",
+          file: "hf_ggml-org_embeddinggemma-300M-Q8_0.gguf",
+          sha256: "b5ce9d77a3fc4b3b39ccb5643c36777911cc4eb46a66962eadfa3f5f60490d63",
+          size: 333590944,
+          hfRepo: "ggml-org/embeddinggemma-300M-GGUF"
+        },
+        {
+          id: "reranker",
+          role: "reranker",
+          file: "hf_ggml-org_qwen3-reranker-0.6b-q8_0.gguf",
+          sha256: "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+          size: 639153184,
+          hfRepo: "ggml-org/qwen3-reranker-0.6B-GGUF"
+        },
+        {
+          id: "query-expansion",
+          role: "query-expansion",
+          file: "hf_tobil_qmd-query-expansion-1.7B-q4_k_m.gguf",
+          sha256: "000dfb1c06efa6a049e9f64ba921c3740e2454f62abab6fa10e77bd30bb2bcc0",
+          size: 1282438912,
+          hfRepo: "tobil/qmd-query-expansion-1.7B-GGUF"
+        }
+      ]
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/adapter.js
+function buildDenseArm(config2) {
+  const dense = config2.dense;
+  if (dense === void 0)
+    return null;
+  try {
+    const pinned = QMD_WEIGHTS_MANIFEST.models.find((m) => m.id === "embedding");
+    const modelVersion = `${pinned?.sha256 ?? "unpinned"}|q:${EMBEDDINGGEMMA_QUERY_PREFIX}|d:${EMBEDDINGGEMMA_DOCUMENT_PREFIX}`;
+    const index = new DenseVecIndex({
+      path: dense.indexPath ?? (0, import_node_path13.join)(getQmdTenantIndexPath(config2.tenantId), "dense-vec.sqlite"),
+      modelId: pinned?.file ?? "unknown-embedding",
+      modelVersion
     });
-    this.collections = new CollectionManager(this.executor);
-    this.search = new SearchClient(this.executor);
-    this.indexLifecycle = new IndexLifecycleManager(this.executor);
+    const queryClient = new EmbedClient({ url: dense.url, timeoutMs: dense.timeoutMs });
+    const onQueryDegraded = dense.onQueryDegraded;
+    const indexClient = new EmbedClient({
+      url: dense.url,
+      timeoutMs: dense.indexTimeoutMs ?? DENSE_INDEX_TIMEOUT_MS
+    });
+    const indexer = new DenseIndexer({
+      index,
+      client: indexClient,
+      exportDir: config2.exportDir,
+      maxDocChars: dense.maxDocChars,
+      batchSize: dense.batchSize
+    });
+    return {
+      index,
+      queryClient,
+      indexer,
+      searchK: dense.searchK ?? DENSE_SEARCH_K,
+      ...onQueryDegraded ? { onQueryDegraded } : {}
+    };
+  } catch {
+    return null;
   }
-  /** Run a search with curated-only default scope */
-  async query(queryText, scope) {
-    return this.search.search(queryText, scope);
-  }
-  /** Check health of qmd and index state */
-  async health() {
-    return checkHealth(this.executor);
-  }
-  /** Update the index */
-  async update() {
-    return this.indexLifecycle.update();
-  }
-  /**
-   * Ensure all exportable collections are registered against the git-exporter
-   * output tree. Creates each collection's source subdir first so empty
-   * categories (e.g. no archived memories yet) still register cleanly —
-   * `qmd collection add` against a missing dir would fail.
-   */
-  async ensureCollections() {
-    for (const def of getExportableCollections()) {
-      (0, import_node_fs3.mkdirSync)((0, import_node_path5.join)(this.exportDir, def.sourceSubdir), { recursive: true });
+}
+function buildRerankStage(config2) {
+  const rerank = config2.rerank;
+  if (rerank === void 0)
+    return null;
+  try {
+    const client = new RerankClient({ url: rerank.url, timeoutMs: rerank.timeoutMs });
+    const pinned = QMD_WEIGHTS_MANIFEST.models.find((m) => m.id === "reranker");
+    let cache = null;
+    try {
+      cache = new RerankCache({
+        path: rerank.cachePath ?? (0, import_node_path13.join)(getQmdTenantIndexPath(config2.tenantId), "rerank-cache.sqlite"),
+        modelId: pinned?.file ?? "unknown-reranker",
+        modelVersion: pinned?.sha256 ?? "unpinned"
+      });
+    } catch {
+      cache = null;
     }
-    return this.collections.ensureCollections(this.exportDir);
+    return new RerankStage({
+      client,
+      cache,
+      exportDir: config2.exportDir,
+      candidateWindow: rerank.candidateWindow,
+      topN: rerank.topN,
+      maxDocChars: rerank.maxDocChars
+    });
+  } catch {
+    return null;
   }
-};
+}
+var import_node_fs11, import_node_path13, NATIVE_SEARCH_K, DENSE_SEARCH_K, DENSE_INDEX_TIMEOUT_MS, QmdAdapter;
+var init_adapter = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/adapter.js"() {
+    "use strict";
+    import_node_fs11 = require("node:fs");
+    import_node_path13 = require("node:path");
+    init_real_executor();
+    init_collection_manager();
+    init_collection_registry();
+    init_search_client();
+    init_rrf_fusion();
+    init_index_lifecycle();
+    init_health_check();
+    init_config();
+    init_native_index_manager();
+    init_rerank_client();
+    init_rerank_cache();
+    init_rerank_stage();
+    init_embed_client();
+    init_dense_index();
+    init_dense_indexer();
+    init_weights_manifest();
+    NATIVE_SEARCH_K = 50;
+    DENSE_SEARCH_K = 50;
+    DENSE_INDEX_TIMEOUT_MS = 12e4;
+    QmdAdapter = class {
+      executor;
+      collections;
+      search;
+      indexLifecycle;
+      native;
+      rerankStage;
+      dense;
+      exportDir;
+      /** The single tenant this adapter's qmd registry + index are bound to. */
+      tenantId;
+      /** Optional index-freshness probe (D2) — see QmdAdapterConfig.stalenessProbe. */
+      stalenessProbe;
+      /** The tenant this adapter serves (read-only; used by the search canary's fail-closed guard). */
+      get boundTenantId() {
+        return this.tenantId;
+      }
+      constructor(config2, executor) {
+        this.exportDir = config2.exportDir;
+        this.tenantId = config2.tenantId;
+        this.stalenessProbe = config2.stalenessProbe;
+        this.executor = executor ?? new RealQmdExecutor({
+          binary: config2.qmdBinary,
+          timeout: config2.timeout,
+          // Per-tenant isolation via XDG_* env, not the nonexistent --data-dir.
+          env: getQmdTenantEnv(config2.tenantId)
+        });
+        this.collections = new CollectionManager(this.executor);
+        this.search = new SearchClient(this.executor);
+        this.indexLifecycle = new IndexLifecycleManager(this.executor);
+        if (config2.disableNativeFusion === true) {
+          this.native = null;
+        } else {
+          try {
+            this.native = getNativeIndexManager({
+              exportDir: config2.exportDir,
+              indexPath: config2.nativeIndexPath ?? (0, import_node_path13.join)(getQmdTenantIndexPath(config2.tenantId), "native-fts5.sqlite")
+            });
+          } catch {
+            this.native = null;
+          }
+        }
+        this.rerankStage = config2.rerank?.enabled === true ? buildRerankStage(config2) : null;
+        this.dense = config2.dense?.enabled === true ? buildDenseArm(config2) : null;
+      }
+      /**
+       * Run a search with curated-only default scope.
+       *
+       * This adapter instance is bound to a single tenant at construction (its qmd
+       * registry + index are XDG-isolated to `config.tenantId`). The requested
+       * tenant MUST equal the bound tenant for the index to be served; anything
+       * else (a different tenant OR an unscoped/omitted tenant) returns an empty
+       * result rather than serving the bound tenant's index unlabelled.
+       *
+       * The guard is fail-closed and NOT inert when tenantId is undefined (c5k.2):
+       * the prior `tenantId !== undefined && tenantId !== this.tenantId` form
+       * short-circuited the whole check on `undefined`, so an unscoped call fell
+       * through to `this.search.search()` with no tenant assertion at all — the
+       * exact path the API-layer omission bug fed. The API tenancy guard now
+       * resolves the effective tenant from the token before the service calls
+       * `query()`, so every legitimate call arrives with a defined, matching
+       * tenantId; a missing tenantId is a contract violation and is refused here
+       * as the last line of defense rather than served.
+       */
+      async query(queryText, scope, tenantId) {
+        if (tenantId !== this.tenantId) {
+          return { ok: true, value: [] };
+        }
+        const effectiveScope = scope ?? "curated";
+        const qmdResult = await this.search.search(queryText, effectiveScope);
+        const nativeHits = this.nativeSearch(queryText, effectiveScope);
+        const denseHits = await this.denseSearch(queryText, effectiveScope);
+        if (!qmdResult.ok) {
+          if (nativeHits.length > 0 || denseHits.length > 0) {
+            return {
+              ok: true,
+              value: await this.maybeRerank(queryText, fuseReciprocalRank([], nativeHits, denseHits))
+            };
+          }
+          return qmdResult;
+        }
+        if (nativeHits.length === 0 && denseHits.length === 0) {
+          return { ok: true, value: await this.maybeRerank(queryText, qmdResult.value) };
+        }
+        return {
+          ok: true,
+          value: await this.maybeRerank(queryText, fuseReciprocalRank(qmdResult.value, nativeHits, denseHits))
+        };
+      }
+      /**
+       * Opt-in rerank pass over the final fused list (B1). Identity when the stage
+       * is not configured; fail-open inside the stage otherwise, so the
+       * deterministic fused order is always the fallback the caller receives.
+       */
+      async maybeRerank(queryText, fused) {
+        if (this.rerankStage === null)
+          return fused;
+        return this.rerankStage.apply(queryText, fused);
+      }
+      /** Native FTS5 half of the fused query. Any failure degrades to []. */
+      nativeSearch(queryText, scope) {
+        if (this.native === null)
+          return [];
+        try {
+          return this.native.search(queryText, NATIVE_SEARCH_K, resolveScopeCollections(scope));
+        } catch {
+          return [];
+        }
+      }
+      /**
+       * Dense KNN list for the fusion (B4). Fail-open: dense not configured,
+       * embedder down/slow, empty index, or anything thrown all degrade to [] —
+       * the lexical fusion is always the floor the serving path stands on.
+       */
+      async denseSearch(queryText, scope) {
+        if (this.dense === null)
+          return [];
+        try {
+          const vectors = await this.dense.queryClient.embed([queryText], "query");
+          const queryVec = vectors?.[0];
+          if (queryVec === void 0) {
+            this.notifyDenseDegraded(new Error("embedder returned no vector for the query"));
+            return [];
+          }
+          return this.dense.index.search(queryVec, this.dense.searchK, resolveScopeCollections(scope));
+        } catch (err2) {
+          this.notifyDenseDegraded(err2);
+          return [];
+        }
+      }
+      /**
+       * Tell an observer the dense arm degraded for this query, then carry on
+       * failing open.
+       *
+       * The callback is optional and unset in serving, so this is a no-op there and
+       * the fail-open contract is unchanged. The eval harness sets it to turn a
+       * SILENT degradation into a loud one — see `QmdAdapterConfig.dense.onQueryDegraded`
+       * for why a silently-degraded measurement is worse than a failed one.
+       *
+       * Swallows any throw from the observer: this runs inside the fail-open catch,
+       * and a broken observer must not convert a degraded query into a failed one.
+       */
+      notifyDenseDegraded(reason) {
+        try {
+          this.dense?.onQueryDegraded?.(reason);
+        } catch {
+        }
+      }
+      /**
+       * Bring the dense sidecar index up to date with the export tree (B4).
+       * Returns `null` when the dense arm is not configured; never throws.
+       * Called by `reindex()` after the lexical index update — an embedder outage
+       * reports `serviceDown: true` and leaves the dense index stale (degrade),
+       * it never fails the reindex.
+       */
+      async denseSync() {
+        if (this.dense === null)
+          return null;
+        try {
+          return await this.dense.indexer.sync();
+        } catch {
+          return {
+            embedded: 0,
+            removed: 0,
+            skipped: 0,
+            totalDocs: 0,
+            serviceDown: true
+          };
+        }
+      }
+      /** Check health of qmd and index state (incl. stalenessSeconds when a probe is wired). */
+      async health() {
+        return checkHealth(this.executor, this.stalenessProbe);
+      }
+      /** Update the index */
+      async update() {
+        return this.indexLifecycle.update();
+      }
+      /**
+       * Ensure all exportable collections are registered against the git-exporter
+       * output tree. Creates each collection's source subdir first so empty
+       * categories (e.g. no archived memories yet) still register cleanly —
+       * `qmd collection add` against a missing dir would fail.
+       */
+      async ensureCollections() {
+        for (const def of getExportableCollections()) {
+          (0, import_node_fs11.mkdirSync)((0, import_node_path13.join)(this.exportDir, def.sourceSubdir), { recursive: true });
+        }
+        return this.collections.ensureCollections(this.exportDir);
+      }
+    };
+  }
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/config.js
-var SPOOL_DIR = "spool";
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/verify-weights.js
+var init_verify_weights = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/verify-weights.js"() {
+    "use strict";
+    init_dist2();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/index.js
+var init_weights = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/weights/index.js"() {
+    "use strict";
+    init_verify_weights();
+    init_weights_manifest();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/metrics.js
+var init_metrics = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/metrics.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/run-eval.js
+var init_run_eval = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/run-eval.js"() {
+    "use strict";
+    init_metrics();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/seed-queries.js
+var init_seed_queries = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/seed-queries.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/stratified-report.js
+var init_stratified_report = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/stratified-report.js"() {
+    "use strict";
+    init_metrics();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/qmd-retrieval.js
+var init_qmd_retrieval = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/qmd-retrieval.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/governed-brain-v1.js
+var init_governed_brain_v1 = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/governed-brain-v1.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/synthetic-v1.js
+var SYNTHETIC_V1_BASELINE;
+var init_synthetic_v1 = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/datasets/synthetic-v1.js"() {
+    "use strict";
+    SYNTHETIC_V1_BASELINE = {
+      /** 8/8 lexical queries hit. */
+      lexicalRecallAtK: 1,
+      /** 7/12 semantic queries hit. */
+      semanticRecallAtK: 7 / 12,
+      /**
+       * 5/5 tokenization queries hit on the FUSED path (vps.2 RRF fusion of qmd +
+       * native FTS5). Measured with `disableNativeFusion: true` this stratum is
+       * 2/5 (the three multi-hyphen/dot queries miss) — the 2026-07-16 miss class
+       * this ratchet now permanently guards.
+       */
+      tokenizationRecallAtK: 1
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/index.js
+var init_eval = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/eval/index.js"() {
+    "use strict";
+    init_metrics();
+    init_run_eval();
+    init_seed_queries();
+    init_stratified_report();
+    init_qmd_retrieval();
+    init_governed_brain_v1();
+    init_synthetic_v1();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/index.js
+var init_native = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/native/index.js"() {
+    "use strict";
+    init_fts5_backend();
+    init_native_index_manager();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/index.js
+var init_rerank = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/rerank/index.js"() {
+    "use strict";
+    init_rerank_client();
+    init_rerank_cache();
+    init_rerank_stage();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/index.js
+var init_dense = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/dense/index.js"() {
+    "use strict";
+    init_embed_client();
+    init_dense_index();
+    init_dense_indexer();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/reindex/reindex.js
+var init_reindex = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/reindex/reindex.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/canary/search-canary.js
+var init_search_canary = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/canary/search-canary.js"() {
+    "use strict";
+    init_reindex();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/qmd-adapter/dist/index.js
+var init_dist4 = __esm({
+  "../bobs-big-brain-registrar/packages/qmd-adapter/dist/index.js"() {
+    "use strict";
+    init_config();
+    init_real_executor();
+    init_mock_executor();
+    init_collection_registry();
+    init_collection_manager();
+    init_index_paths();
+    init_index_lifecycle();
+    init_search_client();
+    init_result_parser();
+    init_health_check();
+    init_adapter();
+    init_weights();
+    init_eval();
+    init_native();
+    init_rrf_fusion();
+    init_search_client();
+    init_rerank();
+    init_dense();
+    init_reindex();
+    init_search_canary();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/config.js
 function getSpoolPath() {
   return resolveTeamKbPath(SPOOL_DIR);
 }
@@ -37258,129 +41079,334 @@ function getSpoolFilename(date) {
   const iso2 = d.toISOString().slice(0, 10);
   return `spool-${iso2}.jsonl`;
 }
-
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/secrets/patterns.js
-var SECRET_PATTERNS = [
-  {
-    id: "jwt",
-    name: "JWT Token",
-    regex: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/,
-    description: "JSON Web Token (three base64url segments)"
-  },
-  {
-    id: "aws-key",
-    name: "AWS Access Key",
-    regex: /AKIA[0-9A-Z]{16}/,
-    description: "AWS IAM access key ID"
-  },
-  {
-    id: "github-token",
-    name: "GitHub Token",
-    regex: /gh[pousr]_[A-Za-z0-9_]{36,}/,
-    description: "GitHub personal access token, OAuth, or app token"
-  },
-  {
-    id: "generic-api-key",
-    name: "Generic API Key (sk-*)",
-    regex: /sk-[A-Za-z0-9]{20,}/,
-    description: "API key with sk- prefix (OpenAI, Stripe, etc.)"
-  },
-  {
-    id: "slack-token",
-    name: "Slack Token",
-    regex: /xox[bpras]-[0-9A-Za-z-]{10,}/,
-    description: "Slack bot, user, or app token"
-  },
-  {
-    id: "pem-key",
-    name: "PEM Private Key",
-    regex: /-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----/,
-    description: "PEM-encoded private key header"
-  },
-  {
-    id: "connection-string",
-    name: "Connection String with Credentials",
-    regex: /(?:mongodb|postgres|mysql|redis|amqp):\/\/[^:]+:[^@]+@/,
-    description: "Database or service connection string with embedded credentials"
-  },
-  {
-    id: "base64-auth",
-    name: "Base64 Authorization Header",
-    regex: /Basic\s+[A-Za-z0-9+/]{20,}={0,2}/,
-    description: "HTTP Basic auth header with Base64-encoded credentials"
-  },
-  {
-    id: "gcp-service-account",
-    name: "GCP Service Account JSON",
-    regex: /"type"\s*:\s*"service_account"/,
-    description: "Google Cloud service account key file marker"
-  },
-  {
-    id: "high-entropy-hex",
-    name: "High-Entropy Hex String",
-    regex: /[a-f0-9]{40,}/,
-    description: "Long hex string that may be a secret key or hash (40+ chars)"
-  },
-  {
-    id: "env-secret",
-    name: "Environment Variable Secret",
-    regex: /(?:SECRET|PASSWORD|TOKEN|API_KEY|PRIVATE_KEY)\s*=\s*["']?[^\s"']{8,}/i,
-    description: "Environment variable assignment containing a secret value"
-  },
-  {
-    id: "azure-connection-string",
-    name: "Azure Connection String",
-    regex: /AccountKey=[A-Za-z0-9+/=]{20,}/,
-    description: "Azure Storage or Service Bus connection string with AccountKey"
-  },
-  {
-    id: "heroku-api-key",
-    name: "Heroku API Key",
-    regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
-    description: "Heroku API key (UUID format)"
-  },
-  {
-    id: "mysql-connection-string",
-    name: "MySQL Connection String",
-    regex: /mysql:\/\/[^:]+:[^@]+@[^\s]+/,
-    description: "MySQL connection string with embedded password"
-  },
-  {
-    id: "postgres-connection-string",
-    name: "PostgreSQL Connection String",
-    regex: /postgres(?:ql)?:\/\/[^:]+:[^@]+@[^\s]+/,
-    description: "PostgreSQL connection string with embedded password"
+var SPOOL_DIR;
+var init_config2 = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/config.js"() {
+    "use strict";
+    init_dist2();
+    SPOOL_DIR = "spool";
   }
-];
-var PII_PATTERNS = [
-  {
-    id: "email-address",
-    name: "Email Address",
-    regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
-    description: "Email address"
-  },
-  {
-    id: "us-phone",
-    name: "US Phone Number",
-    regex: /(?:\+1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/,
-    description: "US phone number in various formats"
-  },
-  {
-    id: "ssn-like",
-    name: "SSN-like Pattern",
-    regex: /\b[0-9]{3}-[0-9]{2}-[0-9]{4}\b/,
-    description: "Social Security Number pattern (XXX-XX-XXXX)"
-  }
-];
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/secrets/secret-scanner.js
-function scanForSecrets(content, patterns = SECRET_PATTERNS) {
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/patterns.js
+var SECRET_PATTERNS2, PII_PATTERNS;
+var init_patterns = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/patterns.js"() {
+    "use strict";
+    SECRET_PATTERNS2 = [
+      {
+        id: "jwt",
+        name: "JWT Token",
+        regex: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/,
+        description: "JSON Web Token (three base64url segments)"
+      },
+      {
+        id: "aws-key",
+        name: "AWS Access Key",
+        regex: /AKIA[0-9A-Z]{16}/,
+        description: "AWS IAM access key ID"
+      },
+      {
+        id: "github-token",
+        name: "GitHub Token",
+        regex: /gh[pousr]_[A-Za-z0-9_]{36,}/,
+        description: "GitHub personal access token, OAuth, or app token"
+      },
+      {
+        id: "generic-api-key",
+        name: "Generic API Key (sk-*)",
+        regex: /sk-[A-Za-z0-9]{20,}/,
+        description: "API key with sk- prefix (OpenAI, Stripe, etc.)"
+      },
+      {
+        id: "slack-token",
+        name: "Slack Token",
+        regex: /xox[bpras]-[0-9A-Za-z-]{10,}/,
+        description: "Slack bot, user, or app token"
+      },
+      {
+        id: "pem-key",
+        name: "PEM Private Key",
+        regex: /-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----/,
+        description: "PEM-encoded private key header"
+      },
+      {
+        id: "connection-string",
+        name: "Connection String with Credentials",
+        regex: /(?:mongodb|postgres|mysql|redis|amqp):\/\/[^:]+:[^@]+@/,
+        description: "Database or service connection string with embedded credentials"
+      },
+      {
+        id: "base64-auth",
+        name: "Base64 Authorization Header",
+        regex: /Basic\s+[A-Za-z0-9+/]{20,}={0,2}/,
+        description: "HTTP Basic auth header with Base64-encoded credentials"
+      },
+      {
+        id: "gcp-service-account",
+        name: "GCP Service Account JSON",
+        regex: /"type"\s*:\s*"service_account"/,
+        description: "Google Cloud service account key file marker"
+      },
+      {
+        id: "high-entropy-hex",
+        name: "High-Entropy Hex String",
+        regex: /[a-f0-9]{40,}/,
+        description: "Long hex string that may be a secret key or hash (40+ chars)"
+      },
+      {
+        id: "env-secret",
+        name: "Environment Variable Secret",
+        regex: /(?:SECRET|PASSWORD|TOKEN|API_KEY|PRIVATE_KEY)\s*=\s*["']?[^\s"']{8,}/i,
+        description: "Environment variable assignment containing a secret value"
+      },
+      {
+        id: "azure-connection-string",
+        name: "Azure Connection String",
+        regex: /AccountKey=[A-Za-z0-9+/=]{20,}/,
+        description: "Azure Storage or Service Bus connection string with AccountKey"
+      },
+      {
+        id: "heroku-api-key",
+        name: "Heroku API Key",
+        regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+        description: "Heroku API key (UUID format), only in key-context",
+        // A Heroku API key is UUID-shaped, but so is a request id, a trace id, or a
+        // bead id in ordinary prose. Firing on any bare UUID over-blocks benign
+        // memories (the e06.3 eval's `neg-uuid-in-prose-01` false positive dragged
+        // secret-scanner + content-classifier precision below 1.0). Gate the rule
+        // behind key-context: only flag a UUID as a credential when a `heroku` /
+        // `api` / `key` / `token` keyword, or an assignment/secret env var, is
+        // present in the same scan window. A REAL Heroku key still fires (it is set
+        // via `HEROKU_API_KEY=` or referenced with those words); a naked UUID in
+        // prose does not. Precision up, recall held (bead compile-then-govern-e06.15).
+        //
+        // Keyword boundaries are separator-based `(?:^|[^a-z0-9])…(?:[^a-z0-9]|$)`
+        // rather than `\b`, so an underscored env-var token (`HEROKU_API_KEY`, where
+        // `\bkey\b` would fail because `_` is a word char) still satisfies the gate.
+        // The final alternative matches an env-var-style assignment (`FOO=` / `FOO:`).
+        // Linear-time (no nested quantifiers) — ReDoS-safe.
+        requiresContext: /(?:^|[^a-z0-9])(?:heroku|api[-_ ]?key|api|key|token|secret|credential|bearer)(?:[^a-z0-9]|$)|[A-Za-z][A-Za-z0-9_]*\s*[:=]/i
+      },
+      {
+        id: "mysql-connection-string",
+        name: "MySQL Connection String",
+        regex: /mysql:\/\/[^:]+:[^@]+@[^\s]+/,
+        description: "MySQL connection string with embedded password"
+      },
+      {
+        id: "postgres-connection-string",
+        name: "PostgreSQL Connection String",
+        regex: /postgres(?:ql)?:\/\/[^:]+:[^@]+@[^\s]+/,
+        description: "PostgreSQL connection string with embedded password"
+      }
+    ];
+    PII_PATTERNS = [
+      {
+        id: "email-address",
+        name: "Email Address",
+        regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
+        description: "Email address"
+      },
+      {
+        id: "us-phone",
+        name: "US Phone Number",
+        regex: /(?:\+1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/,
+        description: "US phone number in various formats"
+      },
+      {
+        id: "ssn-like",
+        name: "SSN-like Pattern",
+        regex: /\b[0-9]{3}-[0-9]{2}-[0-9]{4}\b/,
+        description: "Social Security Number pattern (XXX-XX-XXXX)"
+      },
+      // The three patterns below converge this classifier's PII vocabulary UP to the
+      // repository-boundary disclosure filter's PII_PATTERN
+      // (@qmd-team-intent-kb/common). The boundary filter caught SSN keyword, DOB,
+      // and background-check terms; classifyContent did not, so a DOB-only leak
+      // passed the policy pipeline (which gates on classifyContent) and was caught
+      // only at the write boundary — the two vocabularies had drifted, and the
+      // classifier was the weaker one (the e06.3 eval's `pii-inline-dob-01`
+      // documented gap). Adding these TIGHTENS detection (the safe direction) so the
+      // policy pipeline rejects DOB / background-check / SSN-keyword PII pre-boundary
+      // too. Bounded character classes only — linear time, no ReDoS surface.
+      {
+        id: "ssn-keyword",
+        name: "SSN Keyword",
+        regex: /\bSSN\b|social security (?:number|no)/i,
+        description: "Social Security Number referenced by keyword (SSN / social security number)"
+      },
+      {
+        id: "date-of-birth",
+        name: "Date of Birth",
+        regex: /date of birth|\bDOB\b\s*[:=]/i,
+        description: "Date-of-birth disclosure (date of birth / DOB: / DOB=)"
+      },
+      {
+        id: "background-check",
+        name: "Background Check Data",
+        regex: /background[- ]check (?:result|report|passed|failed)/i,
+        description: "Background-check result/report disclosure"
+      }
+    ];
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/secret-scanner.js
+function execWithContext(pattern, text, contextText) {
+  if (pattern.regex.global || pattern.regex.sticky) {
+    pattern.regex.lastIndex = 0;
+  }
+  const match = pattern.regex.exec(text);
+  if (!match)
+    return null;
+  if (pattern.requiresContext) {
+    if (pattern.requiresContext.global || pattern.requiresContext.sticky) {
+      pattern.requiresContext.lastIndex = 0;
+    }
+    const window = contextText ?? text;
+    if (!pattern.requiresContext.test(window))
+      return null;
+  }
+  return match;
+}
+function scanFlat(text, patterns, matches, locate, patternIdOverride, contextText) {
+  for (const pattern of patterns) {
+    const match = execWithContext(pattern, text, contextText);
+    if (match) {
+      const { line, column } = locate(match.index, match[0].length);
+      matches.push({
+        patternId: patternIdOverride ? patternIdOverride(pattern.id) : pattern.id,
+        patternName: pattern.name,
+        line,
+        column,
+        matchLength: match[0].length
+      });
+    }
+  }
+}
+function scanNewlineCollapsed(content, patterns, alreadyFired, matches) {
+  if (content.length > LIMITS.collapsedScanMaxChars)
+    return;
+  const singleSpace = content.replace(/\s+/g, " ");
+  const noWhitespace = content.replace(/\s+/g, "");
+  const remaining = patterns.filter((p) => !alreadyFired.has(p.id));
+  if (remaining.length === 0)
+    return;
+  const locate = () => ({ line: 1, column: 1 });
+  const before = matches.length;
+  scanFlat(singleSpace, remaining, matches, locate);
+  const stillUnmatched = remaining.filter((p) => !matches.slice(before).some((m) => m.patternId === p.id));
+  if (stillUnmatched.length > 0)
+    scanFlat(noWhitespace, stillUnmatched, matches, locate);
+}
+function scanEncodedWrapped(content, patterns, matches) {
+  let decodedCandidates = 0;
+  let decodedBytes = 0;
+  const seenWrapped = /* @__PURE__ */ new Set();
+  const tryDecode = (raw, index, decode, prefix) => {
+    if (decodedCandidates >= LIMITS.maxEncodedCandidates)
+      return;
+    if (raw.length < LIMITS.minEncodedCandidateLen)
+      return;
+    if (raw.length > LIMITS.maxEncodedCandidateLen)
+      return;
+    if (decodedBytes >= LIMITS.maxTotalDecodedBytes)
+      return;
+    const decoded = decode(raw);
+    if (decoded === null || decoded.length === 0)
+      return;
+    decodedCandidates += 1;
+    decodedBytes += decoded.length;
+    const line = index >= 0 ? content.slice(0, index).split("\n").length : 1;
+    const column = index >= 0 ? index - content.lastIndexOf("\n", index) : 1;
+    scanFlat(
+      decoded,
+      patterns,
+      matches,
+      () => ({ line, column: Math.max(1, column) }),
+      (patternId) => {
+        const wrappedId = `${prefix}:${patternId}`;
+        return wrappedId;
+      },
+      // The decoded blob is just the raw value; a context-gated pattern must be
+      // evaluated against the ORIGINAL content (where `heroku` / `api key`
+      // keywords live), else a real wrapped Heroku key is silently missed
+      // (Gemini finding, e06.15). Value regex still runs on `decoded`.
+      content
+    );
+    seenWrapped.add(raw);
+  };
+  for (const m of content.matchAll(BASE64_CANDIDATE_RE)) {
+    if (decodedCandidates >= LIMITS.maxEncodedCandidates)
+      break;
+    if (decodedBytes >= LIMITS.maxTotalDecodedBytes)
+      break;
+    const raw = m[0];
+    if (seenWrapped.has(raw))
+      continue;
+    tryDecode(raw, m.index ?? -1, decodeBase64, "base64-wrapped");
+  }
+  for (const m of content.matchAll(HEX_CANDIDATE_RE)) {
+    if (decodedCandidates >= LIMITS.maxEncodedCandidates)
+      break;
+    if (decodedBytes >= LIMITS.maxTotalDecodedBytes)
+      break;
+    const raw = m[0];
+    if (seenWrapped.has(raw) || raw.length % 2 !== 0)
+      continue;
+    tryDecode(raw, m.index ?? -1, decodeHex, "hex-wrapped");
+  }
+}
+function decodeBase64(candidate) {
+  const normalized = candidate.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+  if (normalized.length % 4 === 1)
+    return null;
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  try {
+    const buf = Buffer.from(padded, "base64");
+    if (buf.length === 0)
+      return null;
+    const text = buf.toString("utf8");
+    if (!isMostlyPrintable(text))
+      return null;
+    return text;
+  } catch {
+    return null;
+  }
+}
+function decodeHex(candidate) {
+  try {
+    const buf = Buffer.from(candidate, "hex");
+    if (buf.length === 0 || buf.length * 2 !== candidate.length)
+      return null;
+    const text = buf.toString("utf8");
+    if (!isMostlyPrintable(text))
+      return null;
+    return text;
+  } catch {
+    return null;
+  }
+}
+function isMostlyPrintable(text) {
+  if (text.length === 0)
+    return false;
+  let printable = 0;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code >= 32 && code <= 126 || code === 9 || code === 10 || code === 13) {
+      printable += 1;
+    }
+  }
+  return printable / text.length >= 0.9;
+}
+function scanForSecrets(content, patterns = SECRET_PATTERNS2) {
   const matches = [];
   const lines = content.split("\n");
   for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
     const line = lines[lineIdx];
     for (const pattern of patterns) {
-      const match = pattern.regex.exec(line);
+      const match = execWithContext(pattern, line);
       if (match) {
         matches.push({
           patternId: pattern.id,
@@ -37392,17 +41418,46 @@ function scanForSecrets(content, patterns = SECRET_PATTERNS) {
       }
     }
   }
+  if (content.includes("\n")) {
+    const firedOnLineScan = new Set(matches.map((m) => m.patternId));
+    scanNewlineCollapsed(content, patterns, firedOnLineScan, matches);
+  }
+  scanEncodedWrapped(content, patterns, matches);
   return matches;
 }
+var LIMITS, BASE64_CANDIDATE_RE, HEX_CANDIDATE_RE;
+var init_secret_scanner = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/secret-scanner.js"() {
+    "use strict";
+    init_patterns();
+    LIMITS = {
+      /** Max content length (chars) the newline-collapsed pre-pass will process. */
+      collapsedScanMaxChars: 512 * 1024,
+      /** Min length of a base64/hex candidate substring worth decoding (avoids noise). */
+      minEncodedCandidateLen: 24,
+      /** Max length of a single encoded candidate we will decode (bounds one decode). */
+      maxEncodedCandidateLen: 8 * 1024,
+      /** Max number of encoded candidates decoded per scan (bounds candidate count). */
+      maxEncodedCandidates: 64,
+      /** Max total decoded bytes across all candidates (bounds aggregate decode work). */
+      maxTotalDecodedBytes: 256 * 1024
+    };
+    BASE64_CANDIDATE_RE = /[A-Za-z0-9+/_-]{24,}={0,2}/g;
+    HEX_CANDIDATE_RE = /[A-Fa-f0-9]{24,}/g;
+  }
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/secrets/content-classifier.js
-var INTERNAL_PATH_PATTERNS = [
-  /\/home\/[a-zA-Z0-9_.-]+\//,
-  /\/Users\/[a-zA-Z0-9_.-]+\//,
-  /[A-Z]:\\/
-];
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/redactor.js
+var init_redactor = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/redactor.js"() {
+    "use strict";
+    init_patterns();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/content-classifier.js
 function classifyContent(content) {
-  const credentialMatches = scanForSecrets(content, SECRET_PATTERNS);
+  const credentialMatches = scanForSecrets(content, SECRET_PATTERNS2);
   const piiMatches = scanForSecrets(content, PII_PATTERNS);
   const hasCredentials = credentialMatches.length > 0;
   const hasPii = piiMatches.length > 0;
@@ -37436,114 +41491,204 @@ function classifyContent(content) {
     hasInternalPaths
   };
 }
-
-// ../qmd-team-intent-kb/packages/repo-resolver/dist/types.js
-var import_zod15 = __toESM(require_zod(), 1);
-var RepoContext = import_zod15.z.object({
-  /** Absolute path to the repo working tree root. */
-  repoRoot: import_zod15.z.string().min(1),
-  /** Lowercased basename of `repoRoot`. */
-  repoName: import_zod15.z.string().min(1),
-  /** Origin remote URL, or null when no origin is configured. */
-  remoteUrl: import_zod15.z.string().nullable(),
-  /** Current branch, or null when HEAD is detached. */
-  branch: import_zod15.z.string().nullable(),
-  /** HEAD commit SHA (40-char hex). */
-  commitSha: import_zod15.z.string().regex(/^[0-9a-f]{40}$/),
-  /** True when a workspace manifest was detected. */
-  isMonorepo: import_zod15.z.boolean(),
-  /** Monorepo root (may equal `repoRoot`), or null when not a monorepo. */
-  workspaceRoot: import_zod15.z.string().nullable(),
-  /** Workspace package `name` containing `cwd`, or null. */
-  workspacePackage: import_zod15.z.string().nullable()
+var INTERNAL_PATH_PATTERNS;
+var init_content_classifier = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/secrets/content-classifier.js"() {
+    "use strict";
+    init_secret_scanner();
+    init_patterns();
+    INTERNAL_PATH_PATTERNS = [
+      /\/home\/[a-zA-Z0-9_.-]+\//,
+      /\/Users\/[a-zA-Z0-9_.-]+\//,
+      /[A-Z]:\\/
+    ];
+  }
 });
-var ResolverError = import_zod15.z.discriminatedUnion("kind", [
-  import_zod15.z.object({ kind: import_zod15.z.literal("NotAGitRepo"), cwd: import_zod15.z.string() }),
-  import_zod15.z.object({ kind: import_zod15.z.literal("BareRepo"), repoRoot: import_zod15.z.string() }),
-  import_zod15.z.object({ kind: import_zod15.z.literal("NoCommits"), repoRoot: import_zod15.z.string() }),
-  import_zod15.z.object({ kind: import_zod15.z.literal("GitUnavailable"), cause: import_zod15.z.string() }),
-  import_zod15.z.object({ kind: import_zod15.z.literal("Io"), path: import_zod15.z.string(), cause: import_zod15.z.string() })
-]);
 
-// ../qmd-team-intent-kb/packages/repo-resolver/dist/cache.js
-var DEFAULT_TTL_MS = 5 * 60 * 1e3;
-var RepoContextCache = class {
-  entries = /* @__PURE__ */ new Map();
-  cwdIndex = /* @__PURE__ */ new Map();
-  ttlMs;
-  nowFn;
-  constructor(opts = {}) {
-    this.ttlMs = opts.ttlMs ?? DEFAULT_TTL_MS;
-    this.nowFn = opts.nowFn ?? Date.now;
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/candidate-builder.js
+var init_candidate_builder = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/candidate-builder.js"() {
+    "use strict";
+    init_dist();
+    init_dist2();
+    init_secret_scanner();
   }
-  /**
-   * Look up by canonical cwd. Returns the cached context only when both the
-   * cwd→repoRoot mapping exists AND the entry is still within TTL. Stale
-   * entries are evicted on access.
-   */
-  getByCwd(canonicalCwd) {
-    const repoRoot = this.cwdIndex.get(canonicalCwd);
-    if (!repoRoot)
-      return null;
-    return this.getByRoot(repoRoot);
-  }
-  /** Look up by repoRoot. Stale entries are evicted on access. */
-  getByRoot(repoRoot) {
-    const entry = this.entries.get(repoRoot);
-    if (!entry)
-      return null;
-    if (this.nowFn() - entry.fetchedAt >= this.ttlMs) {
-      this.entries.delete(repoRoot);
-      return null;
-    }
-    return entry.context;
-  }
-  /**
-   * Insert a freshly resolved context. Records both the cwd→repoRoot
-   * mapping and the repoRoot→entry mapping.
-   */
-  set(canonicalCwd, context) {
-    this.cwdIndex.set(canonicalCwd, context.repoRoot);
-    this.entries.set(context.repoRoot, {
-      context,
-      fetchedAt: this.nowFn()
+});
+
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/types.js
+var import_zod18, RepoContext, ResolverError;
+var init_types2 = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/types.js"() {
+    "use strict";
+    import_zod18 = __toESM(require_zod(), 1);
+    RepoContext = import_zod18.z.object({
+      /** Absolute path to the repo working tree root. */
+      repoRoot: import_zod18.z.string().min(1),
+      /** Lowercased basename of `repoRoot`. */
+      repoName: import_zod18.z.string().min(1),
+      /** Origin remote URL, or null when no origin is configured. */
+      remoteUrl: import_zod18.z.string().nullable(),
+      /** Current branch, or null when HEAD is detached. */
+      branch: import_zod18.z.string().nullable(),
+      /** HEAD commit SHA (40-char hex). */
+      commitSha: import_zod18.z.string().regex(/^[0-9a-f]{40}$/),
+      /** True when a workspace manifest was detected. */
+      isMonorepo: import_zod18.z.boolean(),
+      /** Monorepo root (may equal `repoRoot`), or null when not a monorepo. */
+      workspaceRoot: import_zod18.z.string().nullable(),
+      /** Workspace package `name` containing `cwd`, or null. */
+      workspacePackage: import_zod18.z.string().nullable()
     });
+    ResolverError = import_zod18.z.discriminatedUnion("kind", [
+      import_zod18.z.object({ kind: import_zod18.z.literal("NotAGitRepo"), cwd: import_zod18.z.string() }),
+      import_zod18.z.object({ kind: import_zod18.z.literal("BareRepo"), repoRoot: import_zod18.z.string() }),
+      import_zod18.z.object({ kind: import_zod18.z.literal("NoCommits"), repoRoot: import_zod18.z.string() }),
+      import_zod18.z.object({ kind: import_zod18.z.literal("GitUnavailable"), cause: import_zod18.z.string() }),
+      import_zod18.z.object({ kind: import_zod18.z.literal("Io"), path: import_zod18.z.string(), cause: import_zod18.z.string() })
+    ]);
   }
-  /** Drop everything. For tests and explicit invalidation. */
-  clear() {
-    this.entries.clear();
-    this.cwdIndex.clear();
+});
+
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/git.js
+var init_git = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/git.js"() {
+    "use strict";
   }
-  /** Replace the TTL. Existing entries keep their original fetchedAt. */
-  setTtl(ttlMs) {
-    this.ttlMs = ttlMs;
+});
+
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/cache.js
+var DEFAULT_TTL_MS, RepoContextCache, defaultCache;
+var init_cache = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/cache.js"() {
+    "use strict";
+    DEFAULT_TTL_MS = 5 * 60 * 1e3;
+    RepoContextCache = class {
+      entries = /* @__PURE__ */ new Map();
+      cwdIndex = /* @__PURE__ */ new Map();
+      ttlMs;
+      nowFn;
+      constructor(opts = {}) {
+        this.ttlMs = opts.ttlMs ?? DEFAULT_TTL_MS;
+        this.nowFn = opts.nowFn ?? Date.now;
+      }
+      /**
+       * Look up by canonical cwd. Returns the cached context only when both the
+       * cwd→repoRoot mapping exists AND the entry is still within TTL. Stale
+       * entries are evicted on access.
+       */
+      getByCwd(canonicalCwd) {
+        const repoRoot = this.cwdIndex.get(canonicalCwd);
+        if (!repoRoot)
+          return null;
+        return this.getByRoot(repoRoot);
+      }
+      /** Look up by repoRoot. Stale entries are evicted on access. */
+      getByRoot(repoRoot) {
+        const entry = this.entries.get(repoRoot);
+        if (!entry)
+          return null;
+        if (this.nowFn() - entry.fetchedAt >= this.ttlMs) {
+          this.entries.delete(repoRoot);
+          return null;
+        }
+        return entry.context;
+      }
+      /**
+       * Insert a freshly resolved context. Records both the cwd→repoRoot
+       * mapping and the repoRoot→entry mapping.
+       */
+      set(canonicalCwd, context) {
+        this.cwdIndex.set(canonicalCwd, context.repoRoot);
+        this.entries.set(context.repoRoot, {
+          context,
+          fetchedAt: this.nowFn()
+        });
+      }
+      /** Drop everything. For tests and explicit invalidation. */
+      clear() {
+        this.entries.clear();
+        this.cwdIndex.clear();
+      }
+      /** Replace the TTL. Existing entries keep their original fetchedAt. */
+      setTtl(ttlMs) {
+        this.ttlMs = ttlMs;
+      }
+      /** Test introspection. */
+      size() {
+        return this.entries.size;
+      }
+    };
+    defaultCache = new RepoContextCache();
   }
-  /** Test introspection. */
-  size() {
-    return this.entries.size;
+});
+
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/monorepo.js
+var MAX_MANIFEST_SIZE;
+var init_monorepo = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/monorepo.js"() {
+    "use strict";
+    MAX_MANIFEST_SIZE = 64 * 1024;
   }
-};
-var defaultCache = new RepoContextCache();
+});
 
-// ../qmd-team-intent-kb/packages/repo-resolver/dist/monorepo.js
-var MAX_MANIFEST_SIZE = 64 * 1024;
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/resolver.js
+var init_resolver = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/resolver.js"() {
+    "use strict";
+    init_dist2();
+    init_git();
+    init_cache();
+    init_monorepo();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/repo-resolver/dist/tenant.js
-var MAX_CONFIG_SIZE = 64 * 1024;
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/tenant.js
+var MAX_CONFIG_SIZE;
+var init_tenant = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/tenant.js"() {
+    "use strict";
+    MAX_CONFIG_SIZE = 64 * 1024;
+  }
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/capture/git-context.js
-var import_node_child_process2 = require("node:child_process");
-var import_node_util2 = require("node:util");
-var execFileAsync2 = (0, import_node_util2.promisify)(import_node_child_process2.execFile);
+// ../bobs-big-brain-registrar/packages/repo-resolver/dist/index.js
+var init_dist5 = __esm({
+  "../bobs-big-brain-registrar/packages/repo-resolver/dist/index.js"() {
+    "use strict";
+    init_types2();
+    init_resolver();
+    init_cache();
+    init_monorepo();
+    init_tenant();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/spool/spool-writer.js
-var import_promises = require("node:fs/promises");
-var import_node_path6 = require("node:path");
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/git-context.js
+var import_node_child_process2, import_node_util2, execFileAsync2;
+var init_git_context = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/git-context.js"() {
+    "use strict";
+    import_node_child_process2 = require("node:child_process");
+    import_node_util2 = require("node:util");
+    execFileAsync2 = (0, import_node_util2.promisify)(import_node_child_process2.execFile);
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/context-provider.js
+var init_context_provider = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/capture/context-provider.js"() {
+    "use strict";
+    init_dist5();
+    init_git_context();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/spool-writer.js
 async function writeToSpool(candidate, spoolDir, agentId) {
   const dir = spoolDir ?? getSpoolPath();
   const filename = agentId ? `spool-${agentId}.jsonl` : getSpoolFilename();
-  const filepath = (0, import_node_path6.resolve)(dir, filename);
-  const resolvedDir = (0, import_node_path6.resolve)(dir);
+  const filepath = (0, import_node_path14.resolve)(dir, filename);
+  const resolvedDir = (0, import_node_path14.resolve)(dir);
   if (!filepath.startsWith(resolvedDir + "/") && filepath !== resolvedDir) {
     return { ok: false, error: `Path traversal rejected: ${filename}` };
   }
@@ -37552,11 +41697,11 @@ async function writeToSpool(candidate, spoolDir, agentId) {
     return { ok: false, error: `Unsafe spool filename: ${safety.reason}` };
   }
   try {
-    await (0, import_promises.mkdir)(dir, { recursive: true, mode: 448 });
+    await (0, import_promises2.mkdir)(dir, { recursive: true, mode: 448 });
     const line = JSON.stringify(candidate) + "\n";
-    await (0, import_promises.appendFile)(filepath, line, "utf8");
+    await (0, import_promises2.appendFile)(filepath, line, "utf8");
     try {
-      await (0, import_promises.chmod)(filepath, 384);
+      await (0, import_promises2.chmod)(filepath, 384);
     } catch {
     }
     return { ok: true, value: filepath };
@@ -37565,16 +41710,23 @@ async function writeToSpool(candidate, spoolDir, agentId) {
     return { ok: false, error: `Failed to write to spool: ${msg}` };
   }
 }
+var import_promises2, import_node_path14;
+var init_spool_writer = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/spool-writer.js"() {
+    "use strict";
+    import_promises2 = require("node:fs/promises");
+    import_node_path14 = require("node:path");
+    init_dist2();
+    init_config2();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/claude-runtime/dist/spool/spool-reader.js
-var import_node_crypto4 = require("node:crypto");
-var import_promises2 = require("node:fs/promises");
-var import_node_path7 = require("node:path");
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/spool-reader.js
 async function verifySpoolManifest(spoolFilePath) {
-  const manifestPath = `${spoolFilePath}.manifest.json`;
+  const manifestPath2 = `${spoolFilePath}.manifest.json`;
   let manifestRaw;
   try {
-    manifestRaw = await (0, import_promises2.readFile)(manifestPath, "utf8");
+    manifestRaw = await (0, import_promises3.readFile)(manifestPath2, "utf8");
   } catch {
     return { ok: true, value: { status: "no_manifest" } };
   }
@@ -37584,22 +41736,22 @@ async function verifySpoolManifest(spoolFilePath) {
     if (typeof manifest.spoolFileSha256 !== "string" || manifest.spoolFileSha256.length === 0) {
       return {
         ok: false,
-        error: `Manifest ${manifestPath} missing or invalid spoolFileSha256 field`
+        error: `Manifest ${manifestPath2} missing or invalid spoolFileSha256 field`
       };
     }
     expected = manifest.spoolFileSha256;
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    return { ok: false, error: `Manifest ${manifestPath} is not valid JSON: ${msg}` };
+    return { ok: false, error: `Manifest ${manifestPath2} is not valid JSON: ${msg}` };
   }
   let content;
   try {
-    content = await (0, import_promises2.readFile)(spoolFilePath, "utf8");
+    content = await (0, import_promises3.readFile)(spoolFilePath, "utf8");
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { ok: false, error: `Failed to read spool file for verification: ${msg}` };
   }
-  const actual = (0, import_node_crypto4.createHash)("sha256").update(content, "utf8").digest("hex");
+  const actual = (0, import_node_crypto8.createHash)("sha256").update(content, "utf8").digest("hex");
   return {
     ok: true,
     value: { status: actual === expected ? "verified" : "tampered", expected, actual }
@@ -37607,7 +41759,7 @@ async function verifySpoolManifest(spoolFilePath) {
 }
 async function readSpoolFile(filepath) {
   try {
-    const content = await (0, import_promises2.readFile)(filepath, "utf8");
+    const content = await (0, import_promises3.readFile)(filepath, "utf8");
     const lines = content.trim().split("\n").filter(Boolean);
     const candidates = [];
     for (const line of lines) {
@@ -37625,17 +41777,86 @@ async function readSpoolFile(filepath) {
 async function listSpoolFiles(spoolDir) {
   const dir = spoolDir ?? getSpoolPath();
   try {
-    const files = await (0, import_promises2.readdir)(dir);
-    const spoolFiles = files.filter((f) => f.startsWith("spool-") && f.endsWith(".jsonl")).sort().map((f) => (0, import_node_path7.join)(dir, f));
+    const files = await (0, import_promises3.readdir)(dir);
+    const spoolFiles = files.filter((f) => f.startsWith("spool-") && f.endsWith(".jsonl")).sort().map((f) => (0, import_node_path15.join)(dir, f));
     return { ok: true, value: spoolFiles };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { ok: false, error: `Failed to list spool files: ${msg}` };
   }
 }
+var import_node_crypto8, import_promises3, import_node_path15;
+var init_spool_reader = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/spool-reader.js"() {
+    "use strict";
+    import_node_crypto8 = require("node:crypto");
+    import_promises3 = require("node:fs/promises");
+    import_node_path15 = require("node:path");
+    init_dist();
+    init_config2();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/write-jsonl.js
+var init_write_jsonl = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/write-jsonl.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/failure-bucket.js
+var init_failure_bucket = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/failure-bucket.js"() {
+    "use strict";
+    init_config2();
+    init_write_jsonl();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/redaction-audit.js
+var init_redaction_audit = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/spool/redaction-audit.js"() {
+    "use strict";
+    init_config2();
+    init_write_jsonl();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/templates/hook-templates.js
+var init_hook_templates = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/templates/hook-templates.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/templates/claudemd-templates.js
+var init_claudemd_templates = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/templates/claudemd-templates.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/claude-runtime/dist/index.js
+var init_dist6 = __esm({
+  "../bobs-big-brain-registrar/packages/claude-runtime/dist/index.js"() {
+    "use strict";
+    init_config2();
+    init_patterns();
+    init_secret_scanner();
+    init_redactor();
+    init_content_classifier();
+    init_candidate_builder();
+    init_context_provider();
+    init_spool_writer();
+    init_spool_reader();
+    init_failure_bucket();
+    init_redaction_audit();
+    init_hook_templates();
+    init_claudemd_templates();
+  }
+});
 
 // src/config.ts
-var import_node_path8 = require("node:path");
 function resolveConfig() {
   const tenantId = (process.env["TEAMKB_TENANT_ID"] ?? "local").trim() || "local";
   const basePath = getTeamKbBasePath();
@@ -37643,14 +41864,22 @@ function resolveConfig() {
   return {
     tenantId,
     basePath,
-    spoolPath: (0, import_node_path8.join)(basePath, "spool"),
-    dbPath: (0, import_node_path8.join)(basePath, "teamkb.db"),
-    feedbackPath: (0, import_node_path8.join)(basePath, "feedback"),
-    exportDir: envExport && envExport.length > 0 ? envExport : (0, import_node_path8.join)(basePath, "kb-export")
+    spoolPath: (0, import_node_path16.join)(basePath, "spool"),
+    dbPath: (0, import_node_path16.join)(basePath, "teamkb.db"),
+    feedbackPath: (0, import_node_path16.join)(basePath, "feedback"),
+    exportDir: envExport && envExport.length > 0 ? envExport : (0, import_node_path16.join)(basePath, "kb-export")
   };
 }
+var import_node_path16;
+var init_config3 = __esm({
+  "src/config.ts"() {
+    "use strict";
+    import_node_path16 = require("node:path");
+    init_dist2();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/secret-detection-rule.js
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/secret-detection-rule.js
 function evaluateSecretDetection(candidate, rule, _context) {
   const matches = scanForSecrets(candidate.content);
   if (matches.length === 0) {
@@ -37670,10 +41899,24 @@ function evaluateSecretDetection(candidate, rule, _context) {
     reason: `Secrets detected \u2014 patterns matched: ${patternNames} (ids: ${patternIds})`
   };
 }
+var init_secret_detection_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/secret-detection-rule.js"() {
+    "use strict";
+    init_dist6();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/content-length-rule.js
-var DEFAULT_MIN = 10;
-var DEFAULT_MAX = 5e4;
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/deterministic-score.js
+function deterministicScore(value) {
+  return value;
+}
+var init_deterministic_score = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/deterministic-score.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/content-length-rule.js
 function evaluateContentLength(candidate, rule, _context) {
   const min = typeof rule.parameters["min"] === "number" ? rule.parameters["min"] : DEFAULT_MIN;
   const max = typeof rule.parameters["max"] === "number" ? rule.parameters["max"] : DEFAULT_MAX;
@@ -37700,18 +41943,20 @@ function evaluateContentLength(candidate, rule, _context) {
     ruleType: rule.type,
     outcome: "pass",
     reason: `Content length ${length} chars is within bounds [${min}, ${max}]`,
-    score
+    score: deterministicScore(score)
   };
 }
+var DEFAULT_MIN, DEFAULT_MAX;
+var init_content_length_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/content-length-rule.js"() {
+    "use strict";
+    init_deterministic_score();
+    DEFAULT_MIN = 10;
+    DEFAULT_MAX = 5e4;
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/source-trust-rule.js
-var TRUST_ORDER = {
-  high: 4,
-  medium: 3,
-  low: 2,
-  untrusted: 1
-};
-var DEFAULT_MINIMUM_TRUST = "low";
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/source-trust-rule.js
 function isTrustLevel(value) {
   return value === "high" || value === "medium" || value === "low" || value === "untrusted";
 }
@@ -37727,7 +41972,7 @@ function evaluateSourceTrust(candidate, rule, _context) {
       ruleType: rule.type,
       outcome: "pass",
       reason: `Trust level '${candidate.trustLevel}' meets minimum '${minimumTrust}'`,
-      score
+      score: deterministicScore(score)
     };
   }
   const outcome = rule.action === "flag" ? "flag" : "fail";
@@ -37738,11 +41983,26 @@ function evaluateSourceTrust(candidate, rule, _context) {
     reason: `Trust level '${candidate.trustLevel}' is below minimum '${minimumTrust}'`
   };
 }
+var TRUST_ORDER, DEFAULT_MINIMUM_TRUST;
+var init_source_trust_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/source-trust-rule.js"() {
+    "use strict";
+    init_deterministic_score();
+    TRUST_ORDER = {
+      high: 4,
+      medium: 3,
+      low: 2,
+      untrusted: 1
+    };
+    DEFAULT_MINIMUM_TRUST = "low";
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/relevance-score-rule.js
-var DEFAULT_MINIMUM_SCORE = 0.3;
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/relevance-score-rule.js
 function evaluateRelevanceScore(candidate, rule, _context) {
   const minimumScore = typeof rule.parameters["minimumScore"] === "number" ? rule.parameters["minimumScore"] : DEFAULT_MINIMUM_SCORE;
+  const rawRejectSources = rule.parameters["rejectSources"];
+  const rejectSources = Array.isArray(rawRejectSources) ? rawRejectSources.filter((s) => typeof s === "string" && MemorySource.safeParse(s).success) : DEFAULT_REJECT_SOURCES;
   let score = 0;
   if (candidate.title.trim().length > 0) {
     score += 0.2;
@@ -37781,7 +42041,16 @@ function evaluateRelevanceScore(candidate, rule, _context) {
       ruleType: rule.type,
       outcome: "pass",
       reason: `Relevance score ${score.toFixed(2)} meets minimum ${minimumScore.toFixed(2)}`,
-      score
+      score: deterministicScore(score)
+    };
+  }
+  if (rejectSources.includes(candidate.source)) {
+    return {
+      ruleId: rule.id,
+      ruleType: rule.type,
+      outcome: "fail",
+      reason: `Relevance score ${score.toFixed(2)} is below minimum ${minimumScore.toFixed(2)} for import-class source '${candidate.source}' (hard-rejectable per rule parameters)`,
+      score: deterministicScore(score)
     };
   }
   return {
@@ -37789,11 +42058,21 @@ function evaluateRelevanceScore(candidate, rule, _context) {
     ruleType: rule.type,
     outcome: "flag",
     reason: `Relevance score ${score.toFixed(2)} is below minimum ${minimumScore.toFixed(2)}`,
-    score
+    score: deterministicScore(score)
   };
 }
+var DEFAULT_MINIMUM_SCORE, DEFAULT_REJECT_SOURCES;
+var init_relevance_score_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/relevance-score-rule.js"() {
+    "use strict";
+    init_dist();
+    init_deterministic_score();
+    DEFAULT_MINIMUM_SCORE = 0.3;
+    DEFAULT_REJECT_SOURCES = ["import", "bulk_import"];
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/dedup-check-rule.js
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/dedup-check-rule.js
 function evaluateDedupCheck(candidate, rule, context) {
   if (context.existingHashes === void 0 || context.existingHashes.size === 0) {
     return {
@@ -37819,8 +42098,14 @@ function evaluateDedupCheck(candidate, rule, context) {
     reason: `Content is unique (hash: ${hash})`
   };
 }
+var init_dedup_check_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/dedup-check-rule.js"() {
+    "use strict";
+    init_dist2();
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/tenant-match-rule.js
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/tenant-match-rule.js
 function evaluateTenantMatch(candidate, rule, context) {
   if (context.tenantId === void 0) {
     return {
@@ -37845,10 +42130,13 @@ function evaluateTenantMatch(candidate, rule, context) {
     reason: `Tenant mismatch: candidate tenant '${candidate.tenantId}' != expected '${context.tenantId}'`
   };
 }
+var init_tenant_match_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/tenant-match-rule.js"() {
+    "use strict";
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/sensitivity-gate-rule.js
-var VALID_LEVELS = new Set(Sensitivity.options);
-var DEFAULT_BLOCKED_LEVELS = ["restricted", "confidential"];
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/sensitivity-gate-rule.js
 function parseBlockedLevels(params) {
   if (!params || !Array.isArray(params["blockedLevels"]))
     return DEFAULT_BLOCKED_LEVELS;
@@ -37874,40 +42162,18 @@ function evaluateSensitivityGate(candidate, rule, _context) {
     reason: `Content blocked \u2014 sensitivity level '${classification.sensitivityLevel}' is restricted. Matched patterns: ${classification.matchedPatterns.join(", ")}`
   };
 }
-
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/content-sanitization-rule.js
-var DEFAULT_PATTERNS = [
-  {
-    id: "unix-home-path",
-    regex: /\/home\/[a-zA-Z0-9_.-]+\//,
-    description: "Unix home directory path"
-  },
-  {
-    id: "macos-user-path",
-    regex: /\/Users\/[a-zA-Z0-9_.-]+\//,
-    description: "macOS user directory path"
-  },
-  {
-    id: "windows-path",
-    regex: /[A-Z]:\\/,
-    description: "Windows absolute path"
-  },
-  {
-    id: "internal-hostname",
-    regex: /[a-zA-Z0-9-]+\.internal\b/,
-    description: "Internal hostname (.internal)"
-  },
-  {
-    id: "local-hostname",
-    regex: /[a-zA-Z0-9-]+\.local\b/,
-    description: "Local hostname (.local)"
-  },
-  {
-    id: "rfc1918-ip",
-    regex: /\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b/,
-    description: "RFC 1918 private IP address"
+var VALID_LEVELS, DEFAULT_BLOCKED_LEVELS;
+var init_sensitivity_gate_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/sensitivity-gate-rule.js"() {
+    "use strict";
+    init_dist6();
+    init_dist();
+    VALID_LEVELS = new Set(Sensitivity.options);
+    DEFAULT_BLOCKED_LEVELS = ["restricted", "confidential"];
   }
-];
+});
+
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/content-sanitization-rule.js
 function evaluateContentSanitization(candidate, rule, _context) {
   const params = rule.parameters;
   const enabledPatternIds = Array.isArray(params["enabledPatterns"]) ? params["enabledPatterns"].filter((v) => typeof v === "string") : void 0;
@@ -37933,91 +42199,245 @@ function evaluateContentSanitization(candidate, rule, _context) {
     reason: `Content contains internal references: ${matched.join(", ")}`
   };
 }
+var DEFAULT_PATTERNS;
+var init_content_sanitization_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/content-sanitization-rule.js"() {
+    "use strict";
+    DEFAULT_PATTERNS = [
+      {
+        id: "unix-home-path",
+        regex: /\/home\/[a-zA-Z0-9_.-]+\//,
+        description: "Unix home directory path"
+      },
+      {
+        id: "macos-user-path",
+        regex: /\/Users\/[a-zA-Z0-9_.-]+\//,
+        description: "macOS user directory path"
+      },
+      {
+        id: "windows-path",
+        regex: /[A-Z]:\\/,
+        description: "Windows absolute path"
+      },
+      {
+        id: "internal-hostname",
+        regex: /[a-zA-Z0-9-]+\.internal\b/,
+        description: "Internal hostname (.internal)"
+      },
+      {
+        id: "local-hostname",
+        regex: /[a-zA-Z0-9-]+\.local\b/,
+        description: "Local hostname (.local)"
+      },
+      {
+        id: "rfc1918-ip",
+        regex: /\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b/,
+        description: "RFC 1918 private IP address"
+      }
+    ];
+  }
+});
 
-// ../qmd-team-intent-kb/packages/policy-engine/dist/rules/index.js
-var RULE_REGISTRY = {
-  secret_detection: evaluateSecretDetection,
-  content_length: evaluateContentLength,
-  source_trust: evaluateSourceTrust,
-  relevance_score: evaluateRelevanceScore,
-  dedup_check: evaluateDedupCheck,
-  tenant_match: evaluateTenantMatch,
-  sensitivity_gate: evaluateSensitivityGate,
-  content_sanitization: evaluateContentSanitization
-};
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/contradiction-check-rule.js
+function parseThreshold(params) {
+  const raw = params?.["threshold"];
+  if (typeof raw !== "number" || Number.isNaN(raw))
+    return DEFAULT_THRESHOLD;
+  return Math.min(1, Math.max(0, raw));
+}
+function tokenSet(text) {
+  return new Set(text.toLowerCase().match(TOKEN_PATTERN) ?? []);
+}
+function jaccard(a, b) {
+  if (a.size === 0 && b.size === 0)
+    return 0;
+  let intersection2 = 0;
+  for (const token of a) {
+    if (b.has(token))
+      intersection2++;
+  }
+  const union2 = a.size + b.size - intersection2;
+  return union2 === 0 ? 0 : intersection2 / union2;
+}
+function evaluateContradictionCheck(candidate, rule, context) {
+  if (context.getActiveMemoriesInCategory === void 0) {
+    return {
+      ruleId: rule.id,
+      ruleType: rule.type,
+      outcome: "pass",
+      reason: "No active-memory lookup provided \u2014 contradiction check skipped"
+    };
+  }
+  const threshold = parseThreshold(rule.parameters);
+  const candidateTokens = tokenSet(candidate.content);
+  const suspects = [];
+  for (const memory of context.getActiveMemoriesInCategory(candidate.category)) {
+    if (memory.content === candidate.content)
+      continue;
+    const similarity = jaccard(candidateTokens, tokenSet(memory.content));
+    if (similarity >= threshold) {
+      suspects.push({ id: memory.id, similarity });
+    }
+  }
+  if (suspects.length === 0) {
+    return {
+      ruleId: rule.id,
+      ruleType: rule.type,
+      outcome: "pass",
+      reason: `No active '${candidate.category}' memory overlaps at or above ${threshold}`
+    };
+  }
+  suspects.sort((a, b) => b.similarity - a.similarity);
+  const reported = suspects.slice(0, MAX_REPORTED).map((s) => `${s.id} (${s.similarity.toFixed(2)})`).join(", ");
+  return {
+    ruleId: rule.id,
+    ruleType: rule.type,
+    outcome: "flag",
+    reason: `Potential contradiction: high token overlap with ${suspects.length} active '${candidate.category}' memor${suspects.length === 1 ? "y" : "ies"} \u2014 ${reported}. v1 heuristic (token overlap, not semantic) \u2014 human review required.`,
+    // Jaccard overlap is pure token arithmetic — a legitimate govern-side
+    // deterministic score, minted via the factory the seam firewall requires.
+    score: suspects[0] !== void 0 ? deterministicScore(suspects[0].similarity) : void 0
+  };
+}
+var DEFAULT_THRESHOLD, MAX_REPORTED, TOKEN_PATTERN;
+var init_contradiction_check_rule = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/contradiction-check-rule.js"() {
+    "use strict";
+    init_deterministic_score();
+    DEFAULT_THRESHOLD = 0.6;
+    MAX_REPORTED = 5;
+    TOKEN_PATTERN = /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}]|[\p{L}\p{N}]+/gu;
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/rules/index.js
 function createRule(type) {
   const evaluator = RULE_REGISTRY[type];
   return evaluator;
 }
-
-// ../qmd-team-intent-kb/packages/policy-engine/dist/pipeline.js
-var PolicyPipeline = class {
-  policy;
-  constructor(policy) {
-    this.policy = policy;
-  }
-  evaluate(candidate, partialContext = {}) {
-    const context = {
-      candidate,
-      policy: this.policy,
-      existingHashes: partialContext.existingHashes,
-      tenantId: partialContext.tenantId
+var RULE_REGISTRY;
+var init_rules = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/rules/index.js"() {
+    "use strict";
+    init_secret_detection_rule();
+    init_content_length_rule();
+    init_source_trust_rule();
+    init_relevance_score_rule();
+    init_dedup_check_rule();
+    init_tenant_match_rule();
+    init_sensitivity_gate_rule();
+    init_content_sanitization_rule();
+    init_contradiction_check_rule();
+    RULE_REGISTRY = {
+      secret_detection: evaluateSecretDetection,
+      content_length: evaluateContentLength,
+      source_trust: evaluateSourceTrust,
+      relevance_score: evaluateRelevanceScore,
+      dedup_check: evaluateDedupCheck,
+      tenant_match: evaluateTenantMatch,
+      sensitivity_gate: evaluateSensitivityGate,
+      content_sanitization: evaluateContentSanitization,
+      contradiction_check: evaluateContradictionCheck
     };
-    const orderedRules = this.policy.rules.filter((r) => r.enabled).sort((a, b) => a.priority - b.priority);
-    const evaluations = [];
-    const flaggedBy = [];
-    for (const rule of orderedRules) {
-      const evaluator = createRule(rule.type);
-      const result = evaluator(candidate, rule, context);
-      evaluations.push(result);
-      if (result.outcome === "fail") {
-        if (rule.action === "reject") {
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/recommended-policy.js
+function findUncoveredRuleTypes(policy) {
+  const enabled = new Set(policy.rules.filter((r) => r.enabled).map((r) => r.type));
+  return Object.keys(RULE_REGISTRY).filter((t) => !enabled.has(t)).sort();
+}
+var init_recommended_policy = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/recommended-policy.js"() {
+    "use strict";
+    init_dist();
+    init_rules();
+  }
+});
+
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/pipeline.js
+var PolicyPipeline;
+var init_pipeline2 = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/pipeline.js"() {
+    "use strict";
+    init_rules();
+    init_recommended_policy();
+    PolicyPipeline = class {
+      policy;
+      /**
+       * Registered rule types this policy does NOT actively enforce (5bm.2).
+       * Computed once at construction so the completeness gate is available at
+       * RUNTIME, not only in CI — a caller (e.g. the curator) can surface which
+       * rules are silently dormant on the loaded policy. Empty when the policy
+       * covers the full registry.
+       */
+      dormantRuleTypes;
+      constructor(policy) {
+        this.policy = policy;
+        this.dormantRuleTypes = findUncoveredRuleTypes(policy);
+      }
+      evaluate(candidate, partialContext = {}) {
+        const context = {
+          candidate,
+          policy: this.policy,
+          existingHashes: partialContext.existingHashes,
+          tenantId: partialContext.tenantId,
+          getActiveMemoriesInCategory: partialContext.getActiveMemoriesInCategory
+        };
+        const enabledRules = this.policy.rules.filter((r) => r.enabled);
+        const byPriority = (a, b) => a.priority - b.priority;
+        const contradictionRules = enabledRules.filter((r) => r.type === "contradiction_check").sort(byPriority);
+        const standardRules = enabledRules.filter((r) => r.type !== "contradiction_check").sort(byPriority);
+        const evaluations = [];
+        const flaggedBy = [];
+        for (const rule of contradictionRules) {
+          const evaluator = createRule(rule.type);
+          const result = evaluator(candidate, rule, context);
+          evaluations.push(result);
+          if (result.outcome !== "pass") {
+            flaggedBy.push(rule.id);
+          }
+        }
+        for (const rule of standardRules) {
+          const evaluator = createRule(rule.type);
+          const result = evaluator(candidate, rule, context);
+          evaluations.push(result);
+          if (result.outcome === "fail") {
+            if (rule.action === "reject") {
+              return {
+                candidateId: candidate.id,
+                outcome: "rejected",
+                evaluations,
+                rejectedBy: rule.id,
+                ...flaggedBy.length > 0 ? { flaggedBy } : {}
+              };
+            }
+            flaggedBy.push(rule.id);
+          } else if (result.outcome === "flag") {
+            flaggedBy.push(rule.id);
+          }
+        }
+        if (flaggedBy.length > 0) {
           return {
             candidateId: candidate.id,
-            outcome: "rejected",
+            outcome: "flagged",
             evaluations,
-            rejectedBy: rule.id
+            flaggedBy
           };
         }
-        flaggedBy.push(rule.id);
-      } else if (result.outcome === "flag") {
-        flaggedBy.push(rule.id);
+        return {
+          candidateId: candidate.id,
+          outcome: "approved",
+          evaluations
+        };
       }
-    }
-    if (flaggedBy.length > 0) {
-      return {
-        candidateId: candidate.id,
-        outcome: "flagged",
-        evaluations,
-        flaggedBy
-      };
-    }
-    return {
-      candidateId: candidate.id,
-      outcome: "approved",
-      evaluations
     };
   }
-};
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/dedup/dedup-checker.js
-function checkDuplicate(candidate, memoryRepo) {
-  const contentHash = computeContentHash(candidate.content);
-  const existing = memoryRepo.findByContentHash(contentHash);
-  if (existing !== null) {
-    return {
-      isDuplicate: true,
-      matchedMemoryId: existing.id,
-      matchType: "exact_hash",
-      contentHash
-    };
-  }
-  return { isDuplicate: false, contentHash };
-}
-
-// ../qmd-team-intent-kb/apps/curator/dist/supersession/supersession-detector.js
-function detectSupersession(candidate, memoryRepo, threshold = 0.6) {
-  const existingMemories = memoryRepo.findByTenantAndLifecycle(candidate.tenantId, "active").filter((m) => m.category === candidate.category);
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/supersession/supersession-detector.js
+function detectSupersession(candidate, memorySource, threshold = DEFAULT_SUPERSESSION_THRESHOLD) {
+  const existingMemories = memorySource.findByTenantAndLifecycle(candidate.tenantId, "active").filter((m) => m.category === candidate.category);
   let bestMatch = null;
   for (const memory of existingMemories) {
     const similarity = computeTitleSimilarity(candidate.title, memory.title);
@@ -38049,12 +42469,65 @@ function computeTitleSimilarity(a, b) {
 function tokenize(text) {
   return text.toLowerCase().split(/\s+/).filter((t) => t.length > 0);
 }
+var DEFAULT_SUPERSESSION_THRESHOLD;
+var init_supersession_detector = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/supersession/supersession-detector.js"() {
+    "use strict";
+    DEFAULT_SUPERSESSION_THRESHOLD = 0.6;
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/promotion/promoter.js
-var import_node_crypto5 = require("node:crypto");
+// ../bobs-big-brain-registrar/packages/policy-engine/dist/index.js
+var init_dist7 = __esm({
+  "../bobs-big-brain-registrar/packages/policy-engine/dist/index.js"() {
+    "use strict";
+    init_rules();
+    init_secret_detection_rule();
+    init_content_length_rule();
+    init_source_trust_rule();
+    init_relevance_score_rule();
+    init_dedup_check_rule();
+    init_tenant_match_rule();
+    init_sensitivity_gate_rule();
+    init_content_sanitization_rule();
+    init_contradiction_check_rule();
+    init_pipeline2();
+    init_supersession_detector();
+    init_recommended_policy();
+    init_dist6();
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/import/wikilink-parser.js
-var WIKILINK_RE = /\[\[([^\[\]|][^\[\]|]*?)(?:\|([^\[\]]*))?\]\]/g;
+// ../bobs-big-brain-registrar/apps/curator/dist/dedup/dedup-checker.js
+function checkDuplicate(candidate, memoryRepo, tenantId) {
+  const contentHash = computeContentHash(candidate.content);
+  const existing = tenantId !== void 0 ? memoryRepo.findByContentHashAndTenant(contentHash, tenantId) : memoryRepo.findByContentHash(contentHash);
+  if (existing !== null) {
+    return {
+      isDuplicate: true,
+      matchedMemoryId: existing.id,
+      matchType: "exact_hash",
+      contentHash
+    };
+  }
+  return { isDuplicate: false, contentHash };
+}
+var init_dedup_checker = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/dedup/dedup-checker.js"() {
+    "use strict";
+    init_dist2();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/supersession/supersession-detector.js
+var init_supersession_detector2 = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/supersession/supersession-detector.js"() {
+    "use strict";
+    init_dist7();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/wikilink-parser.js
 function extractWikiLinks(content) {
   const codeRanges = findCodeRanges(content);
   const links = [];
@@ -38103,18 +42576,25 @@ function isInsideCodeRange(start, end, ranges) {
   }
   return false;
 }
+var WIKILINK_RE;
+var init_wikilink_parser = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/wikilink-parser.js"() {
+    "use strict";
+    WIKILINK_RE = /\[\[([^\[\]|][^\[\]|]*?)(?:\|([^\[\]]*))?\]\]/g;
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/promotion/promoter.js
-function promote(input, memoryRepo, auditRepo, dryRun = false, linksRepo, evalCallback) {
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const memoryId = (0, import_node_crypto5.randomUUID)();
-  const policyEvaluations = input.pipelineResult.evaluations.map((ev) => ({
-    policyId: (0, import_node_crypto5.randomUUID)(),
+// ../bobs-big-brain-registrar/apps/curator/dist/promotion/promoter.js
+function promote(input, memoryRepo, auditRepo, dryRun = false, linksRepo, evalCallback, now = (/* @__PURE__ */ new Date()).toISOString()) {
+  const memoryId = deriveMemoryId(input.candidate.id, input.contentHash);
+  const policyEvaluations = input.pipelineResult.evaluations.map((ev, index) => ({
+    policyId: derivePolicyEvaluationId(memoryId, ev.ruleId, String(index)),
     ruleId: ev.ruleId,
     result: ev.outcome,
     reason: ev.reason,
     evaluatedAt: now
   }));
+  const sensitivity = classifyContent(input.candidate.content).sensitivityLevel;
   const memory = CuratedMemory.parse({
     id: memoryId,
     candidateId: input.candidate.id,
@@ -38123,7 +42603,7 @@ function promote(input, memoryRepo, auditRepo, dryRun = false, linksRepo, evalCa
     title: input.candidate.title,
     category: input.candidate.category,
     trustLevel: input.candidate.trustLevel,
-    sensitivity: "internal",
+    sensitivity,
     author: input.candidate.author,
     tenantId: input.candidate.tenantId,
     metadata: input.candidate.metadata,
@@ -38131,121 +42611,161 @@ function promote(input, memoryRepo, auditRepo, dryRun = false, linksRepo, evalCa
     contentHash: input.contentHash,
     policyEvaluations,
     promotedAt: now,
-    promotedBy: { type: "system", id: "curator" },
+    promotedBy: input.promotedBy ?? CURATOR_ACTOR,
     updatedAt: now,
     version: 1
   });
   if (!dryRun) {
-    if (input.supersession !== void 0) {
-      const oldMemory = memoryRepo.findById(input.supersession.supersededMemoryId);
-      if (oldMemory !== null) {
-        const updatedOld = CuratedMemory.parse({
-          ...oldMemory,
-          lifecycle: "superseded",
-          supersession: {
-            supersededBy: memoryId,
-            reason: `Title similarity: ${input.supersession.similarity.toFixed(2)}`,
-            linkedAt: now
+    memoryRepo.connection.transaction(() => {
+      if (input.supersession !== void 0) {
+        const oldMemory = memoryRepo.findById(input.supersession.supersededMemoryId);
+        if (oldMemory !== null) {
+          const updatedOld = CuratedMemory.parse({
+            ...oldMemory,
+            lifecycle: "superseded",
+            supersession: {
+              supersededBy: memoryId,
+              reason: `Title similarity: ${input.supersession.similarity.toFixed(2)}`,
+              linkedAt: now
+            },
+            updatedAt: now
+          });
+          memoryRepo.update(updatedOld);
+        }
+        auditRepo.insert(AuditEvent.parse({
+          // Content-derived (bead 8da.5): identity is the superseded memory +
+          // the 'superseded' action + the superseding memory id as discriminator,
+          // so two clones supersede-by-the-same-memory mint the same audit id and
+          // hence the same v2 entry_hash at the same chain position.
+          id: deriveAuditEventId(input.supersession.supersededMemoryId, "superseded", memoryId),
+          action: "superseded",
+          memoryId: input.supersession.supersededMemoryId,
+          tenantId: input.candidate.tenantId,
+          actor: { type: "system", id: "curator" },
+          reason: `Superseded by ${memoryId}`,
+          details: {
+            newMemoryId: memoryId,
+            similarity: input.supersession.similarity
           },
-          updatedAt: now
-        });
-        memoryRepo.update(updatedOld);
+          timestamp: now
+        }));
       }
-      auditRepo.insert(AuditEvent.parse({
-        id: (0, import_node_crypto5.randomUUID)(),
-        action: "superseded",
-        memoryId: input.supersession.supersededMemoryId,
-        tenantId: input.candidate.tenantId,
-        actor: { type: "system", id: "curator" },
-        reason: `Superseded by ${memoryId}`,
-        details: {
-          newMemoryId: memoryId,
-          similarity: input.supersession.similarity
-        },
-        timestamp: now
-      }));
-    }
-    memoryRepo.insert(memory);
-    if (input.supersession !== void 0 && linksRepo) {
-      linksRepo.insert({
-        id: (0, import_node_crypto5.randomUUID)(),
-        sourceMemoryId: memoryId,
-        targetMemoryId: input.supersession.supersededMemoryId,
-        linkType: "supersedes",
-        weight: input.supersession.similarity,
-        createdBy: "curator",
-        source: "curator",
-        importBatchId: null,
-        createdAt: now
-      });
-    }
-    if (linksRepo) {
-      const wikiLinks = extractWikiLinks(input.candidate.content);
-      for (const wl of wikiLinks) {
-        const targets = memoryRepo.searchByText(wl.slug);
-        const match = targets.find((m) => m.title.toLowerCase() === wl.slug.toLowerCase() && m.id !== memoryId);
-        if (match) {
-          try {
-            linksRepo.insert({
-              id: (0, import_node_crypto5.randomUUID)(),
-              sourceMemoryId: memoryId,
-              targetMemoryId: match.id,
-              linkType: "relates_to",
-              weight: 1,
-              createdBy: "curator",
-              source: "curator",
-              importBatchId: null,
-              createdAt: now
-            });
-          } catch {
+      memoryRepo.insert(memory);
+      if (input.supersession !== void 0 && linksRepo) {
+        linksRepo.insert({
+          // Content-derived (bead 8da.5): a graph edge's identity is its
+          // (source, target, type) triple, stable across clones for the same
+          // logical promotion. Not part of the audit chain, but kept deterministic
+          // so the whole promotion is byte-reproducible across clones.
+          id: deriveLinkId(memoryId, input.supersession.supersededMemoryId, "supersedes"),
+          sourceMemoryId: memoryId,
+          targetMemoryId: input.supersession.supersededMemoryId,
+          linkType: "supersedes",
+          weight: input.supersession.similarity,
+          createdBy: "curator",
+          source: "curator",
+          importBatchId: null,
+          createdAt: now
+        });
+      }
+      if (linksRepo) {
+        const wikiLinks = extractWikiLinks(input.candidate.content);
+        for (const wl of wikiLinks) {
+          const targets = memoryRepo.searchByText(wl.slug);
+          const match = targets.find((m) => m.title.toLowerCase() === wl.slug.toLowerCase() && m.id !== memoryId);
+          if (match) {
+            try {
+              linksRepo.insert({
+                // Content-derived (bead 8da.5): (source, target, type) edge identity,
+                // stable across clones. See the supersedes edge above.
+                id: deriveLinkId(memoryId, match.id, "relates_to"),
+                sourceMemoryId: memoryId,
+                targetMemoryId: match.id,
+                linkType: "relates_to",
+                weight: 1,
+                createdBy: "curator",
+                source: "curator",
+                importBatchId: null,
+                createdAt: now
+              });
+            } catch {
+            }
           }
         }
       }
-    }
-    auditRepo.insert(AuditEvent.parse({
-      id: (0, import_node_crypto5.randomUUID)(),
-      action: "promoted",
-      memoryId,
-      tenantId: input.candidate.tenantId,
-      actor: { type: "system", id: "curator" },
-      reason: "Passed all governance rules",
-      details: { candidateId: input.candidate.id },
-      timestamp: now
-    }));
-    if (evalCallback !== void 0) {
-      try {
-        for (const verdict of evalCallback(memory, input.pipelineResult)) {
-          auditRepo.insert(AuditEvent.parse({
-            id: (0, import_node_crypto5.randomUUID)(),
-            action: "eval-result",
-            memoryId,
-            tenantId: input.candidate.tenantId,
-            actor: { type: "system", id: "curator" },
-            reason: `eval ${verdict.name}: ${verdict.passed ? "pass" : "fail"}`,
-            details: {
-              evaluator: verdict.name,
-              passed: verdict.passed,
-              score: verdict.score,
-              threshold: verdict.threshold,
-              ...verdict.details
-            },
-            timestamp: now
-          }));
+      auditRepo.insert(AuditEvent.parse({
+        // Content-derived (bead 8da.5): one 'promoted' event per memory, so the
+        // (memoryId, action) pair is already unique, so no discriminator needed.
+        id: deriveAuditEventId(memoryId, "promoted"),
+        action: "promoted",
+        memoryId,
+        tenantId: input.candidate.tenantId,
+        actor: input.promotedBy ?? CURATOR_ACTOR,
+        reason: input.promotionReason !== void 0 && input.promotionReason.trim().length > 0 ? `${input.promotionReason} (passed all governance rules)` : "Passed all governance rules",
+        // Write-time provenance on the receipt (GSB Wave-2 H2): the origin
+        // CHANNEL plus a TRUNCATED SHA-256 of the token HMAC — never the
+        // token itself, so surfaced audit details can identify an
+        // attestation without enabling replay-minting (no oracle). An
+        // origin-less candidate is receipted honestly as `unattested`.
+        // Deterministic (a pure function of candidate fields), so
+        // cross-clone entry_hash reproducibility (8da.5/8da.6) holds.
+        details: {
+          candidateId: input.candidate.id,
+          originChannel: input.candidate.origin?.channel ?? UNATTESTED_CHANNEL,
+          ...input.candidate.origin !== void 0 ? {
+            originTokenHash: hashOriginToken(input.candidate.origin.tokenHmac).slice(0, ORIGIN_TOKEN_HASH_SURFACE_LEN)
+          } : {}
+        },
+        timestamp: now
+      }));
+      if (evalCallback !== void 0) {
+        try {
+          for (const verdict of evalCallback(memory, input.pipelineResult)) {
+            auditRepo.insert(AuditEvent.parse({
+              // Content-derived (bead 8da.5): several eval-result rows can be
+              // emitted per promotion, so the evaluator name discriminates them.
+              // Identical evaluator verdicts on two clones mint the same id.
+              id: deriveAuditEventId(memoryId, "eval-result", verdict.name),
+              action: "eval-result",
+              memoryId,
+              tenantId: input.candidate.tenantId,
+              actor: { type: "system", id: "curator" },
+              reason: `eval ${verdict.name}: ${verdict.passed ? "pass" : "fail"}`,
+              details: {
+                evaluator: verdict.name,
+                passed: verdict.passed,
+                score: verdict.score,
+                threshold: verdict.threshold,
+                ...verdict.details
+              },
+              timestamp: now
+            }));
+          }
+        } catch {
         }
-      } catch {
       }
-    }
+    }).immediate();
   }
   return memory;
 }
+var CURATOR_ACTOR;
+var init_promoter = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/promotion/promoter.js"() {
+    "use strict";
+    init_dist2();
+    init_dist();
+    init_dist7();
+    init_wikilink_parser();
+    CURATOR_ACTOR = { type: "system", id: "curator" };
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/rejection/rejector.js
-var import_node_crypto6 = require("node:crypto");
+// ../bobs-big-brain-registrar/apps/curator/dist/rejection/rejector.js
 function reject(candidate, pipelineResult, auditRepo, dryRun = false) {
   const reason = pipelineResult.rejectedBy !== void 0 ? `Rejected by rule: ${pipelineResult.rejectedBy}` : `Flagged by rules: ${pipelineResult.flaggedBy?.join(", ") ?? "unknown"}`;
   if (!dryRun) {
     auditRepo.insert(AuditEvent.parse({
-      id: (0, import_node_crypto6.randomUUID)(),
+      id: (0, import_node_crypto9.randomUUID)(),
       action: "deleted",
       memoryId: candidate.id,
       tenantId: candidate.tenantId,
@@ -38261,138 +42781,482 @@ function reject(candidate, pipelineResult, auditRepo, dryRun = false) {
   }
   return reason;
 }
+var import_node_crypto9;
+var init_rejector = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/rejection/rejector.js"() {
+    "use strict";
+    import_node_crypto9 = require("node:crypto");
+    init_dist();
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/curator.js
-var Curator = class {
-  deps;
-  config;
-  constructor(deps, config2) {
-    this.deps = deps;
-    this.config = config2;
+// ../bobs-big-brain-registrar/apps/curator/dist/origin/origin-gate.js
+function checkOriginAttestation(candidate, originSecret) {
+  if (candidate.origin === void 0) {
+    return { verdict: "unattested" };
   }
-  /**
-   * Process a single candidate through the full governance pipeline.
-   *
-   * @param existingHashes - Pre-loaded set of content hashes (hoisted from batch).
-   *                         When provided, avoids N+1 queries against the store.
-   * @returns A CurationResult describing the outcome.
-   */
-  processSingle(candidate, existingHashes) {
-    const contentHash = computeContentHash(candidate.content);
-    const dedup = checkDuplicate(candidate, this.deps.memoryRepo);
-    if (dedup.isDuplicate) {
-      return {
-        candidateId: candidate.id,
-        outcome: "duplicate",
-        reason: `Exact duplicate of memory ${dedup.matchedMemoryId}`
-      };
-    }
-    if (existingHashes?.has(contentHash)) {
-      return {
-        candidateId: candidate.id,
-        outcome: "duplicate",
-        reason: "Intra-batch duplicate (same content already promoted in this batch)"
-      };
-    }
-    const policies = this.deps.policyRepo.findByTenant(this.config.tenantId);
-    const policy = policies.find((p) => p.enabled);
-    if (policy === void 0) {
-      return this.promoteCandidate(candidate, contentHash, {
-        candidateId: candidate.id,
-        outcome: "approved",
-        evaluations: []
-      });
-    }
-    const pipeline = new PolicyPipeline(policy);
-    const hashSet = existingHashes ?? new Set(this.deps.memoryRepo.getAllContentHashes());
-    const pipelineResult = pipeline.evaluate(candidate, {
-      existingHashes: hashSet,
-      tenantId: this.config.tenantId
-    });
-    if (pipelineResult.outcome === "rejected") {
-      const reason = reject(candidate, pipelineResult, this.deps.auditRepo, this.config.dryRun);
-      return {
-        candidateId: candidate.id,
-        outcome: "rejected",
-        pipelineResult,
-        reason
-      };
-    }
-    if (pipelineResult.outcome === "flagged") {
-      const reason = reject(candidate, pipelineResult, this.deps.auditRepo, this.config.dryRun);
-      return {
-        candidateId: candidate.id,
-        outcome: "flagged",
-        pipelineResult,
-        reason
-      };
-    }
-    return this.promoteCandidate(candidate, contentHash, pipelineResult);
+  if (originSecret === void 0 || originSecret.length === 0) {
+    return rejected(candidate, "origin_token_unverifiable", "Candidate claims an origin attestation but no installation origin secret is configured on this govern path \u2014 cannot verify, refusing to promote.");
   }
-  /**
-   * Process a batch of candidates through the pipeline.
-   *
-   * Content hashes are loaded once before the loop (not per-candidate) to avoid
-   * N+1 queries. The hash set is updated after each promotion to catch intra-batch
-   * duplicates.
-   */
-  processBatch(candidates) {
-    const results = [];
-    let promoted = 0;
-    let rejected = 0;
-    let flagged = 0;
-    let duplicates = 0;
-    const existingHashes = new Set(this.deps.memoryRepo.getAllContentHashes());
-    for (const candidate of candidates) {
-      const result = this.processSingle(candidate, existingHashes);
-      results.push(result);
-      switch (result.outcome) {
-        case "promoted":
-          promoted++;
-          existingHashes.add(computeContentHash(candidate.content));
-          break;
-        case "rejected":
-          rejected++;
-          break;
-        case "flagged":
-          flagged++;
-          break;
-        case "duplicate":
-          duplicates++;
-          break;
+  const ok2 = verifyOriginToken(originSecret, {
+    candidateId: candidate.id,
+    tenantId: candidate.tenantId,
+    capturedAt: candidate.capturedAt
+  }, candidate.origin.tokenHmac);
+  if (!ok2) {
+    return rejected(candidate, "origin_token_invalid", "Origin token HMAC does not verify against the installation secret for (id, tenantId, capturedAt) \u2014 the claimed provenance is forged, replayed across identities, or minted under a different secret.");
+  }
+  return { verdict: "attested" };
+}
+function rejected(candidate, code, reason) {
+  return {
+    verdict: "rejected",
+    code,
+    pipelineResult: {
+      candidateId: candidate.id,
+      outcome: "rejected",
+      evaluations: [
+        {
+          ruleId: code,
+          ruleType: ORIGIN_ATTESTATION_RULE_TYPE,
+          outcome: "fail",
+          reason
+        }
+      ],
+      rejectedBy: code
+    }
+  };
+}
+var ORIGIN_ATTESTATION_RULE_TYPE;
+var init_origin_gate = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/origin/origin-gate.js"() {
+    "use strict";
+    init_dist2();
+    ORIGIN_ATTESTATION_RULE_TYPE = "origin_attestation";
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/brainignore.js
+function compilePattern(raw, source) {
+  let pattern = raw.trim();
+  if (pattern === "" || pattern.startsWith("#"))
+    return null;
+  let negated = false;
+  if (pattern.startsWith("!")) {
+    negated = true;
+    pattern = pattern.slice(1).trim();
+    if (pattern === "")
+      return null;
+  }
+  const anchored = pattern.startsWith("/");
+  if (anchored)
+    pattern = pattern.slice(1);
+  const basenameOnly = !pattern.includes("/");
+  let re = "";
+  let i = 0;
+  while (i < pattern.length) {
+    const ch = pattern[i];
+    if (ch === "*" && pattern[i + 1] === "*") {
+      re += ".*";
+      i += 2;
+      if (pattern[i] === "/")
+        i += 1;
+    } else if (ch === "*") {
+      re += "[^/]*";
+      i += 1;
+    } else if (ch === "?") {
+      re += "[^/]";
+      i += 1;
+    } else {
+      re += ch.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+      i += 1;
+    }
+  }
+  const full = basenameOnly ? `^${re}$` : anchored ? `^${re}$` : `^(?:.*/)?${re}$`;
+  return {
+    pattern: raw.trim().replace(/^!/, "").trim(),
+    negated,
+    source,
+    regex: new RegExp(full, "i"),
+    basenameOnly
+  };
+}
+function normalizePath(p) {
+  let n = p.replace(/\\/g, "/");
+  while (n.startsWith("./"))
+    n = n.slice(2);
+  while (n.startsWith("/"))
+    n = n.slice(1);
+  return n;
+}
+function matchPath(path, ruleset) {
+  const normalized = normalizePath(path);
+  const basename3 = normalized.split("/").pop() ?? normalized;
+  let decision = null;
+  for (const p of ruleset.patterns) {
+    const subject = p.basenameOnly ? basename3 : normalized;
+    if (p.regex.test(subject))
+      decision = p;
+  }
+  return decision !== null && !decision.negated ? decision : null;
+}
+function shannonEntropy(text) {
+  if (text.length === 0)
+    return 0;
+  const counts = /* @__PURE__ */ new Map();
+  for (const ch of text)
+    counts.set(ch, (counts.get(ch) ?? 0) + 1);
+  let entropy = 0;
+  for (const count of counts.values()) {
+    const p = count / text.length;
+    entropy -= p * Math.log2(p);
+  }
+  return entropy;
+}
+function analyzeContent(content, title) {
+  const normalizedTitle = title.trim().toLowerCase();
+  if (UNTITLED_TITLES.has(normalizedTitle)) {
+    return {
+      code: "brainignore_untitled_title",
+      evidence: `title "${title.trim()}" is a placeholder, not a real title`
+    };
+  }
+  const head = content.slice(0, LICENSE_SCAN_WINDOW).toLowerCase();
+  for (const marker of LICENSE_MARKERS) {
+    if (head.includes(marker)) {
+      return {
+        code: "brainignore_license_boilerplate",
+        evidence: `license marker "${marker}" found in the first ${LICENSE_SCAN_WINDOW} chars`
+      };
+    }
+  }
+  for (const line of content.split("\n")) {
+    if (line.length > MINIFIED_LINE_LENGTH) {
+      const whitespace = line.length - line.replace(/\s/g, "").length;
+      const ratio = whitespace / line.length;
+      if (ratio < MINIFIED_WHITESPACE_RATIO) {
+        return {
+          code: "brainignore_minified_content",
+          evidence: `line of ${line.length} chars with whitespace ratio ${ratio.toFixed(3)} (> ${MINIFIED_LINE_LENGTH} chars and < ${MINIFIED_WHITESPACE_RATIO} reads as minified)`
+        };
       }
     }
-    return {
-      processed: candidates.length,
-      promoted,
-      rejected,
-      flagged,
-      duplicates,
-      results
-    };
   }
-  promoteCandidate(candidate, contentHash, pipelineResult) {
-    const supersession = detectSupersession(candidate, this.deps.memoryRepo, this.config.supersessionThreshold ?? 0.6);
-    const memory = promote({
-      candidate,
-      contentHash,
-      pipelineResult,
-      supersession: supersession ?? void 0
-    }, this.deps.memoryRepo, this.deps.auditRepo, this.config.dryRun, this.deps.linksRepo);
-    return {
-      candidateId: candidate.id,
-      outcome: "promoted",
-      memoryId: memory.id,
-      supersedes: supersession?.supersededMemoryId,
-      pipelineResult,
-      reason: supersession !== null ? `Promoted (supersedes ${supersession.supersededMemoryId})` : "Promoted"
-    };
+  if (content.length >= ENTROPY_MIN_LENGTH) {
+    const entropy = shannonEntropy(content);
+    if (entropy > ENTROPY_THRESHOLD) {
+      return {
+        code: "brainignore_generated_content",
+        evidence: `Shannon entropy ${entropy.toFixed(2)} bits/char over ${content.length} chars (> ${ENTROPY_THRESHOLD} reads as encoded/generated, prose is \u2248 4.2\u20134.8)`
+      };
+    }
   }
-};
+  return null;
+}
+function evaluateBrainignore(filePaths, content, title, ruleset) {
+  for (const path of filePaths) {
+    const match = matchPath(path, ruleset);
+    if (match !== null) {
+      return {
+        code: "brainignore_path",
+        evidence: `path "${path}" matches ${match.source} pattern "${match.pattern}"`
+      };
+    }
+  }
+  return analyzeContent(content, title);
+}
+var DEFAULT_BRAINIGNORE_PATTERNS, DEFAULT_BRAINIGNORE_RULESET, MINIFIED_LINE_LENGTH, MINIFIED_WHITESPACE_RATIO, ENTROPY_MIN_LENGTH, ENTROPY_THRESHOLD, LICENSE_SCAN_WINDOW, LICENSE_MARKERS, UNTITLED_TITLES;
+var init_brainignore = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/brainignore.js"() {
+    "use strict";
+    DEFAULT_BRAINIGNORE_PATTERNS = [
+      // -- vendored / generated directory trees ---------------------------------
+      "**/node_modules/**",
+      "**/site-packages/**",
+      "**/bower_components/**",
+      "**/vendor/**",
+      "**/.venv/**",
+      "**/venv/**",
+      "**/__pycache__/**",
+      "**/.git/**",
+      "**/.next/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/build/**",
+      // -- minified / generated file names --------------------------------------
+      "*.min.js",
+      "*.min.css",
+      "*.map",
+      "*.bundle.js",
+      "*.chunk.js",
+      // -- lockfiles (machine-written dependency state, never knowledge) --------
+      "package-lock.json",
+      "npm-shrinkwrap.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "Cargo.lock",
+      "poetry.lock",
+      "uv.lock",
+      "Pipfile.lock",
+      "Gemfile.lock",
+      "composer.lock",
+      "go.sum",
+      "flake.lock",
+      // -- repo boilerplate templates (CoC / SECURITY / SUPPORT / license) ------
+      "CODE_OF_CONDUCT*",
+      "SECURITY.md",
+      "SUPPORT.md",
+      "PULL_REQUEST_TEMPLATE*",
+      "**/ISSUE_TEMPLATE/**",
+      "LICENSE*",
+      "LICENCE*",
+      "NOTICE*",
+      "PATENTS*"
+    ];
+    DEFAULT_BRAINIGNORE_RULESET = {
+      patterns: DEFAULT_BRAINIGNORE_PATTERNS.map((p) => {
+        const compiled = compilePattern(p, "default");
+        if (compiled === null)
+          throw new Error(`invalid default brainignore pattern: ${p}`);
+        return compiled;
+      }),
+      overridePath: null
+    };
+    MINIFIED_LINE_LENGTH = 1e3;
+    MINIFIED_WHITESPACE_RATIO = 0.1;
+    ENTROPY_MIN_LENGTH = 1024;
+    ENTROPY_THRESHOLD = 5.2;
+    LICENSE_SCAN_WINDOW = 600;
+    LICENSE_MARKERS = [
+      "apache license",
+      "mit license",
+      "gnu general public license",
+      "gnu lesser general public license",
+      "mozilla public license",
+      "permission is hereby granted, free of charge",
+      "redistribution and use in source and binary forms"
+    ];
+    UNTITLED_TITLES = /* @__PURE__ */ new Set(["untitled", "untitled document", "no title"]);
+  }
+});
 
-// ../qmd-team-intent-kb/apps/curator/dist/intake/spool-intake.js
-var import_promises3 = require("node:fs/promises");
-var import_node_path9 = require("node:path");
+// ../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/import-exclusion-gate.js
+function checkImportExclusion(candidate, ruleset = DEFAULT_BRAINIGNORE_RULESET) {
+  if (!IMPORT_SOURCES.has(candidate.source)) {
+    return { verdict: "not_applicable" };
+  }
+  const match = evaluateBrainignore(candidate.metadata.filePaths, candidate.content, candidate.title, ruleset);
+  if (match === null) {
+    return { verdict: "clear" };
+  }
+  return {
+    verdict: "rejected",
+    match,
+    pipelineResult: {
+      candidateId: candidate.id,
+      outcome: "rejected",
+      evaluations: [
+        {
+          ruleId: match.code,
+          ruleType: IMPORT_EXCLUSION_RULE_TYPE,
+          outcome: "fail",
+          reason: `Import exclusion (brainignore): ${match.evidence}`
+        }
+      ],
+      rejectedBy: match.code
+    }
+  };
+}
+var IMPORT_EXCLUSION_RULE_TYPE, IMPORT_SOURCES;
+var init_import_exclusion_gate = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/import-exclusion-gate.js"() {
+    "use strict";
+    init_brainignore();
+    IMPORT_EXCLUSION_RULE_TYPE = "import_exclusion";
+    IMPORT_SOURCES = /* @__PURE__ */ new Set(["import", "bulk_import"]);
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/curator.js
+var Curator;
+var init_curator = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/curator.js"() {
+    "use strict";
+    init_dist2();
+    init_dist7();
+    init_dedup_checker();
+    init_supersession_detector2();
+    init_promoter();
+    init_rejector();
+    init_origin_gate();
+    init_import_exclusion_gate();
+    Curator = class {
+      deps;
+      config;
+      /**
+       * Policy ids already warned about for dormant rules (5bm.2), so the runtime
+       * completeness check fires ONCE per policy rather than per candidate — a
+       * digestion batch must not emit 17k identical warnings.
+       */
+      warnedDormantPolicies = /* @__PURE__ */ new Set();
+      constructor(deps, config2) {
+        this.deps = deps;
+        this.config = config2;
+      }
+      /**
+       * Process a single candidate through the full governance pipeline.
+       *
+       * @param existingHashes - Pre-loaded set of content hashes (hoisted from batch).
+       *                         When provided, avoids N+1 queries against the store.
+       * @returns A CurationResult describing the outcome.
+       */
+      processSingle(candidate, existingHashes) {
+        const contentHash = computeContentHash(candidate.content);
+        const dedup = checkDuplicate(candidate, this.deps.memoryRepo, this.config.tenantId);
+        if (dedup.isDuplicate) {
+          return {
+            candidateId: candidate.id,
+            outcome: "duplicate",
+            reason: `Exact duplicate of memory ${dedup.matchedMemoryId}`
+          };
+        }
+        if (existingHashes?.has(contentHash)) {
+          return {
+            candidateId: candidate.id,
+            outcome: "duplicate",
+            reason: "Intra-batch duplicate (same content already promoted in this batch)"
+          };
+        }
+        const suppressReject = this.config.dryRun === true || this.config.suppressRejectionReceipts === true;
+        const originGate = checkOriginAttestation(candidate, this.config.originSecret);
+        if (originGate.verdict === "rejected") {
+          const reason = reject(candidate, originGate.pipelineResult, this.deps.auditRepo, suppressReject);
+          return {
+            candidateId: candidate.id,
+            outcome: "rejected",
+            pipelineResult: originGate.pipelineResult,
+            reason
+          };
+        }
+        const importGate = checkImportExclusion(candidate, this.config.importExclusions);
+        if (importGate.verdict === "rejected") {
+          const reason = reject(candidate, importGate.pipelineResult, this.deps.auditRepo, suppressReject);
+          return {
+            candidateId: candidate.id,
+            outcome: "rejected",
+            pipelineResult: importGate.pipelineResult,
+            reason
+          };
+        }
+        const policies = this.deps.policyRepo.findByTenant(this.config.tenantId);
+        const policy = policies.find((p) => p.enabled);
+        if (policy === void 0) {
+          return this.promoteCandidate(candidate, contentHash, {
+            candidateId: candidate.id,
+            outcome: "approved",
+            evaluations: []
+          });
+        }
+        const pipeline = new PolicyPipeline(policy);
+        if (pipeline.dormantRuleTypes.length > 0 && !this.warnedDormantPolicies.has(policy.id)) {
+          this.warnedDormantPolicies.add(policy.id);
+          console.warn(`[curator] governance policy "${policy.name}" (${policy.id}) leaves ${pipeline.dormantRuleTypes.length} registered rule(s) dormant: ${pipeline.dormantRuleTypes.join(", ")}. They gate nothing on this store. See buildRecommendedPolicy / bead qmd-team-intent-kb-5bm.10.`);
+        }
+        const hashSet = existingHashes ?? new Set(this.deps.memoryRepo.getContentHashesByTenant(this.config.tenantId));
+        const pipelineResult = pipeline.evaluate(candidate, {
+          existingHashes: hashSet,
+          tenantId: this.config.tenantId,
+          // contradiction_check lookup (E1): tenant-scoped ACTIVE memories filtered
+          // to the requested category AT THE STORE QUERY — loading the whole active
+          // set and filtering in JS deserialized a 17k-row corpus per candidate to
+          // keep ~6%. Queried lazily — the store is only hit when a contradiction
+          // rule actually runs.
+          getActiveMemoriesInCategory: (category) => this.deps.memoryRepo.findByTenantAndLifecycleAndCategory(this.config.tenantId, "active", category).map((m) => ({ id: m.id, content: m.content }))
+        });
+        if (pipelineResult.outcome === "rejected") {
+          const reason = reject(candidate, pipelineResult, this.deps.auditRepo, suppressReject);
+          return {
+            candidateId: candidate.id,
+            outcome: "rejected",
+            pipelineResult,
+            reason
+          };
+        }
+        if (pipelineResult.outcome === "flagged") {
+          const reason = reject(candidate, pipelineResult, this.deps.auditRepo, suppressReject);
+          return {
+            candidateId: candidate.id,
+            outcome: "flagged",
+            pipelineResult,
+            reason
+          };
+        }
+        return this.promoteCandidate(candidate, contentHash, pipelineResult);
+      }
+      /**
+       * Process a batch of candidates through the pipeline.
+       *
+       * Content hashes are loaded once before the loop (not per-candidate) to avoid
+       * N+1 queries. The hash set is updated after each promotion to catch intra-batch
+       * duplicates.
+       */
+      processBatch(candidates) {
+        const results = [];
+        let promoted = 0;
+        let rejected2 = 0;
+        let flagged = 0;
+        let duplicates = 0;
+        const existingHashes = new Set(this.deps.memoryRepo.getContentHashesByTenant(this.config.tenantId));
+        for (const candidate of candidates) {
+          const result = this.processSingle(candidate, existingHashes);
+          results.push(result);
+          switch (result.outcome) {
+            case "promoted":
+              promoted++;
+              existingHashes.add(computeContentHash(candidate.content));
+              break;
+            case "rejected":
+              rejected2++;
+              break;
+            case "flagged":
+              flagged++;
+              break;
+            case "duplicate":
+              duplicates++;
+              break;
+          }
+        }
+        return {
+          processed: candidates.length,
+          promoted,
+          rejected: rejected2,
+          flagged,
+          duplicates,
+          results
+        };
+      }
+      promoteCandidate(candidate, contentHash, pipelineResult) {
+        const supersession = detectSupersession(candidate, this.deps.memoryRepo, this.config.supersessionThreshold ?? DEFAULT_SUPERSESSION_THRESHOLD);
+        const memory = promote({
+          candidate,
+          contentHash,
+          pipelineResult,
+          supersession: supersession ?? void 0
+        }, this.deps.memoryRepo, this.deps.auditRepo, this.config.dryRun, this.deps.linksRepo);
+        return {
+          candidateId: candidate.id,
+          outcome: "promoted",
+          memoryId: memory.id,
+          supersedes: supersession?.supersededMemoryId,
+          pipelineResult,
+          reason: supersession !== null ? `Promoted (supersedes ${supersession.supersededMemoryId})` : "Promoted"
+        };
+      }
+    };
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/intake/spool-intake.js
 async function ingestFromSpool(candidateRepo, spoolDir, opts) {
   const detailed = await ingestFromSpoolDetailed(candidateRepo, spoolDir, opts);
   if (!detailed.ok)
@@ -38406,6 +43270,7 @@ async function ingestFromSpoolDetailed(candidateRepo, spoolDir, opts) {
     return filesResult;
   const ingested = [];
   const tampered = [];
+  const rejected2 = [];
   for (const filepath of filesResult.value) {
     if (verifyManifest) {
       const verify = await verifySpoolManifest(filepath);
@@ -38430,18 +43295,43 @@ async function ingestFromSpoolDetailed(candidateRepo, spoolDir, opts) {
       if (existing !== null)
         continue;
       const hash = computeContentHash(candidate.content);
-      candidateRepo.insert(candidate, hash);
-      ingested.push(candidate);
+      try {
+        candidateRepo.insert(candidate, hash);
+        ingested.push(candidate);
+      } catch (e) {
+        if (e instanceof DisclosureRejectedError) {
+          rejected2.push({ candidateId: candidate.id, category: e.category });
+          continue;
+        }
+        throw e;
+      }
+    }
+    if (opts?.archiveIngestedDir !== void 0) {
+      await archiveIngestedFile(filepath, opts.archiveIngestedDir);
     }
   }
-  return { ok: true, value: { ingested, tampered } };
+  return { ok: true, value: { ingested, tampered, rejected: rejected2 } };
+}
+async function archiveIngestedFile(spoolFilePath, archiveDir) {
+  try {
+    await (0, import_promises4.mkdir)(archiveDir, { recursive: true });
+    const dest = (0, import_node_path17.join)(archiveDir, (0, import_node_path17.basename)(spoolFilePath));
+    await (0, import_promises4.rename)(spoolFilePath, dest);
+    try {
+      await (0, import_promises4.rename)(`${spoolFilePath}.manifest.json`, `${dest}.manifest.json`);
+    } catch {
+    }
+  } catch (e) {
+    process.stderr.write(`[spool-intake] archive skipped for ${(0, import_node_path17.basename)(spoolFilePath)}: ${e instanceof Error ? e.message : String(e)}
+`);
+  }
 }
 async function quarantineTamperedFile(spoolFilePath, spoolDir, quarantineDirOverride, expected, actual) {
   try {
-    const baseDir = quarantineDirOverride ?? (0, import_node_path9.join)(spoolDir ?? ".", "quarantine");
-    await (0, import_promises3.mkdir)(baseDir, { recursive: true });
-    const name = (0, import_node_path9.basename)(spoolFilePath);
-    const dest = (0, import_node_path9.join)(baseDir, name);
+    const baseDir = quarantineDirOverride ?? (0, import_node_path17.join)(spoolDir ?? ".", "quarantine");
+    await (0, import_promises4.mkdir)(baseDir, { recursive: true });
+    const name = (0, import_node_path17.basename)(spoolFilePath);
+    const dest = (0, import_node_path17.join)(baseDir, name);
     const evidence = {
       spoolFile: name,
       detectedAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -38449,10 +43339,10 @@ async function quarantineTamperedFile(spoolFilePath, spoolDir, quarantineDirOver
       actualSha256: actual ?? null,
       reason: "SPOOL_TAMPERED: manifest SHA-256 mismatch on ingest"
     };
-    await (0, import_promises3.writeFile)(`${dest}.tamper.json`, JSON.stringify(evidence, null, 2) + "\n", "utf8");
-    await (0, import_promises3.rename)(spoolFilePath, dest);
+    await (0, import_promises4.writeFile)(`${dest}.tamper.json`, JSON.stringify(evidence, null, 2) + "\n", "utf8");
+    await (0, import_promises4.rename)(spoolFilePath, dest);
     try {
-      await (0, import_promises3.rename)(`${spoolFilePath}.manifest.json`, `${dest}.manifest.json`);
+      await (0, import_promises4.rename)(`${spoolFilePath}.manifest.json`, `${dest}.manifest.json`);
     } catch {
     }
     return dest;
@@ -38460,8 +43350,105 @@ async function quarantineTamperedFile(spoolFilePath, spoolDir, quarantineDirOver
     return null;
   }
 }
+var import_promises4, import_node_path17;
+var init_spool_intake = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/intake/spool-intake.js"() {
+    "use strict";
+    import_promises4 = require("node:fs/promises");
+    import_node_path17 = require("node:path");
+    init_dist6();
+    init_dist2();
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/formatter/frontmatter.js
+// ../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/load-brainignore.js
+var init_load_brainignore = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import-exclusion/load-brainignore.js"() {
+    "use strict";
+    init_brainignore();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/merge/merge-gate.js
+var MERGE_EPOCH_MS;
+var init_merge_gate = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/merge/merge-gate.js"() {
+    "use strict";
+    init_dist2();
+    init_dist7();
+    init_dist();
+    init_promoter();
+    MERGE_EPOCH_MS = Date.parse("2026-01-01T00:00:00.000Z");
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/markdown-parser.js
+var init_markdown_parser = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/markdown-parser.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/vault-walker.js
+var init_vault_walker = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/vault-walker.js"() {
+    "use strict";
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/collision-detector.js
+var init_collision_detector = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/collision-detector.js"() {
+    "use strict";
+    init_dist2();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/import-pipeline.js
+var init_import_pipeline = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/import-pipeline.js"() {
+    "use strict";
+    init_dist2();
+    init_dist();
+    init_vault_walker();
+    init_markdown_parser();
+    init_collision_detector();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/import/index.js
+var init_import = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/import/index.js"() {
+    "use strict";
+    init_markdown_parser();
+    init_vault_walker();
+    init_collision_detector();
+    init_import_pipeline();
+    init_wikilink_parser();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/curator/dist/index.js
+var init_dist8 = __esm({
+  "../bobs-big-brain-registrar/apps/curator/dist/index.js"() {
+    "use strict";
+    init_curator();
+    init_spool_intake();
+    init_dedup_checker();
+    init_supersession_detector2();
+    init_promoter();
+    init_rejector();
+    init_origin_gate();
+    init_import_exclusion_gate();
+    init_brainignore();
+    init_load_brainignore();
+    init_merge_gate();
+    init_import();
+    init_import();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/frontmatter.js
 function extractFrontmatter(memory) {
   return {
     id: memory.id,
@@ -38511,8 +43498,13 @@ function renderFrontmatter(data) {
 function escapeYamlString(s) {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
+var init_frontmatter = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/frontmatter.js"() {
+    "use strict";
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/formatter/markdown-formatter.js
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/markdown-formatter.js
 function formatMemoryAsMarkdown(memory, resolveLinks) {
   const frontmatter = renderFrontmatter(extractFrontmatter(memory));
   const content = resolveLinks ? resolveLinks(memory.content) : memory.content;
@@ -38523,11 +43515,23 @@ function formatMemoryAsMarkdown(memory, resolveLinks) {
 ${content}
 `;
 }
+var init_markdown_formatter = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/markdown-formatter.js"() {
+    "use strict";
+    init_frontmatter();
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/formatter/directory-mapper.js
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/directory-mapper.js
 function getDirectory(memory) {
   if (memory.lifecycle === "archived" || memory.lifecycle === "superseded") {
     return "archive";
+  }
+  return getActiveDirectory(memory);
+}
+function getActiveDirectory(memory) {
+  if (memory.source === "bulk_import") {
+    return "bulk";
   }
   return getCategoryDirectory(memory.category);
 }
@@ -38544,49 +43548,82 @@ function getCategoryDirectory(category) {
     case "onboarding":
       return "guides";
     default:
-      return "curated";
+      throw new UnknownCategoryError(category);
   }
 }
 function getRelativePath2(memory) {
   return `${getDirectory(memory)}/${memory.id}.md`;
 }
+var UnknownCategoryError;
+var init_directory_mapper = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/formatter/directory-mapper.js"() {
+    "use strict";
+    UnknownCategoryError = class extends Error {
+      category;
+      constructor(category) {
+        super(`No export-directory mapping for category "${category}"`);
+        this.category = category;
+        this.name = "UnknownCategoryError";
+      }
+    };
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/diff/change-detector.js
-var import_node_path10 = require("node:path");
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/diff/change-detector.js
 function detectChanges(memoryRepo, exportStateRepo, config2) {
   const exportState = exportStateRepo.get(config2.targetId);
   let memories;
+  const readFailures = [];
   if (config2.tenantId !== void 0) {
-    memories = memoryRepo.findByTenant(config2.tenantId);
+    const res = memoryRepo.findByTenantResilient(config2.tenantId);
+    memories = res.memories;
+    readFailures.push(...res.failures);
   } else {
-    const active = memoryRepo.findByLifecycle("active");
-    const deprecated = memoryRepo.findByLifecycle("deprecated");
-    const superseded = memoryRepo.findByLifecycle("superseded");
-    const archived = memoryRepo.findByLifecycle("archived");
-    memories = [...active, ...deprecated, ...superseded, ...archived];
+    const parts = ["active", "deprecated", "superseded", "archived"].map((lc) => memoryRepo.findByLifecycleResilient(lc));
+    memories = parts.flatMap((p) => p.memories);
+    readFailures.push(...parts.flatMap((p) => p.failures));
   }
   if (exportState !== null) {
     memories = memories.filter((m) => m.updatedAt > exportState.lastExportedAt);
   }
   const toWrite = [];
   const toArchive = [];
+  const quarantined = readFailures.map((f) => ({
+    id: f.id,
+    category: "",
+    reason: f.reason
+  }));
   for (const memory of memories) {
-    if (memory.lifecycle === "archived" || memory.lifecycle === "superseded") {
-      const categoryDir = getCategoryDirectory(memory.category);
-      const fromPath = (0, import_node_path10.join)(config2.outputDir, categoryDir, `${memory.id}.md`);
-      const toPath = (0, import_node_path10.join)(config2.outputDir, getRelativePath2(memory));
-      toArchive.push({ memory, fromPath, toPath });
-    } else {
-      const filePath = (0, import_node_path10.join)(config2.outputDir, getRelativePath2(memory));
-      toWrite.push({ memory, filePath });
+    try {
+      if (memory.lifecycle === "archived" || memory.lifecycle === "superseded") {
+        const activeDir = getActiveDirectory(memory);
+        const fromPath = (0, import_node_path18.join)(config2.outputDir, activeDir, `${memory.id}.md`);
+        const toPath = (0, import_node_path18.join)(config2.outputDir, getRelativePath2(memory));
+        toArchive.push({ memory, fromPath, toPath });
+      } else {
+        const filePath = (0, import_node_path18.join)(config2.outputDir, getRelativePath2(memory));
+        toWrite.push({ memory, filePath });
+      }
+    } catch (err2) {
+      quarantined.push({
+        id: memory.id,
+        category: memory.category ?? "",
+        reason: err2 instanceof Error ? err2.message : String(err2)
+      });
     }
   }
-  return { toWrite, toArchive, toRemove: [] };
+  return { toWrite, toArchive, toRemove: [], quarantined };
 }
+var import_node_path18;
+var init_change_detector = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/diff/change-detector.js"() {
+    "use strict";
+    init_directory_mapper();
+    import_node_path18 = require("node:path");
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/writer/file-writer.js
-var import_node_fs4 = require("node:fs");
-var import_node_path11 = require("node:path");
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/writer/file-writer.js
 function assertPathSafe(filePath, allowedRoot) {
   if (filePath.includes("\0")) {
     throw new Error("Unsafe file path: Path contains null byte");
@@ -38596,43 +43633,49 @@ function assertPathSafe(filePath, allowedRoot) {
     throw new Error("Unsafe file path: Path contains directory traversal (..)");
   }
   if (allowedRoot !== void 0) {
-    const resolved = (0, import_node_path11.resolve)(filePath);
-    const resolvedRoot = (0, import_node_path11.resolve)(allowedRoot);
+    const resolved = (0, import_node_path19.resolve)(filePath);
+    const resolvedRoot = (0, import_node_path19.resolve)(allowedRoot);
     if (!resolved.startsWith(resolvedRoot + "/") && resolved !== resolvedRoot) {
       throw new Error(`Path traversal rejected: ${filePath} is outside ${allowedRoot}`);
     }
   }
 }
-function writeFile2(filePath, content, exportRoot) {
+function writeFile3(filePath, content, exportRoot) {
   assertPathSafe(filePath, exportRoot);
-  (0, import_node_fs4.mkdirSync)((0, import_node_path11.dirname)(filePath), { recursive: true });
-  (0, import_node_fs4.writeFileSync)(filePath, content, "utf8");
+  (0, import_node_fs12.mkdirSync)((0, import_node_path19.dirname)(filePath), { recursive: true });
+  (0, import_node_fs12.writeFileSync)(filePath, content, "utf8");
 }
 function archiveFile(fromPath, toPath, content, exportRoot) {
   assertPathSafe(toPath, exportRoot);
   if (exportRoot !== void 0) {
     assertPathSafe(fromPath, exportRoot);
   }
-  (0, import_node_fs4.mkdirSync)((0, import_node_path11.dirname)(toPath), { recursive: true });
-  if ((0, import_node_fs4.existsSync)(fromPath)) {
-    (0, import_node_fs4.unlinkSync)(fromPath);
+  (0, import_node_fs12.mkdirSync)((0, import_node_path19.dirname)(toPath), { recursive: true });
+  if ((0, import_node_fs12.existsSync)(fromPath)) {
+    (0, import_node_fs12.unlinkSync)(fromPath);
   }
-  (0, import_node_fs4.writeFileSync)(toPath, content, "utf8");
+  (0, import_node_fs12.writeFileSync)(toPath, content, "utf8");
 }
 function removeFile(filePath, exportRoot) {
   if (exportRoot !== void 0) {
     assertPathSafe(filePath, exportRoot);
   }
-  if ((0, import_node_fs4.existsSync)(filePath)) {
-    (0, import_node_fs4.unlinkSync)(filePath);
+  if ((0, import_node_fs12.existsSync)(filePath)) {
+    (0, import_node_fs12.unlinkSync)(filePath);
     return true;
   }
   return false;
 }
+var import_node_fs12, import_node_path19;
+var init_file_writer = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/writer/file-writer.js"() {
+    "use strict";
+    import_node_fs12 = require("node:fs");
+    import_node_path19 = require("node:path");
+  }
+});
 
-// ../qmd-team-intent-kb/apps/git-exporter/dist/exporter.js
-var import_node_fs5 = require("node:fs");
-var CONFIDENTIAL_INDEX = Sensitivity.options.indexOf("confidential");
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/exporter.js
 function isSensitivityRestricted(level) {
   const idx = Sensitivity.options.indexOf(level);
   return idx >= CONFIDENTIAL_INDEX;
@@ -38643,31 +43686,48 @@ function runExport(memoryRepo, exportStateRepo, config2, nowFn = () => (/* @__PU
   const archived = [];
   const removed = [];
   const skipped = [];
+  const quarantined = [...changeset.quarantined];
   let unchanged = 0;
   for (const item of changeset.toWrite) {
     if (isSensitivityRestricted(item.memory.sensitivity)) {
       skipped.push(item.memory.id);
       continue;
     }
-    const content = formatMemoryAsMarkdown(item.memory);
-    if ((0, import_node_fs5.existsSync)(item.filePath)) {
-      const existing = (0, import_node_fs5.readFileSync)(item.filePath, "utf8");
-      if (existing === content) {
-        unchanged++;
-        continue;
+    try {
+      const content = formatMemoryAsMarkdown(item.memory);
+      if ((0, import_node_fs13.existsSync)(item.filePath)) {
+        const existing = (0, import_node_fs13.readFileSync)(item.filePath, "utf8");
+        if (existing === content) {
+          unchanged++;
+          continue;
+        }
       }
+      writeFile3(item.filePath, content);
+      written.push(item.filePath);
+    } catch (err2) {
+      quarantined.push({
+        id: item.memory.id,
+        category: item.memory.category ?? "",
+        reason: err2 instanceof Error ? err2.message : String(err2)
+      });
     }
-    writeFile2(item.filePath, content);
-    written.push(item.filePath);
   }
   for (const item of changeset.toArchive) {
     if (isSensitivityRestricted(item.memory.sensitivity)) {
       skipped.push(item.memory.id);
       continue;
     }
-    const content = formatMemoryAsMarkdown(item.memory);
-    archiveFile(item.fromPath, item.toPath, content);
-    archived.push(item.toPath);
+    try {
+      const content = formatMemoryAsMarkdown(item.memory);
+      archiveFile(item.fromPath, item.toPath, content);
+      archived.push(item.toPath);
+    } catch (err2) {
+      quarantined.push({
+        id: item.memory.id,
+        category: item.memory.category ?? "",
+        reason: err2 instanceof Error ? err2.message : String(err2)
+      });
+    }
   }
   for (const filePath of changeset.toRemove) {
     if (removeFile(filePath)) {
@@ -38680,15 +43740,96 @@ function runExport(memoryRepo, exportStateRepo, config2, nowFn = () => (/* @__PU
     archived,
     removed,
     skipped,
+    quarantined,
     unchanged,
     totalProcessed: changeset.toWrite.length + changeset.toArchive.length + changeset.toRemove.length
   };
 }
+var import_node_fs13, CONFIDENTIAL_INDEX;
+var init_exporter = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/exporter.js"() {
+    "use strict";
+    init_dist();
+    init_change_detector();
+    init_markdown_formatter();
+    init_file_writer();
+    import_node_fs13 = require("node:fs");
+    CONFIDENTIAL_INDEX = Sensitivity.options.indexOf("confidential");
+  }
+});
 
-// src/govern.ts
-var import_node_child_process3 = require("node:child_process");
-var import_node_fs6 = require("node:fs");
-var import_node_path12 = require("node:path");
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/cli.js
+var init_cli = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/cli.js"() {
+    "use strict";
+    init_dist3();
+    init_exporter();
+  }
+});
+
+// ../bobs-big-brain-registrar/apps/git-exporter/dist/index.js
+var init_dist9 = __esm({
+  "../bobs-big-brain-registrar/apps/git-exporter/dist/index.js"() {
+    "use strict";
+    init_frontmatter();
+    init_markdown_formatter();
+    init_directory_mapper();
+    init_change_detector();
+    init_file_writer();
+    init_exporter();
+    init_cli();
+  }
+});
+
+// src/seed-policy.ts
+function seedDefaultPolicy(policyRepo, tenantId) {
+  const existing = policyRepo.findByTenant(tenantId);
+  if (Array.isArray(existing) && existing.length > 0) return false;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const policy = GovernancePolicy.parse({
+    id: (0, import_node_crypto10.randomUUID)(),
+    name: "local-default",
+    tenantId,
+    enabled: true,
+    version: 1,
+    createdAt: now,
+    updatedAt: now,
+    rules: [
+      {
+        id: "secret-detection",
+        type: "secret_detection",
+        action: "reject",
+        enabled: true,
+        priority: 0,
+        parameters: {},
+        description: "Reject candidates containing credentials/secrets \u2014 a receipted backstop to the always-on disclosure choke point."
+      },
+      {
+        id: "content-length",
+        type: "content_length",
+        action: "reject",
+        enabled: true,
+        priority: 10,
+        // NOTE: the content_length rule reads parameters['min'] (default 10) —
+        // NOT 'minLength' (a 'minLength' key is silently ignored).
+        parameters: { min: 25 },
+        description: "Reject too-short candidates (<25 chars) \u2014 low-signal noise."
+      }
+    ]
+  });
+  policyRepo.insert(policy);
+  return true;
+}
+var import_node_crypto10;
+var init_seed_policy = __esm({
+  "src/seed-policy.ts"() {
+    "use strict";
+    import_node_crypto10 = require("node:crypto");
+    init_dist();
+  }
+});
+
+// src/anchor.ts
 function commitAnchor(auditDir) {
   const env = {
     ...process.env,
@@ -38699,12 +43840,13 @@ function commitAnchor(auditDir) {
   };
   const git = (args) => (0, import_node_child_process3.execFileSync)("git", args, { cwd: auditDir, stdio: "ignore", env });
   try {
-    if (!(0, import_node_fs6.existsSync)((0, import_node_path12.join)(auditDir, ".git"))) git(["init", "-q"]);
+    if (!(0, import_node_fs14.existsSync)((0, import_node_path20.join)(auditDir, ".git"))) git(["init", "-q"]);
     git(["add", "anchors.jsonl"]);
     git(["commit", "-q", "-m", `anchor ${(/* @__PURE__ */ new Date()).toISOString()}`]);
     try {
       (0, import_node_child_process3.execFileSync)("git", ["remote", "get-url", "origin"], { cwd: auditDir, stdio: "ignore" });
-      git(["push", "-q", "origin", "HEAD"]);
+      (0, import_node_child_process3.execFile)("git", ["push", "-q", "origin", "HEAD"], { cwd: auditDir, timeout: 15e3, env }, () => {
+      });
     } catch {
     }
     return true;
@@ -38712,7 +43854,113 @@ function commitAnchor(auditDir) {
     return false;
   }
 }
+function anchorChainHead(auditRepo, basePath, tenantId) {
+  try {
+    const auditDir = (0, import_node_path20.join)(basePath, "audit");
+    (0, import_node_fs14.mkdirSync)(auditDir, { recursive: true });
+    const rec = appendAnchor(auditRepo, (0, import_node_path20.join)(auditDir, "anchors.jsonl"), { tenantId });
+    return {
+      chainHead: rec.chainHead,
+      chainedRows: rec.chainedRows,
+      committed: commitAnchor(auditDir)
+    };
+  } catch {
+    return void 0;
+  }
+}
+var import_node_child_process3, import_node_fs14, import_node_path20;
+var init_anchor = __esm({
+  "src/anchor.ts"() {
+    "use strict";
+    init_dist3();
+    import_node_child_process3 = require("node:child_process");
+    import_node_fs14 = require("node:fs");
+    import_node_path20 = require("node:path");
+  }
+});
+
+// src/write-lock.ts
+function tryFlockExclusive(fd) {
+  return new Promise((resolve3) => {
+    try {
+      (0, import_fs_ext.flock)(fd, "exnb", (err2) => resolve3(err2 ?? null));
+    } catch (e) {
+      resolve3(e);
+    }
+  });
+}
+function isContention(err2) {
+  return err2.code === "EAGAIN" || err2.code === "EWOULDBLOCK";
+}
+async function acquireWriteLock(basePath, timeoutMs = DEFAULT_TIMEOUT_MS) {
+  (0, import_node_fs15.mkdirSync)(basePath, { recursive: true });
+  const lockPath = (0, import_node_path21.join)(basePath, LOCK_FILENAME);
+  const fd = (0, import_node_fs15.openSync)(lockPath, "a");
+  const deadline = Date.now() + Math.max(0, timeoutMs);
+  for (; ; ) {
+    const err2 = await tryFlockExclusive(fd);
+    if (!err2) {
+      return {
+        release() {
+          try {
+            (0, import_fs_ext.flockSync)(fd, "un");
+          } catch {
+          } finally {
+            try {
+              (0, import_node_fs15.closeSync)(fd);
+            } catch {
+            }
+          }
+        }
+      };
+    }
+    if (!isContention(err2)) {
+      try {
+        (0, import_node_fs15.closeSync)(fd);
+      } catch {
+      }
+      throw err2;
+    }
+    if (Date.now() >= deadline) {
+      try {
+        (0, import_node_fs15.closeSync)(fd);
+      } catch {
+      }
+      throw new WriteLockBusyError();
+    }
+    await sleep(RETRY_INTERVAL_MS);
+  }
+}
+var import_node_fs15, import_node_path21, import_fs_ext, LOCK_FILENAME, DEFAULT_TIMEOUT_MS, RETRY_INTERVAL_MS, WriteLockBusyError, sleep;
+var init_write_lock = __esm({
+  "src/write-lock.ts"() {
+    "use strict";
+    import_node_fs15 = require("node:fs");
+    import_node_path21 = require("node:path");
+    import_fs_ext = require("fs-ext");
+    LOCK_FILENAME = ".write.lock";
+    DEFAULT_TIMEOUT_MS = 8e3;
+    RETRY_INTERVAL_MS = 100;
+    WriteLockBusyError = class extends Error {
+      constructor(message = "brain busy \u2014 another write in progress, retry") {
+        super(message);
+        this.name = "WriteLockBusyError";
+      }
+    };
+    sleep = (ms) => new Promise((resolve3) => setTimeout(resolve3, ms));
+  }
+});
+
+// src/govern.ts
 async function runGovern(config2) {
+  const lock = await acquireWriteLock(config2.basePath);
+  try {
+    return await runGovernLocked(config2);
+  } finally {
+    lock.release();
+  }
+}
+async function runGovernLocked(config2) {
   const db = createDatabase({ path: config2.dbPath });
   try {
     const candidateRepo = new CandidateRepository(db);
@@ -38720,21 +43968,19 @@ async function runGovern(config2) {
     const policyRepo = new PolicyRepository(db);
     const auditRepo = new AuditRepository(db);
     const exportStateRepo = new ExportStateRepository(db);
-    const ingestResult = await ingestFromSpool(candidateRepo, config2.spoolPath);
-    const candidates = ingestResult.ok ? ingestResult.value : [];
-    const curation = { processed: 0, promoted: 0, rejected: 0, flagged: 0, duplicates: 0 };
-    if (candidates.length > 0) {
-      const curator = new Curator(
-        { candidateRepo, memoryRepo, policyRepo, auditRepo },
-        { tenantId: config2.tenantId }
+    try {
+      seedDefaultPolicy(policyRepo, config2.tenantId);
+    } catch (e) {
+      process.stderr.write(
+        `[governed-brain] default policy seed skipped: ${e instanceof Error ? e.message : String(e)}
+`
       );
-      const r = curator.processBatch(candidates);
-      curation.processed = r.processed;
-      curation.promoted = r.promoted;
-      curation.rejected = r.rejected;
-      curation.flagged = r.flagged;
-      curation.duplicates = r.duplicates;
     }
+    const ingestResult = await ingestFromSpool(candidateRepo, config2.spoolPath, {
+      archiveIngestedDir: (0, import_node_path22.join)(config2.spoolPath, "ingested")
+    });
+    const ingested = ingestResult.ok ? ingestResult.value.length : 0;
+    const curation = sweepInbox(config2, { candidateRepo, memoryRepo, policyRepo, auditRepo });
     let exported = 0;
     try {
       const ex = await runExport(
@@ -38751,7 +43997,15 @@ async function runGovern(config2) {
     let indexUpdated = false;
     let indexError;
     try {
-      const adapter = new QmdAdapter({ tenantId: config2.tenantId, exportDir: config2.exportDir });
+      const adapter = new QmdAdapter({
+        tenantId: config2.tenantId,
+        exportDir: config2.exportDir,
+        // Dense arm ON by default via the registrar's shared production seam
+        // (#328); TEAMKB_DENSE_ENABLED=false is the emergency kill switch. This
+        // site was the vps.1 drift class — the plugin bypasses the API, so
+        // wiring the API alone would leave local mode lexical-only.
+        dense: getDefaultDenseConfig()
+      });
       const ensure = await adapter.ensureCollections();
       if (!ensure.ok) throw new Error(ensure.error.message);
       const upd = await adapter.update();
@@ -38760,29 +44014,19 @@ async function runGovern(config2) {
     } catch (e) {
       indexError = e instanceof Error ? e.message : String(e);
     }
-    let anchored;
-    try {
-      const auditDir = (0, import_node_path12.join)(config2.basePath, "audit");
-      (0, import_node_fs6.mkdirSync)(auditDir, { recursive: true });
-      const rec = appendAnchor(auditRepo, (0, import_node_path12.join)(auditDir, "anchors.jsonl"), {
-        tenantId: config2.tenantId
-      });
-      anchored = {
-        chainHead: rec.chainHead,
-        chainedRows: rec.chainedRows,
-        committed: commitAnchor(auditDir)
-      };
-    } catch (e) {
-      process.stderr.write(`[govern] anchor failed: ${e instanceof Error ? e.message : String(e)}
-`);
+    const anchored = anchorChainHead(auditRepo, config2.basePath, config2.tenantId);
+    if (!anchored) {
+      process.stderr.write("[govern] anchor failed (best-effort; govern pass unaffected)\n");
     }
     return {
-      ingested: candidates.length,
+      ingested,
       processed: curation.processed,
       promoted: curation.promoted,
       rejected: curation.rejected,
       flagged: curation.flagged,
       duplicates: curation.duplicates,
+      quarantined: curation.quarantined,
+      skipped: curation.skipped,
       exported,
       indexUpdated,
       indexError,
@@ -38792,20 +44036,130 @@ async function runGovern(config2) {
     db.close();
   }
 }
+function sweepInbox(config2, deps) {
+  const { candidateRepo, memoryRepo, policyRepo, auditRepo } = deps;
+  const inbox = candidateRepo.findByStatus("inbox", config2.tenantId);
+  const res = {
+    processed: inbox.length,
+    promoted: 0,
+    rejected: 0,
+    flagged: 0,
+    duplicates: 0,
+    quarantined: 0,
+    skipped: 0
+  };
+  if (inbox.length === 0) return res;
+  let originSecret;
+  try {
+    originSecret = loadOrCreateOriginSecret(config2.basePath);
+  } catch {
+    originSecret = void 0;
+  }
+  const curator = new Curator(
+    { candidateRepo, memoryRepo, policyRepo, auditRepo },
+    { tenantId: config2.tenantId, suppressRejectionReceipts: true, originSecret }
+  );
+  const existingHashes = new Set(memoryRepo.getContentHashesByTenant(config2.tenantId));
+  const outcomes = [];
+  const pendingFlips = [];
+  for (const candidate of inbox) {
+    try {
+      if (isMemberAuthored(candidate)) {
+        pendingFlips.push({ id: candidate.id, status: "quarantined" });
+        res.quarantined++;
+        outcomes.push({ candidateId: candidate.id, outcome: "quarantined" });
+        continue;
+      }
+      const result = curator.processSingle(candidate, existingHashes);
+      switch (result.outcome) {
+        case "promoted":
+          candidateRepo.updateStatus(candidate.id, "promoted", config2.tenantId);
+          existingHashes.add(computeContentHash(candidate.content));
+          res.promoted++;
+          outcomes.push({ candidateId: candidate.id, outcome: "promoted" });
+          break;
+        case "duplicate":
+          pendingFlips.push({ id: candidate.id, status: "duplicate" });
+          res.duplicates++;
+          outcomes.push({ candidateId: candidate.id, outcome: "duplicate" });
+          break;
+        case "flagged":
+          res.flagged++;
+          outcomes.push({ candidateId: candidate.id, outcome: "flagged" });
+          break;
+        case "rejected":
+          res.rejected++;
+          outcomes.push({ candidateId: candidate.id, outcome: "rejected" });
+          break;
+      }
+    } catch (e) {
+      res.skipped++;
+      outcomes.push({ candidateId: candidate.id, outcome: "skipped" });
+      process.stderr.write(
+        `[govern:sweep] skipped candidate ${candidate.id}: ${e instanceof Error ? e.message : String(e)}
+`
+      );
+    }
+  }
+  const leftInbox = res.promoted + res.duplicates + res.quarantined;
+  if (leftInbox > 0) {
+    memoryRepo.connection.transaction(() => {
+      for (const flip of pendingFlips) {
+        candidateRepo.updateStatus(flip.id, flip.status, config2.tenantId);
+      }
+      auditRepo.insert(
+        AuditEvent.parse({
+          id: (0, import_node_crypto11.randomUUID)(),
+          action: "governed",
+          memoryId: SWEEP_RECEIPT_MEMORY_ID,
+          tenantId: config2.tenantId,
+          actor: { type: "system", id: "auto-govern" },
+          reason: `Auto-govern sweep: ${res.promoted} promoted, ${res.duplicates} duplicate, ${res.quarantined} quarantined, ${res.flagged} flagged, ${res.rejected} rejected, ${res.skipped} skipped`,
+          details: {
+            promoted: res.promoted,
+            duplicates: res.duplicates,
+            quarantined: res.quarantined,
+            flagged: res.flagged,
+            rejected: res.rejected,
+            skipped: res.skipped,
+            processed: res.processed,
+            outcomes
+          },
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        })
+      );
+    })();
+  }
+  return res;
+}
+function isMemberAuthored(candidate) {
+  return candidate.metadata?.proposedByRole === "member";
+}
+var import_node_crypto11, import_node_path22, SWEEP_RECEIPT_MEMORY_ID;
+var init_govern = __esm({
+  "src/govern.ts"() {
+    "use strict";
+    import_node_crypto11 = require("node:crypto");
+    import_node_path22 = require("node:path");
+    init_dist8();
+    init_dist9();
+    init_dist2();
+    init_dist();
+    init_dist3();
+    init_dist4();
+    init_seed_policy();
+    init_anchor();
+    init_write_lock();
+    SWEEP_RECEIPT_MEMORY_ID = "00000000-0000-4000-8000-000000000b10";
+  }
+});
 
 // src/local-server.ts
-var VERSION = "0.1.6";
-var config = resolveConfig();
-var CATEGORIES = [
-  "decision",
-  "pattern",
-  "convention",
-  "architecture",
-  "troubleshooting",
-  "onboarding",
-  "reference"
-];
-function jsonResult(obj) {
+var local_server_exports = {};
+__export(local_server_exports, {
+  startLocalServer: () => startLocalServer
+});
+function jsonResult2(obj) {
   return { content: [{ type: "text", text: JSON.stringify(obj, null, 2) }] };
 }
 function isMissingNativeDep(e) {
@@ -38814,230 +44168,543 @@ function isMissingNativeDep(e) {
     msg
   );
 }
-var NATIVE_DEP_HINT = "The brain's local store (better-sqlite3) isn't built for this machine. Run `npx governed-second-brain init <folder>` once \u2014 it builds the native module and registers the MCP \u2014 then retry. (Capture still works without it; only the governed store does not.)";
-var server = new McpServer({ name: "governed-brain", version: VERSION });
-server.tool(
-  "brain_search",
-  "Search your governed knowledge brain and return qmd:// citations \u2014 receipts, not recall. Runs in-process against your local qmd index (no network, no API key). Curated scope by default.",
-  {
-    query: import_zod16.z.string().min(1).describe("Natural-language search query"),
-    scope: import_zod16.z.enum(["curated", "all", "inbox", "archived"]).optional().describe("Search scope: curated (default, governed knowledge), all, inbox, or archived"),
-    limit: import_zod16.z.number().int().min(1).max(50).optional().describe("Maximum number of cited hits to return (default 10)")
-  },
-  async (params) => {
-    const scope = params.scope ?? "curated";
-    const limit = params.limit ?? 10;
-    const adapter = new QmdAdapter({ tenantId: config.tenantId, exportDir: config.exportDir });
-    const res = await adapter.query(params.query, scope);
-    if (!res.ok) {
-      return jsonResult({
-        source: "local-qmd",
-        query: params.query,
-        scope,
-        count: 0,
-        results: [],
-        note: "qmd search returned no index \u2014 install qmd 2.x on PATH and run brain_govern to build it."
-      });
-    }
-    const results = res.value.slice(0, limit).map((r) => ({
-      citation: r.file,
-      snippet: r.snippet,
-      score: r.score,
-      collection: r.collection
-    }));
-    return jsonResult({ source: "local-qmd", query: params.query, scope, count: results.length, results });
+function manifestPath(basePath) {
+  return (0, import_node_path23.join)(basePath, "audit", "exceptions.manifest.json");
+}
+function loadExceptionManifest(basePath) {
+  const p = manifestPath(basePath);
+  if (!(0, import_node_fs16.existsSync)(p)) return null;
+  try {
+    return readManifest(p);
+  } catch (e) {
+    process.stderr.write(
+      `[audit-verify] exception manifest ignored (treated as absent): ${e instanceof Error ? e.message : String(e)}
+`
+    );
+    return null;
   }
-);
-server.tool(
-  "brain_status",
-  "Report the health of your governed brain \u2014 counts of memories by lifecycle state and category. Read-only.",
-  async () => {
-    let db;
-    try {
-      db = createDatabase({ path: config.dbPath, readonly: true });
-    } catch (e) {
-      if (isMissingNativeDep(e)) return jsonResult({ total: 0, note: NATIVE_DEP_HINT });
-      return jsonResult({
-        total: 0,
-        byLifecycle: {},
-        byCategory: {},
-        note: "Brain is empty \u2014 capture something with /brain-save (brain_capture + brain_govern)."
-      });
-    }
-    try {
-      const repo = new MemoryRepository(db);
-      return jsonResult({
-        total: repo.count(),
-        byLifecycle: repo.countByLifecycle(),
-        byCategory: repo.countByCategory()
-      });
-    } finally {
-      db.close();
-    }
-  }
-);
-server.tool(
-  "brain_audit_verify",
-  "Verify the integrity of your brain's audit trail \u2014 the SHA-256 hash chain AND the external anchor log. Reports any tamper: a broken hash link, or a silent rewrite of history the chain alone would miss (caught by cross-checking the anchored snapshots). Read-only.",
-  async () => {
-    let db;
-    try {
-      db = createDatabase({ path: config.dbPath, readonly: true });
-    } catch (e) {
-      if (isMissingNativeDep(e)) return jsonResult({ ok: false, totalEvents: 0, note: NATIVE_DEP_HINT });
-      return jsonResult({ ok: true, totalEvents: 0, note: "Brain is empty \u2014 no audit chain yet." });
-    }
-    try {
-      const auditRepo = new AuditRepository(db);
-      const result = verifyAnchors(auditRepo, (0, import_node_path13.join)(config.basePath, "audit", "anchors.jsonl"));
-      return jsonResult({
-        ok: result.ok,
-        totalEvents: result.chain.totalRows,
-        cleanRows: result.chain.cleanRows,
-        chainBreaks: result.chain.breaks,
-        anchorCount: result.anchorCount,
-        anchorBreaks: result.anchorBreaks,
-        message: result.ok ? `Audit chain intact (${result.chain.totalRows} events), consistent with ${result.anchorCount} external anchor(s).` : `\u26A0 TAMPER DETECTED \u2014 ${result.chain.breaks.length} chain break(s), ${result.anchorBreaks.length} anchor break(s).`
-      });
-    } finally {
-      db.close();
-    }
-  }
-);
-server.tool(
-  "brain_capture",
-  "Capture a single fact, decision, pattern, or convention as a governance candidate (the model's PROPOSAL). It is appended to the local spool; run brain_govern to put it through deterministic dedupe/policy/promotion with a hash-chained receipt.",
-  {
-    title: import_zod16.z.string().min(1).describe("Short, specific title for the memory"),
-    content: import_zod16.z.string().min(1).describe("The fact to remember, in full"),
-    category: import_zod16.z.enum(CATEGORIES).optional().describe("Memory category (default: reference)"),
-    filePaths: import_zod16.z.array(import_zod16.z.string()).optional().describe("Related file paths, if any")
-  },
-  async (params) => {
-    const candidate = {
-      id: (0, import_node_crypto7.randomUUID)(),
-      status: "inbox",
-      source: "mcp",
-      content: params.content,
-      title: params.title,
-      category: params.category ?? "reference",
-      trustLevel: "medium",
-      author: { type: "ai", id: "governed-brain" },
-      tenantId: config.tenantId,
-      metadata: { filePaths: params.filePaths ?? [], tags: [] },
-      prePolicyFlags: { potentialSecret: false, lowConfidence: false, duplicateSuspect: false },
-      capturedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    const res = await writeToSpool(candidate, config.spoolPath);
-    if (!res.ok) {
-      return jsonResult({ ok: false, error: res.error });
-    }
-    return jsonResult({
-      ok: true,
-      candidateId: candidate.id,
-      message: "Captured to the spool. Run brain_govern to dedupe \u2192 policy \u2192 promote with a hash-chained receipt."
+}
+function buildRowsById(auditRepo) {
+  const rowsById = /* @__PURE__ */ new Map();
+  for (const row of auditRepo.findAllChronological()) {
+    const raw = row;
+    rowsById.set(row.id, {
+      entry_hash: row.entry_hash,
+      prev_entry_hash: row.prev_entry_hash,
+      hash_version: row.hash_version ?? 1,
+      seq: raw.seq ?? 0
     });
   }
-);
-server.tool(
-  "brain_govern",
-  "Run the deterministic govern pipeline once, in-process: drain the spool \u2192 dedupe \u2192 policy/secret-detection \u2192 promote, append a SHA-256 hash-chained audit event per decision, then refresh the search index. This is the deterministic system DISPOSING of the model's proposals.",
-  async () => {
-    let s;
-    try {
-      s = await runGovern(config);
-    } catch (e) {
-      if (isMissingNativeDep(e)) return jsonResult({ ok: false, error: "native-store-unavailable", message: NATIVE_DEP_HINT });
-      throw e;
-    }
-    const parts = [
-      `${s.promoted} promoted`,
-      `${s.rejected} rejected`,
-      `${s.duplicates} duplicate`,
-      `${s.flagged} flagged`
-    ];
-    let message = `Governed ${s.ingested} candidate(s): ${parts.join(", ")}.`;
-    if (!s.indexUpdated) {
-      message += " Search index not refreshed \u2014 install qmd 2.x on PATH and re-run brain_govern to make new memories searchable.";
-    }
-    return jsonResult({ ok: true, ...s, message });
+  return rowsById;
+}
+function honestCleanMessage(totalEvents, forkCount, exceptionCount, anchorCount) {
+  const parts = ["0 tamper signatures"];
+  if (forkCount > 0) {
+    parts.push(`${forkCount} benign chain-ordering fork(s) (known artifact)`);
   }
-);
-server.tool(
-  "brain_transition",
-  "Change the lifecycle state of an existing governed memory (e.g. retire an outdated one). Writes a hash-chained audit event. Valid moves: active\u2192{deprecated,superseded,archived}, deprecated\u2192{active,archived}, superseded\u2192archived.",
-  {
-    memoryId: import_zod16.z.string().uuid().describe("UUID of the memory to transition"),
-    to: import_zod16.z.enum(["active", "deprecated", "superseded", "archived"]).describe("Target lifecycle state"),
-    reason: import_zod16.z.string().min(1).describe("Human-readable justification (lands in the audit trail)"),
-    actor: import_zod16.z.string().optional().describe("Who is making the change (default: owner)"),
-    supersededBy: import_zod16.z.string().uuid().optional().describe('Required UUID when transitioning to "superseded"')
-  },
-  async (params) => {
-    let db;
-    try {
-      db = createDatabase({ path: config.dbPath });
-    } catch (e) {
-      if (isMissingNativeDep(e)) return jsonResult({ ok: false, error: "native-store-unavailable", message: NATIVE_DEP_HINT });
-      throw e;
-    }
-    try {
-      const memoryRepo = new MemoryRepository(db);
-      const auditRepo = new AuditRepository(db);
-      const memory = memoryRepo.findById(params.memoryId);
-      if (!memory) {
-        return jsonResult({ ok: false, error: `No memory found with id ${params.memoryId}` });
-      }
-      const actor = { type: "human", id: params.actor ?? "owner" };
-      const validation = validateTransition(memory.lifecycle, params.to, {
-        reason: params.reason,
-        actor,
-        supersededBy: params.supersededBy
-      });
-      if (!validation.valid) {
-        return jsonResult({ ok: false, error: validation.error });
-      }
-      const now = (/* @__PURE__ */ new Date()).toISOString();
-      const action = params.to === "archived" ? "archived" : params.to === "superseded" ? "superseded" : "demoted";
-      db.transaction(() => {
-        memoryRepo.updateLifecycle(params.memoryId, params.to, now);
-        auditRepo.insert({
-          id: (0, import_node_crypto7.randomUUID)(),
-          action,
-          memoryId: params.memoryId,
-          tenantId: memory.tenantId,
-          actor,
-          reason: params.reason,
-          details: { from: memory.lifecycle, to: params.to },
-          timestamp: now
-        });
-      })();
-      return jsonResult({
-        ok: true,
-        memoryId: params.memoryId,
-        from: memory.lifecycle,
-        to: params.to,
-        message: "Transition applied; hash-chained audit event written."
-      });
-    } finally {
-      db.close();
-    }
+  if (exceptionCount > 0) {
+    parts.push(`${exceptionCount} documented exception(s)`);
   }
-);
-async function main() {
+  return `Audit chain verified over ${totalEvents} event(s): ${parts.join(", ")}, consistent with ${anchorCount} external anchor(s).`;
+}
+async function startLocalServer() {
   const transport = new StdioServerTransport();
   const shutdown = async (sig) => {
-    process.stderr.write(`[governed-brain] ${sig}, shutting down
+    process.stderr.write(`[governed-brain:local] ${sig}, shutting down
 `);
-    await server.close();
+    await server2.close();
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
-  await server.connect(transport);
+  await server2.connect(transport);
   process.stderr.write(
-    `[governed-brain] started \u2014 tenant=${config.tenantId} base=${config.basePath} (local, in-process, no network)
+    `[governed-brain:local] started \u2014 tenant=${config.tenantId} base=${config.basePath} (local, in-process, no network)
 `
   );
+}
+var import_node_crypto12, import_node_fs16, import_zod19, import_node_path23, VERSION2, config, CATEGORIES2, NATIVE_DEP_HINT, server2;
+var init_local_server = __esm({
+  "src/local-server.ts"() {
+    "use strict";
+    import_node_crypto12 = require("node:crypto");
+    import_node_fs16 = require("node:fs");
+    init_mcp();
+    init_stdio2();
+    import_zod19 = __toESM(require_zod(), 1);
+    import_node_path23 = require("node:path");
+    init_dist3();
+    init_dist4();
+    init_dist2();
+    init_dist6();
+    init_dist();
+    init_config3();
+    init_govern();
+    init_anchor();
+    init_write_lock();
+    VERSION2 = "1.2.0";
+    config = resolveConfig();
+    CATEGORIES2 = [
+      "decision",
+      "pattern",
+      "convention",
+      "architecture",
+      "troubleshooting",
+      "onboarding",
+      "reference"
+    ];
+    NATIVE_DEP_HINT = "The brain's local store (better-sqlite3) isn't built for this machine. Run `npx governed-second-brain init <folder>` once \u2014 it builds the native module and registers the MCP \u2014 then retry. (Capture still works without it; only the governed store does not.)";
+    server2 = new McpServer({ name: "governed-brain", version: VERSION2 });
+    server2.tool(
+      "brain_search",
+      "Search your governed knowledge brain and return qmd:// citations \u2014 receipts, not recall. Runs in-process against your local qmd index (no network, no API key). Curated scope by default.",
+      {
+        query: import_zod19.z.string().min(1).describe("Natural-language search query"),
+        scope: import_zod19.z.enum(["curated", "all", "inbox", "archived"]).optional().describe("Search scope: curated (default, governed knowledge), all, inbox, or archived"),
+        limit: import_zod19.z.number().int().min(1).max(50).optional().describe("Maximum number of cited hits to return (default 10)")
+      },
+      async (params) => {
+        const scope = params.scope ?? "curated";
+        const limit = params.limit ?? 10;
+        const adapter = new QmdAdapter({
+          tenantId: config.tenantId,
+          exportDir: config.exportDir,
+          // Dense arm ON by default via the registrar's shared production seam
+          // (#328); TEAMKB_DENSE_ENABLED=false is the emergency kill switch. This
+          // site was the vps.1 drift class — the plugin bypasses the API, so
+          // wiring the API alone would leave local mode lexical-only.
+          dense: getDefaultDenseConfig()
+        });
+        const res = await adapter.query(params.query, scope, config.tenantId);
+        if (!res.ok) {
+          return jsonResult2({
+            source: "local-qmd",
+            query: params.query,
+            scope,
+            count: 0,
+            results: [],
+            note: "qmd search returned no index \u2014 install qmd 2.x on PATH and run brain_govern to build it."
+          });
+        }
+        const nowIso = (/* @__PURE__ */ new Date()).toISOString();
+        let ranked = res.value;
+        let db;
+        try {
+          db = createDatabase({ path: config.dbPath, readonly: true });
+          const repo = new MemoryRepository(db);
+          const maxScore = res.value.reduce((m, h) => h.score > m ? h.score : m, 0);
+          const normalised = res.value.map((h, i) => ({
+            ...h,
+            score: maxScore > 0 ? Math.min(Math.max(h.score / maxScore, 0), 1) : res.value.length > 0 ? (res.value.length - i) / res.value.length : 0
+          }));
+          const reranked = rerankCitedHits(
+            normalised,
+            (memoryId) => {
+              const m = repo.findById(memoryId);
+              return m ? { category: m.category, updatedAt: m.updatedAt } : null;
+            },
+            nowIso
+          );
+          ranked = reranked.map((r) => ({
+            file: r.file,
+            snippet: r.snippet,
+            score: Math.min(r.finalScore, 1),
+            collection: r.collection
+          }));
+        } catch {
+          ranked = res.value;
+        } finally {
+          db?.close();
+        }
+        const results = ranked.slice(0, limit).map((r) => ({
+          citation: r.file,
+          snippet: r.snippet,
+          score: r.score,
+          collection: r.collection
+        }));
+        return jsonResult2({ source: "local-qmd", query: params.query, scope, count: results.length, results });
+      }
+    );
+    server2.tool(
+      "brain_status",
+      "Report the health of your governed brain \u2014 counts of memories by lifecycle state and category. Read-only.",
+      async () => {
+        let db;
+        try {
+          db = createDatabase({ path: config.dbPath, readonly: true });
+        } catch (e) {
+          if (isMissingNativeDep(e)) return jsonResult2({ total: 0, note: NATIVE_DEP_HINT });
+          return jsonResult2({
+            total: 0,
+            byLifecycle: {},
+            byCategory: {},
+            note: "Brain is empty \u2014 capture something with /brain-save (brain_capture + brain_govern)."
+          });
+        }
+        try {
+          const repo = new MemoryRepository(db);
+          return jsonResult2({
+            total: repo.count(),
+            byLifecycle: repo.countByLifecycle(),
+            byCategory: repo.countByCategory()
+          });
+        } finally {
+          db.close();
+        }
+      }
+    );
+    server2.tool(
+      "brain_audit_verify",
+      "Verify the integrity of your brain's audit trail \u2014 the SHA-256 hash chain AND the external anchor log. Reports an honest 3-state summary: tamper signatures (a broken hash link, or a silent rewrite of history caught by cross-checking the anchored snapshots), documented migration exceptions, and benign chain-ordering forks. Read-only.",
+      {
+        verbose: import_zod19.z.boolean().optional().describe(
+          "Include the raw per-break detail arrays (row ids, tenants). Default false \u2014 the summary reports counts only, to avoid leaking row identity on a read surface an outsider may hit."
+        )
+      },
+      async (params) => {
+        const verbose = params.verbose ?? false;
+        let db;
+        try {
+          db = createDatabase({ path: config.dbPath, readonly: true });
+        } catch (e) {
+          if (isMissingNativeDep(e)) return jsonResult2({ ok: false, totalEvents: 0, note: NATIVE_DEP_HINT });
+          return jsonResult2({ ok: true, totalEvents: 0, note: "Brain is empty \u2014 no audit chain yet." });
+        }
+        try {
+          const auditRepo = new AuditRepository(db);
+          const result = verifyAnchors(auditRepo, (0, import_node_path23.join)(config.basePath, "audit", "anchors.jsonl"));
+          const manifest = loadExceptionManifest(config.basePath);
+          const rowsById = buildRowsById(auditRepo);
+          const classified = classifyChainBreaks(result.chain.breaks, manifest, rowsById);
+          const tamperCount = classified.tamperSignatures.length;
+          const exceptionCount = classified.documentedExceptions.length;
+          const forkCount = classified.chainForks.length;
+          const anchorBreakCount = result.anchorBreaks.length;
+          const ok2 = tamperCount === 0 && anchorBreakCount === 0;
+          const message = ok2 ? honestCleanMessage(result.chain.totalRows, forkCount, exceptionCount, result.anchorCount) : `\u26A0 TAMPER DETECTED \u2014 ${tamperCount} tamper signature(s), ${anchorBreakCount} anchor break(s).`;
+          const base = {
+            ok: ok2,
+            totalEvents: result.chain.totalRows,
+            cleanRows: result.chain.cleanRows,
+            tamperSignatures: tamperCount,
+            documentedExceptions: exceptionCount,
+            chainForks: forkCount,
+            anchorCount: result.anchorCount,
+            anchorBreaks: anchorBreakCount,
+            message
+          };
+          if (!verbose) return jsonResult2(base);
+          return jsonResult2({
+            ...base,
+            detail: {
+              tamperSignatures: classified.tamperSignatures,
+              documentedExceptions: classified.documentedExceptions,
+              chainForks: classified.chainForks,
+              anchorBreaks: result.anchorBreaks
+            }
+          });
+        } finally {
+          db.close();
+        }
+      }
+    );
+    server2.tool(
+      "brain_capture",
+      "Capture a single fact, decision, pattern, or convention as a governance candidate (the model's PROPOSAL). It is appended to the local spool; run brain_govern to put it through deterministic dedupe/policy/promotion with a hash-chained receipt.",
+      {
+        title: import_zod19.z.string().min(1).describe("Short, specific title for the memory"),
+        content: import_zod19.z.string().min(1).describe("The fact to remember, in full"),
+        category: import_zod19.z.enum(CATEGORIES2).optional().describe("Memory category (default: reference)"),
+        filePaths: import_zod19.z.array(import_zod19.z.string()).optional().describe("Related file paths, if any")
+      },
+      async (params) => {
+        const id = (0, import_node_crypto12.randomUUID)();
+        const capturedAt = (/* @__PURE__ */ new Date()).toISOString();
+        let origin;
+        try {
+          const secret = loadOrCreateOriginSecret(config.basePath);
+          origin = {
+            tokenHmac: mintOriginToken2(secret, {
+              candidateId: id,
+              tenantId: config.tenantId,
+              capturedAt
+            }),
+            channel: "local-mcp",
+            mintedAt: capturedAt
+          };
+        } catch {
+          origin = void 0;
+        }
+        const candidate = {
+          // Pinned literal (5bm.6): the registrar rejects unversioned/other-version
+          // spool lines rather than silently stripping unknown fields.
+          schemaVersion: "1",
+          id,
+          status: "inbox",
+          source: "mcp",
+          content: params.content,
+          title: params.title,
+          category: params.category ?? "reference",
+          trustLevel: "medium",
+          author: { type: "ai", id: "governed-brain" },
+          tenantId: config.tenantId,
+          metadata: { filePaths: params.filePaths ?? [], tags: [] },
+          prePolicyFlags: { potentialSecret: false, lowConfidence: false, duplicateSuspect: false },
+          capturedAt,
+          ...origin !== void 0 ? { origin } : {}
+        };
+        const res = await writeToSpool(candidate, config.spoolPath);
+        if (!res.ok) {
+          return jsonResult2({ ok: false, error: res.error });
+        }
+        return jsonResult2({
+          ok: true,
+          candidateId: candidate.id,
+          message: "Captured to the spool. Run brain_govern to dedupe \u2192 policy \u2192 promote with a hash-chained receipt."
+        });
+      }
+    );
+    server2.tool(
+      "brain_govern",
+      "Run the deterministic govern pipeline once, in-process: drain the spool \u2192 dedupe \u2192 policy/secret-detection \u2192 promote, append a SHA-256 hash-chained audit event per decision, then refresh the search index. This is the deterministic system DISPOSING of the model's proposals.",
+      async () => {
+        let s;
+        try {
+          s = await runGovern(config);
+        } catch (e) {
+          if (e instanceof WriteLockBusyError) return jsonResult2({ ok: false, error: e.message });
+          if (isMissingNativeDep(e)) return jsonResult2({ ok: false, error: "native-store-unavailable", message: NATIVE_DEP_HINT });
+          throw e;
+        }
+        const parts = [
+          `${s.promoted} promoted`,
+          `${s.quarantined} quarantined`,
+          `${s.rejected} rejected`,
+          `${s.duplicates} duplicate`,
+          `${s.flagged} flagged`
+        ];
+        if (s.skipped > 0) parts.push(`${s.skipped} skipped`);
+        let message = `Governed ${s.processed} inbox candidate(s) (${s.ingested} newly ingested): ${parts.join(", ")}.`;
+        if (!s.indexUpdated) {
+          message += " Search index not refreshed \u2014 install qmd 2.x on PATH and re-run brain_govern to make new memories searchable.";
+        }
+        return jsonResult2({ ok: true, ...s, message });
+      }
+    );
+    server2.tool(
+      "brain_transition",
+      "Change the lifecycle state of an existing governed memory (e.g. retire an outdated one). Writes a hash-chained audit event. Valid moves: active\u2192{deprecated,superseded,archived}, deprecated\u2192{active,archived}, superseded\u2192archived.",
+      {
+        memoryId: import_zod19.z.string().uuid().describe("UUID of the memory to transition"),
+        to: import_zod19.z.enum(["active", "deprecated", "superseded", "archived"]).describe("Target lifecycle state"),
+        reason: import_zod19.z.string().min(1).describe("Human-readable justification (lands in the audit trail)"),
+        actor: import_zod19.z.string().optional().describe("Who is making the change (default: owner)"),
+        supersededBy: import_zod19.z.string().uuid().optional().describe('Required UUID when transitioning to "superseded"')
+      },
+      async (params) => {
+        let lock;
+        try {
+          lock = await acquireWriteLock(config.basePath);
+        } catch (e) {
+          if (e instanceof WriteLockBusyError) return jsonResult2({ ok: false, error: e.message });
+          throw e;
+        }
+        try {
+          let db;
+          try {
+            db = createDatabase({ path: config.dbPath });
+          } catch (e) {
+            if (isMissingNativeDep(e)) return jsonResult2({ ok: false, error: "native-store-unavailable", message: NATIVE_DEP_HINT });
+            throw e;
+          }
+          try {
+            const memoryRepo = new MemoryRepository(db);
+            const auditRepo = new AuditRepository(db);
+            const memory = memoryRepo.findById(params.memoryId);
+            if (!memory) {
+              return jsonResult2({ ok: false, error: `No memory found with id ${params.memoryId}` });
+            }
+            const actor = { type: "human", id: params.actor ?? "owner" };
+            const validation = validateTransition(memory.lifecycle, params.to, {
+              reason: params.reason,
+              actor,
+              supersededBy: params.supersededBy
+            });
+            if (!validation.valid) {
+              return jsonResult2({ ok: false, error: validation.error });
+            }
+            const now = (/* @__PURE__ */ new Date()).toISOString();
+            const action = params.to === "archived" ? "archived" : params.to === "superseded" ? "superseded" : "demoted";
+            db.transaction(() => {
+              memoryRepo.updateLifecycle(params.memoryId, params.to, now);
+              auditRepo.insert({
+                id: (0, import_node_crypto12.randomUUID)(),
+                action,
+                memoryId: params.memoryId,
+                tenantId: memory.tenantId,
+                actor,
+                reason: params.reason,
+                details: { from: memory.lifecycle, to: params.to },
+                timestamp: now
+              });
+            })();
+            const anchored = anchorChainHead(auditRepo, config.basePath, config.tenantId);
+            return jsonResult2({
+              ok: true,
+              memoryId: params.memoryId,
+              from: memory.lifecycle,
+              to: params.to,
+              anchored,
+              message: anchored ? "Transition applied; hash-chained audit event written and chain head re-anchored." : "Transition applied; hash-chained audit event written. (External anchor skipped \u2014 best-effort; the durable write is unaffected.)"
+            });
+          } finally {
+            db.close();
+          }
+        } finally {
+          lock.release();
+        }
+      }
+    );
+  }
+});
+
+// src/mode.ts
+function isConfigured(rawValue) {
+  const v = rawValue?.trim();
+  return v !== void 0 && v !== "" && !v.startsWith("${");
+}
+function resolveMode(rawTeamkbApiUrl) {
+  return isConfigured(rawTeamkbApiUrl) ? { mode: "team", apiUrl: rawTeamkbApiUrl.trim() } : { mode: "local" };
+}
+
+// src/team-config.ts
+var import_node_fs = require("node:fs");
+var import_node_os = require("node:os");
+var import_node_path = require("node:path");
+var KEY_TO_ENV = {
+  apiUrl: "TEAMKB_API_URL",
+  apiToken: "TEAMKB_API_TOKEN",
+  tenantId: "TEAMKB_TENANT_ID"
+};
+var TeamConfigError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "TeamConfigError";
+  }
+};
+function teamKbBasePath(env) {
+  const base = env["TEAMKB_BASE_PATH"]?.trim();
+  if (base) return base;
+  const home = env["TEAMKB_HOME"]?.trim();
+  if (home) return home;
+  return (0, import_node_path.join)((0, import_node_os.homedir)(), ".teamkb");
+}
+function teamConfigPath(env = process.env) {
+  return (0, import_node_path.join)(teamKbBasePath(env), "team.json");
+}
+function loadTeamConfig(env = process.env) {
+  const path = teamConfigPath(env);
+  let mode;
+  try {
+    mode = (0, import_node_fs.statSync)(path).mode;
+  } catch (e) {
+    if (e.code === "ENOENT") return { present: false, path };
+    throw new TeamConfigError(`cannot stat ${path}: ${e.message}`);
+  }
+  if ((mode & 63) !== 0) {
+    const octal = (mode & 511).toString(8).padStart(3, "0");
+    throw new TeamConfigError(
+      `${path} is group/world-readable (mode ${octal}) \u2014 it holds a bearer token and must be 0600. Run: chmod 600 ${path}`
+    );
+  }
+  let text;
+  try {
+    text = (0, import_node_fs.readFileSync)(path, "utf8");
+  } catch (e) {
+    throw new TeamConfigError(`cannot read ${path}: ${e.message}`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new TeamConfigError(
+      `${path} is not valid JSON \u2014 could not parse it. Check for a trailing comma or an unquoted value.`
+    );
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new TeamConfigError(
+      `${path} must be a JSON object like { "apiUrl": "...", "apiToken": "..." }`
+    );
+  }
+  const obj = parsed;
+  const config2 = {};
+  for (const key of Object.keys(KEY_TO_ENV)) {
+    if (!(key in obj)) continue;
+    const v = obj[key];
+    if (typeof v !== "string" || v.trim() === "") {
+      throw new TeamConfigError(
+        `${path}: "${key}" must be a non-empty string. Fix the value, or remove the key.`
+      );
+    }
+    config2[key] = v.trim();
+  }
+  if (config2.apiUrl === void 0) {
+    const found = Object.keys(obj);
+    throw new TeamConfigError(
+      `${path} has no usable "apiUrl" \u2014 a team config must set at least { "apiUrl": "http://..." } (camelCase). Found keys: ${found.length ? found.join(", ") : "(none)"}. Fix the spelling, or remove the file to run the local brain.`
+    );
+  }
+  return { present: true, config: config2, path };
+}
+function applyTeamConfig(env, result) {
+  if (!result.present || result.config === void 0) return [];
+  const filled = [];
+  for (const key of Object.keys(KEY_TO_ENV)) {
+    const envName = KEY_TO_ENV[key];
+    const fileVal = result.config[key];
+    if (fileVal !== void 0 && !isConfigured(env[envName])) {
+      env[envName] = fileVal;
+      filled.push(envName);
+    }
+  }
+  return filled;
+}
+
+// src/index.ts
+async function main() {
+  let filled = [];
+  try {
+    filled = applyTeamConfig(process.env, loadTeamConfig(process.env));
+  } catch (e) {
+    const msg = e instanceof TeamConfigError || e instanceof Error ? e.message : String(e);
+    process.stderr.write(
+      `[governed-brain] REFUSING TO START \u2014 ${teamConfigPath(process.env)} is present but unusable:
+  ${msg}
+  Fix the file (or remove it to run the local brain). Refusing to silently run the wrong brain.
+`
+    );
+    process.exit(1);
+  }
+  if (filled.length > 0) {
+    process.stderr.write(
+      `[governed-brain] team.json supplied: ${filled.join(", ")} (real env took precedence for the rest)
+`
+    );
+  }
+  const { mode } = resolveMode(process.env["TEAMKB_API_URL"]);
+  if (mode === "team" && !isConfigured(process.env["TEAMKB_API_TOKEN"])) {
+    process.stderr.write(
+      `[governed-brain] REFUSING TO START \u2014 team mode is configured (TEAMKB_API_URL is set) but no TEAMKB_API_TOKEN is available. Set your per-user token in ${teamConfigPath(process.env)} (the "apiToken" field) or the environment. Refusing to run team mode without a token.
+`
+    );
+    process.exit(1);
+  }
+  if (mode === "team") {
+    const { startRemoteServer: startRemoteServer2 } = await Promise.resolve().then(() => (init_remote_server(), remote_server_exports));
+    await startRemoteServer2();
+  } else {
+    const { startLocalServer: startLocalServer2 } = await Promise.resolve().then(() => (init_local_server(), local_server_exports));
+    await startLocalServer2();
+  }
 }
 void main();

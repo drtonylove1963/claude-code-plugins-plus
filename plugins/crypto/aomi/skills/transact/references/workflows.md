@@ -4,15 +4,17 @@ End-to-end operational procedures. Use the CLI as one-shot commands — each `ao
 
 ## Quick Start
 
-Run once at the start of a session:
+Run once at the start of a thread:
 
 ```bash
-aomi --version 2>/dev/null || npx @aomi-labs/client@0.1.30 --version
-aomi --prompt "hello" --new-session
+aomi --version 2>/dev/null || npx @aomi-labs/client@latest --version
+aomi chat "hello" --new-session
 aomi session status 2>/dev/null || echo "no session"
 ```
 
-Expected: `aomi --version` prints `0.1.30` or newer. If older, run `npm install -g @aomi-labs/client@latest`.
+Expected: `aomi --version` prints `0.4.2` or newer.
+
+**A globally installed `aomi` is not upgraded by installing this skill.** If `aomi --version` reports anything below 0.4.2, parts of this doc will not match: on 0.1.x, account auth lived at `aomi wallet login` (with `aomi account` a two-command alias), and `aomi tx sign` still attempted AA locally with mode fallback. Tell the user to run `npm install -g @aomi-labs/client@latest`, or use `npx @aomi-labs/client@latest` for this run.
 
 ## Default Workflow
 
@@ -30,7 +32,7 @@ The CLI output is the source of truth. If you do not see `Wallet request queued:
 Use when the user does not need signing:
 
 ```bash
-aomi --prompt "<message>" --new-session
+aomi chat "<message>" --new-session
 aomi chat "<message>" --verbose
 aomi tx list
 aomi session log
@@ -99,21 +101,26 @@ Full simulation-and-signing walkthrough on a multi-step batch in [examples.md](e
 
 ## Signing Policy
 
-- Default: `aomi tx sign <tx-id> [<tx-id> ...]` — AA-first via the zero-config Alchemy proxy; falls through to BYOK if Alchemy or Pimlico is configured.
-- `--eoa` skips AA entirely.
-- `--aa-provider` or `--aa-mode` force AA mode; incompatible with `--eoa`.
-- **Mode fallback**: when AA is used, the CLI tries the preferred mode (7702 on Ethereum, 4337 on L2s). If it fails, tries the alternative. If both fail, returns an error suggesting `--eoa`.
+**Local signing is EOA-only in v0.4.2.** AA execution moved to the backend lane; the CLI no longer attempts AA locally and there is no local mode fallback.
+
+- Default: `aomi tx sign <tx-id> [<tx-id> ...]` — plain EOA. `--eoa` is the same thing, stated explicitly.
+- `--aa`, `--aa-provider`, and `--aa-mode` select AA execution, which `aomi tx sign` rejects: `AA execution now runs in the backend lane (rolling out); use --eoa for local execution.`
+- The same rejection fires with **no flags** if `AOMI_AA_PROVIDER` or `AOMI_AA_MODE` is exported. Check the environment before concluding the tx itself is bad.
+- Because there is no local sponsorship path, the signing EOA must hold native gas on the destination chain.
 
 ```bash
-aomi tx sign tx-1                                     # default: zero-config AA
-aomi tx sign tx-1 --eoa                               # force EOA
-aomi tx sign tx-1 --aa-provider pimlico --aa-mode 4337
+aomi tx sign tx-1                                     # EOA (the default)
+aomi tx sign tx-1 --eoa                               # EOA, explicit
+aomi tx sign tx-1 --cluster devnet                    # Solana cluster override
+aomi tx sign evm:tx-1                                 # chain-qualified when tx-1 is ambiguous
 ```
 
 Signing rules that always apply:
 
 - `aomi tx sign` handles both transaction requests and EIP-712 typed-data signatures. Batch signing is supported for transactions only, not EIP-712.
+- Solana sign-only requests are supported when the pending request includes an unsigned transaction payload; instruction-only `svm_ixs` requests may not be CLI-signable yet.
 - A single `--rpc-url` override cannot be used for a mixed-chain multi-sign request.
+- Duplicate tx ids in one `aomi tx sign` call are rejected.
 - The pending transaction already contains its target chain — pass `--rpc-url` matching that chain if the default RPC is wrong.
 
 If signing fails because credentials are missing, stop and ask the user to configure them — do not try to set them from the skill.
