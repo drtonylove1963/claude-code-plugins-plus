@@ -15,6 +15,63 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: >-
+            A brief summary of what the user is trying to accomplish with this
+            tool call, refined from their original prompt. Used for audit
+            logging.
+      required:
+        - userIntent
+  - name: listTeams
+    title: List Teams
+    description: >
+      List the teams the calling user belongs to (id and name). The
+      test-management tools have no cross-team listing: each list call covers
+      exactly one team, org members must always pass a teamId, and org admins
+      omitting teamId get org-level (team-less) items only - never all teams.
+      So when the team is not already known, call this tool first and query
+      each team; recovering from a "Team id is required" error works the same
+      way. The response field `groups` carries the teams; an empty list means
+      the caller belongs to no team (an organization admin can assign one).
+      Organization admins may also scope by any team in their organization,
+      not only the teams returned here.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: >-
+            A brief summary of what the user is trying to accomplish with this
+            tool call, refined from their original prompt. Used for audit
+            logging.
+      required:
+        - userIntent
+  - name: getOrgSettings
+    title: Get Org Settings
+    description: >
+      Return the settings block for the current OAuth-authenticated user's
+      organization - org-level feature flags and preferences (for example
+      live_remediation_enabled, which governs whether a blocked test-run
+      execution pauses for interactive live remediation or auto-fails with
+      BLOCKER_ENCOUNTERED). Resolves the organization from the authenticated
+      OAuth context; aside from userIntent the tool accepts no input. Read-only,
+      no side effects. A natural precursor to monitorTestRun, which reads the
+      flag up front to explain deterministically what happens at the first
+      blocker.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
