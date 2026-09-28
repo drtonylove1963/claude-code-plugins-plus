@@ -153,7 +153,7 @@ Avoid duplicate issues — check existing open issues first:
 gh issue list --state open --limit 100
 ```
 
-Note each issue number as you create it.
+Record each issue number as it is created.
 
 ## Step 9: Summary report
 

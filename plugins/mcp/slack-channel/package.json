@@ -1,6 +1,6 @@
 {
   "name": "claude-channel-slack",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Slack channel for Claude Code — two-way chat via Socket Mode",
   "type": "module",
   "bin": "./server.ts",
@@ -9,7 +9,7 @@
     "start:node": "npx tsx server.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "hooks:install": "husky"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
@@ -19,8 +19,14 @@
     "zod": "3.25.76"
   },
   "overrides": {
-    "axios": "^1.16.1",
-    "fast-uri": "^3.1.2"
+    "axios": "^1.18.1",
+    "brace-expansion": "^5.0.9",
+    "browserslist": "^4.28.9",
+    "fast-uri": "^3.1.6",
+    "form-data": "^4.0.6",
+    "hono": "^4.12.25",
+    "ip-address": "^10.7.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
