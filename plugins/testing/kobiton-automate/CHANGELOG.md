@@ -1,5 +1,211 @@
 # Changelog
 
+## 1.14.1 - 2026-10-05
+
+### Fixed: `/automate:setup` writes the canonical API URL
+
+Setup in 1.14.0 could write a deployment-specific API host (for example `https://api-prod-blue.kobiton.com`) to `KOBITON_PORTAL` instead of `https://api.kobiton.com`. The setup script now writes the API URL that `getCredential` returned, the same host it redeems the setup token against. If you ran setup with 1.14.0, run `/automate:setup` again to switch your profile to the canonical URL; the existing profile keeps working in the meantime.
+
+## 1.14.0 - 2026-10-02
+
+### Changed: `/automate:setup` keeps your API key out of the assistant
+
+Setup now works like a PKCE exchange:
+
+- The new `scripts/write-credentials.js --init` creates a secret on disk and prints only its challenge.
+- `getCredential` trades the challenge for a single-use setup token that expires within minutes.
+- The script redeems the token together with the secret directly against the Kobiton API and writes `~/.kobiton/.credentials` itself.
+
+The conversation only ever sees the challenge, the token, and the last 4 characters of the key. The script sends the token only to `https` Kobiton API hosts, unless you add your own host to `KOBITON_SETUP_TRUSTED_HOSTS`.
+
+### Changed: setup writes a dedicated, reused API key
+
+Setup now writes a key named `kobiton-mcp-<host>` (for example `kobiton-mcp-claude`) instead of your first API key. It is created the first time and reused on every later setup from the same assistant. No key is ever rotated. Setup now also works under API key auth.
+
+### Changed: one masking format
+
+Every place setup shows an API key now shows only its last 4 characters (`…abcd`). Previously the existing-profile check showed the first and last 4 characters and the confirmation summary showed the first 8.
+
+### Upgrade note
+
+Older plugin versions can no longer complete setup: `getCredential` now asks them to update. Credentials files written earlier keep working. Transcripts of setup sessions from earlier versions contain the full API key; if you shared one, rotate that key in the Kobiton portal (**Settings > API Keys**) and run `/automate:setup` again.
+
+## 1.13.0 - 2026-09-23
+
+### Added: debug-device-over-vusb skill
+
+A sixth skill, `debug-device-over-vusb`, attaches a real Kobiton device to the user's own machine over virtualUSB so it shows up in local `adb` (Android) or Xcode (iOS), then drives the familiar debug loop from plain language — install a local build, reproduce the problem, capture logcat / device logs and screenshots — and always disconnects. It targets private devices only, found with the new `listDevices` filter below, and never calls `reserveDevice` / `terminateReservation`: `vusb connect --udid` books the device itself and `vusb disconnect --udid` is the release.
+
+- **Pinned client, installed on first use.** The plugin pins one virtualUSB client build in `skills/debug-device-over-vusb/VUSB_VERSION`. `scripts/vusb-preflight.sh` (Step 1 of the skill — deliberately *not* run by the SessionStart hook or `/automate:setup`, so users who never invoke the skill download nothing) fetches that build from `https://public.kobiton.download/virtualusb/<version>/`, verifies its published sha256 and, on macOS, Kobiton's Developer ID signature on the package and the unpacked bundle (re-checked, with the version, on every cache hit), and on macOS unpacks the whole `virtualUSB.app` bundle into `~/.kobiton/vusb/<version>/` — the `.pkg` is universal, so Intel and Apple Silicon Macs both run it from the cache. On Windows the verified `.msi` is cached and the exact install steps (UAC, then `vusb setup-adb` in an administrator terminal) are handed to the user. Linux hosts are redirected. A cache hit performs no network I/O; a checksum mismatch discards the download and leaves any existing cache untouched; an existing `/Applications/virtualUSB.app` (or Windows install) at another version is used as-is with a drift warning instead of unpacking a second copy, and a running virtualUSB daemon whose version differs from the client in use stops the preflight (virtualUSB 1 and 2 cannot coexist). Output is a machine-readable `key=value` contract ending in `outcome=` (`no action needed` | `installed` | `updated` | `handed off to human` | `redirected (limitation)`).
+- **`~/.kobiton/bin/vusb` wrapper.** `scripts/vusb.sh` resolves the client by absolute path (cached pin → system install at the pin → newest cached with a drift warning) and, on `login` without `--apikey`, injects `--apibaseurl`, `--username` and `--apikey` from `~/.kobiton/.credentials` — the API key never enters the transcript. Every other subcommand passes through verbatim.
+- **References.** `references/limitations.md` is the pre-connect gate (iOS 17.0–17.3, iOS on a Windows host, Linux, public devices, device in use, `adb reverse`, coexisting versions, API-key-only sign-in, daemon left behind by uninstall); `references/error-map.md` maps each client message to a plain-language meaning and next step; `references/cli-reference.md` documents the command surface, the `status` output shapes to parse (its exit code is not a reliable signal), and the preflight contract.
+- **`/automate:doctor` Check 6 — vUSB client (pinned vs installed; pin published).** Reports the pin, the installed client's version and whether the pinned folder is still published, in both the Markdown and TOML command files. No network request unless a client is present, then at most one HEAD; a machine without the client gets a skipped row, never a failure. The summary now counts six checks.
+- **Docs.** README Skills table and platform note, `CLAUDE.md` routing / skills / compatibility-matrix rows and an accurate list of the skill test suites, and an `AGENTS.md` section for non-Claude hosts.
+
+### Changed: listDevices virtualUsb filter
+
+`listDevices` gains an optional boolean `virtualUsb` (no default). With `virtualUsb: true` the result is private devices only, each carrying `virtual_usb_ready`; ready devices only unless `udid` is given, in which case the named device is returned flagged with a `virtual_usb_reason` when it is not ready (or a top-level `virtual_usb_reason` when the UDID is unknown, public, or outside the caller's access). `applied_filters` is always present on this path — including `virtualUsb: true` and a non-empty list. `deviceGroup` must be `PRIVATE` or omitted; `CLOUD` and `ALL` are rejected. Callers that never pass `virtualUsb` see exactly the previous behaviour. The description now points organization admins at `listHostingMachines` for the reason a device is not ready.
+
+### New tool: listHostingMachines
+
+`listHostingMachines` is a new read-only tool for organization admins that lists the organization's host machines with their virtualUSB configuration (`enabled`, `network_routing`, `ip_address_configured`, `provisioning_status`) and a `virtual_usb_status` of `state` (`DISABLED`, `NO_NETWORK_ROUTE`, `ROUTING_PROVISIONING`, `ROUTING_PROVISIONING_FAILED` or `CONFIGURED`), `message` and `next_step`. The response carries a top-level `sku_active`, plus a `sku_note` when the organization lacks the virtualUSB add-on. An optional `udid` narrows the list to the host machine of one private device; when that device or its host is not visible to the caller, `machines` is empty and `reason` says why. A `udid` lookup also adds `device` (`udid`, `state`, `is_online`, `is_hidden`) to the machine; when the device is hidden or `UNPLUGGED` there, that machine is not where the device is connected and `reason` says so, so the skill never offers to configure it. Machines whose devices are all hidden in Portal → Device Management are left out, as the portal does, and `total_machines` counts only the machines shown. An optional `machineId` returns only that host machine (combinable with `udid`), and results page by cursor: machines come back in ascending id order with `total_machines` (all matching machines) and `next_after_id`, which is passed as `afterId` for the next page (null on the last page). Each machine also carries `max_parallel_tests` (`mode`, `limit`). `host_name` is null for Kobiton-hosted machines, IP addresses are never returned, and non-admins get the server's permission error unchanged. The `debug-device-over-vusb` skill calls it for a not-ready device when the user is an admin (or asks why), relays the status, and stops. The tool count goes from 39 to 40.
+
+### New tool: configureHostingMachine
+
+`configureHostingMachine` is a new tool for organization admins that changes the settings of one host machine (`machineId`, the `id` from `listHostingMachines`). Pass at least one of two sections; both are applied together in one save:
+
+- `virtualUsb: {enabled, networkRouting?, ipAddress?}` — `enabled: true` needs `networkRouting`: `KOBITON` for Kobiton-managed routing, or `SELF_MANAGED` with the machine's `ipAddress`; `enabled: false` takes no routing and no address. virtualUSB settings need the organization's virtualUSB add-on.
+- `maxParallelTests: {mode, limit?}` — `UNLIMITED`, or `CUSTOM` with a `limit` of 1–999; caps how many of the machine's devices can be in use at the same time.
+
+A request that matches the current configuration changes nothing (`changed: false`). It returns `changed` and the `machine` in the `listHostingMachines` shape (now including `max_parallel_tests`), plus `sku_active` / `sku_note`. IP addresses are never returned. Session behaviour matches the Kobiton portal: turning virtualUSB off on, or moving off Kobiton-managed routing from, a Kobiton-routed machine ends the active virtualUSB sessions on its devices; turning virtualUSB off on a self-managed machine does not currently disconnect clients that are already connected; entering Kobiton-managed routing starts provisioning (`ROUTING_PROVISIONING`). The tool is annotated destructive for that reason, and its description tells the agent to confirm the exact change with the user first. The `debug-device-over-vusb` skill only offers to enable virtualUSB for an admin whose device's host is `DISABLED` or `NO_NETWORK_ROUTE`, after confirming the exact change; it never turns virtualUSB off, never moves a machine off Kobiton-managed routing and never changes max parallel tests. The tool count goes from 40 to 41.
+
+## 1.12.0 - 2026-08-26
+
+### Fixed: session-type enumeration now matches what the API returns
+
+`AGENTS.md`, `CLAUDE.md`, and the README glossary listed session types as `AUTOMATION` / `CLI` / `MANUAL` / `MIXED` — a set written from expectation rather than observation; `AUTOMATION` is not a value the API emits and native instrumentation runs were missing entirely (issue #122). The enumeration is now the set `getSession` and `listSessions` actually return, verified live: `AUTO` (Appium, script- or agent-driven), `UIAUTOMATOR` / `XCUITEST` (native instrumentation via `startNativeSession` or the CLI's `test run`), `CLI`, `MANUAL`, `MIXED`, plus the rarer `SCRIPTLESS` and `GAMEDRIVER`. The docs also explain the separate `automation_type` field (`NORMAL` | `REVISIT`) and tell agents to treat an unfamiliar type as a valid session rather than an error.
+
+### Added: CLI capabilities the bundled docs were missing
+
+Closing the remaining gaps from issue #121 in `run-interactive-session`:
+
+- **`test run` instrumentation** — a new "Instrumentation runs" section and command-table row document `kobiton test run --app <APP> --runner <TEST_RUNNER> <uiautomator|xcuitest>` with worked Android and iOS examples (`--follow` / `--stream`, `--test` / `--plan`, device targeting). Both surfaces that share the "test run" name now cross-reference each other: the CLI command runs your own compiled test bundle; the `createTestRun` MCP tool (README row and `create-test-run` skill) re-executes a recorded test case.
+- **`device forward --mode mux|demux`** — the connection-mapping option is documented, along with the fact that transient network failures are retried for up to 5 minutes (a forward that looks stuck for a few minutes is retrying).
+- **`session list`** — the new paged session listing (window, state, type, platform, keyword filters; `--all`) joins the command table alongside `session list-active` and `session show`.
+
+### Changed: `session create --hide` everywhere, and a newer pinned CLI
+
+Every `session create` example and the session-token notes now use `--hide`, which keeps the session JWT out of stdout — and therefore out of the agent transcript — while still saving it to `~/.kobiton/.session` for later commands. The pinned CLI (`skills/run-interactive-session/CLI_VERSION`) moves from `2608.70138.0+master.b0c2bc7` to `2608.191335.0+master.1e8f487`, the first published build that carries `--hide`, `session list`, and the `device forward --mode` option; a fresh install downloads it automatically.
+
+The wrapper (`run.sh`) now enforces the flag rather than trusting the docs: `session create` without `--hide` gets it added, and when the resolved build is an older cached one that does not know the flag (offline upgrade, pruned pin), the wrapper refuses to create the session and points at `/automate:setup` instead of printing the token. `AGENTS.md` carries the `--hide` rule and the new command shapes for hosts that read it instead of the skill. `session list`'s two footers (`Page N (M items), T total` paged, `N of T sessions, P pages.` for multi-page `--all`) and its `No sessions found.` empty sentinel are documented in the response-shapes reference, and the README's bug-report links point at the new form.
+
+### Changed: structured bug-report form
+
+`.github/ISSUE_TEMPLATE/bug_report.md` is replaced by a GitHub issue form (`bug_report.yml`) that requires the details every triage starts with — plugin version, AI host and version, OS/architecture, the tool or skill involved, reproduction steps, expected and actual behavior — with optional fields for the Kobiton CLI version and `/automate:doctor` output.
+
+## 1.11.0 - 2026-08-13
+
+### New tool: `startNativeSession`
+
+The Sessions domain gains `startNativeSession` — start a native automation session (XCUITest on iOS, UIAutomator on Android, or GameDriver) on a Kobiton device directly from an AI agent. Upload the app under test and the test-runner bundle with `uploadAppToStore`, then pass their store identifiers as `app` and `testRunner`. The tool returns the created session ID, the booked device UDID, and a test-report download URL. Only `userIntent` and `testFramework` are required; device targeting accepts an exact `udid` or `deviceName` / `platformVersion` matching.
+
+The README Tools section now lists all 31 tools, adding the previously undocumented `getOrgSettings` row alongside the new tool.
+
+## 1.10.1 - 2026-08-12
+
+### Fixed: adb-shell guidance now carries the full restricted-session policy
+
+1.10.0 introduced basic restricted-shell guidance (bare-command + local-filter, the forbidden-character rejection). This release replaces it with the complete policy for restricted sessions (public cloud and trial devices): the deny-by-default command whitelist by category, the full forbidden-character set (pipes **and quotes** — there is no on-device composition form at all), the file-path allowlist, the single permitted `settings` key (`secure enabled_accessibility_services`), the four rejection message shapes — incl. the settings-specific message, verified live on restricted devices — with the exit-0 gotcha (rejections print on stdout and exit 0, so scripts must string-match the first line rather than `$?`), and a pointer to `kobiton device adb-shell --help` as the always-current authority.
+
+The quoted on-device form is scoped to dedicated (unrestricted) devices; the command table gains a **Restricted** column covering every row — including `ls`/`cat` path limits, the `input text` single-token limit, `wm size` → `wd get window/rect`, a new `screencap` row, and the accessibility-services settings key. `device forward` is documented as a foreground command that holds the local port until killed, and `references/response-shapes.md` and `AGENTS.md` carry the same facts so no host is left with the old guidance.
+
+The whitelist entries describe the current deviceConnect sanitizer; on environments running an older deviceConnect a few expanded entries (`cat /proc/version`, `screencap`, `input`, the settings key) may still be rejected — the `--help` pointer is the always-current authority.
+
+No binary change ships with this release: the CLI is downloaded per the 1.10.0 pin model, and the pinned build already carries the file-transfer status fix this branch originally bundled.
+
+## 1.10.0 - 2026-08-11
+
+### Changed: the CLI binary is downloaded on install, no longer committed to the repo
+
+`skills/run-interactive-session/bin/kobiton` (an 11.8 MB x86_64 macOS binary that required a manual re-commit on every CLI release) is gone. Instead, the plugin pins a CLI build version in `skills/run-interactive-session/CLI_VERSION`, and `scripts/install-cli.sh` — the same script the SessionStart hook and `/automate:setup` already run — downloads that build from `public.kobiton.download` on first run, verifies its published sha256, and caches it under `~/.kobiton/cli/<version>/`. Cache hits perform no network I/O, so session start stays fast; offline sessions keep working from the cache. The pin advances with plugin releases, after the skill docs are validated against that build — the docs and the binary move in lockstep, the same guarantee bundling gave, without megabytes of binary in git history.
+
+If the pinned build is no longer published (the download server prunes old versions), the installer keeps a cached build with a drift warning, or — with no cache at all — falls back to the newest published build with a loud warning telling the user to update the plugin (newer releases pin a validated build). A corrupted download (checksum mismatch) is discarded and never replaces a working cache. `run.sh` itself never touches the network: it resolves the pinned version from the cache, falls back to the newest cached build with a warning, and otherwise points at `/automate:setup`.
+
+### New: `run-interactive-session` on Linux and Windows
+
+The download model unlocks the other published CLI builds: the skill now runs on **macOS (Apple Silicon), Linux (x64), and Windows (x64 under Git Bash)**. On Windows, the installer writes a bash exec-shim at `~/.kobiton/bin/kobiton` instead of a symlink (MSYS `ln -sf` copies files, which would break the wrapper's path resolution). Apple Silicon Macs now get the native arm64 build instead of running x86_64 under Rosetta 2.
+
+**Intel Macs are no longer supported** — no macos-x64 build is published. The previous release (1.9.0 and earlier) bundled an x86_64 binary that ran natively there; Intel-Mac users should stay on 1.9.0 or use `run-automation-suite` / `drive-automation-session`, which remain fully cross-platform.
+
+### New: `/automate:doctor` reports CLI version drift
+
+A fifth check reports the plugin's pinned version, the installed binary's version, the newest published build, and whether the pinned build is still downloadable — all via HEAD-only requests, nothing downloaded. Drift between installed and pinned is flagged with the remedy; a newer build existing upstream is informational, never a failure.
+
+### Fixed: findings from live Windows (Git Bash) verification
+
+- `/automate:setup` no longer requires Python: the credentials-file probe and atomic write now use Node, which every supported host CLI already runs on. Windows commonly has no Python — the Microsoft Store `python3` stub exits without running anything, which broke setup outright.
+- `/automate:doctor` Check 2 tries GNU `stat -c` before BSD `stat -f` — on Git Bash/Linux the old order dumped a filesystem-info blob into the reported mode string (verdict was unaffected).
+- `run-interactive-session` documents the restricted device shell honestly: on the common cloud-device policy the CLI rejects on-device pipes (`Input contains a forbidden character`) and URL arguments to `am`; the skill now teaches the bare-command + local-filter pattern and a UI-driven open-a-URL recipe instead of piped commands that fail there.
+- Windows note added to setup: POSIX `0600` doesn't map onto NTFS ACLs, so the credentials file may report `644` there; doctor reports it informationally.
+
+The compatibility matrix (`CLAUDE.md`), each affected skill's Prerequisites and `compatibility:` frontmatter, `AGENTS.md`, and README were updated together per the matrix's own update rule. No tool YAML or MCP server contract changed.
+
+## 1.9.0 - 2026-07-29
+
+### New: per-skill compatibility matrix
+
+`CLAUDE.md` gains a **Skill compatibility matrix** — for each of the 5 skills: whether it needs a persistent local filesystem, whether it needs the `~/.kobiton/.credentials` file that `/automate:setup` writes, any local-binary/OS constraint, whether it needs a streamed-watch affordance, and whether it is pure MCP glue that runs with none of those. Every cell is checkable against that skill's `allowed-tools` **plus what its bundled scripts actually do** — `allowed-tools` grants a superset, so a declared tool is not proof the skill uses it. It sits under Cross-tool surface, extending the existing host→config table rather than replacing it. `AGENTS.md` carries a prose summary that links to the matrix instead of duplicating it, so the two cannot drift apart.
+
+Columns are keyed on capabilities rather than product names, because "has a filesystem" is not the same as "can run this skill": a chat surface with code execution has both a filesystem and Node, yet still cannot run the credential-dependent skills, since nothing there can execute `/automate:setup`. Naming the specific missing capability tells a user what to do next in a way that naming a host class does not.
+
+`create-test-run` is the only pure-MCP skill — it needs nothing but an authenticated MCP connection — and it now confirms it can actually monitor before offering to, since `monitor-test-run` runs a local poller that reads the credentials file.
+
+Each skill's `compatibility:` frontmatter was brought in line with the matrix, so a skill file can no longer contradict itself about where it runs.
+
+### Changed: each skill states its host, platform, and file-access requirements up front
+
+All 5 `SKILL.md` files now open their existing `## Prerequisites` with the host/platform/file-access requirement and the route to take when it isn't met — instead of burying it mid-body (the CLI platform limit was ~43 lines in; the `Monitor` substitution ~169 lines in). One requirements list per skill, not a parallel block restating it.
+
+### Fixed: the bundled CLI is x86_64, not "Apple Silicon only"
+
+`bin/kobiton` is a single-slice **x86_64** Mach-O with no arm64 slice (`file` / `lipo -info`), so it runs **natively on Intel Macs** and on Apple Silicon **under Rosetta 2**. It had been documented as "macOS Apple Silicon only" — which both excluded Intel Macs, where it runs natively, and implied a native arm64 build that does not exist. Corrected in `CLAUDE.md`, `AGENTS.md`, and `README.md`. (The 1.8.0 entry below repeats the old wording; it is left as written for history.)
+
+Also corrected: the setup command claimed binaries ship for "only macOS arm64 and Linux x64" — no Linux binary ships and the installer does no per-platform selection; and `drive-automation-session`'s `compatibility` field described MCP `getCredential` with the credentials file as a fallback, when `appium.js` reads `~/.kobiton/.credentials` directly and never calls that tool, making the file required.
+
+Platform and credential enforcement remains in `scripts/run.sh`, which already reports a missing binary or missing credentials with the `/automate:setup` and `/automate:doctor` remedies; the skill docs state the constraint and route the user rather than re-implementing the check.
+
+No tool YAML or MCP server contract changed.
+
+## 1.8.0 - 2026-07-21
+
+### Renamed: `run-interactive-cli-session` → `run-interactive-session`
+
+The interactive testing skill is now named `run-interactive-session`. Behavior is unchanged — same CLI wrapper, same workflow, same macOS-Apple-Silicon binary. The skill directory, frontmatter, and every docs reference use the new name; only this changelog keeps the old one for history.
+
+### New: Getting Started onboarding section
+
+README's Getting Started now walks a first-time Kobiton user from install to a saved test case: a narrated first-session path, an intent-based skill-routing table covering all 5 skills, a concepts glossary (session, session type, test case, revisit, test run, suite, reservation, UDID, live remediation), and a prerequisites checklist with one copy-pasteable end-to-end example. `CLAUDE.md` carries a condensed version and `AGENTS.md` mirrors the substance for non-Claude hosts.
+
+### New: ambiguous-prompt routing + Kobiton session model for agents
+
+The agent context files (`AGENTS.md`, `CLAUDE.md`) now document how to route prompts that name a goal but not a method ("test the login screen of app ABC"): route by signal when one exists, otherwise ask one short question with `drive-automation-session` as the recommended default (its sessions stay saveable via `saveTestCase`). An intent-synonym table maps phrasing like "rerun / revisit / replay a test case" → `create-test-run`, "rerun a session" → save it as a test case first, and "replay the recording" → session artifacts, not a new run. A session-model section promotes cross-skill platform knowledge into one place: session types (`AUTOMATION` / `CLI` / `MANUAL`, and `MIXED` when a human interacts in the live view during an automation session), test cases being session-based, test runs as per-device revisit executions, `COMPLETE` vs `TERMINATED` end states, and rerun-scoped live-remediation resolutions.
+
+## 1.7.1 - 2026-07-03
+
+### Fix: `run-automation-suite` launches the chromeless launcher in the background
+
+Step 5 now instructs the host to invoke the chromeless launcher in the background (Claude Code: `Bash` with `run_in_background: true`; other hosts: `&` + `disown`), matching `drive-automation-session`. Previously the synchronous invocation let the launcher's resize-polling loop block the skill from reaching Step 6 (session/result collection). Launcher exit codes now arrive in the background-task completion event rather than synchronously.
+
+### `run-automation-suite` asks how to observe the run up front
+
+The "open the live view or run in the background?" question now happens in Step 2 alongside device selection (mirroring `drive-automation-session`'s Step 0), instead of after the script has already launched in the old Step 5. Step 5 acts on the remembered choice without re-asking. `AGENTS.md` mirrors the reordering for non-Claude hosts.
+
+## 1.7.0 - 2026-06-24
+
+KOB-53297 (Epic): the `getOrgSettings` tool plus the `create-test-run` and `monitor-test-run` skills for creating and watching test runs with live remediation.
+
+### New `getOrgSettings` tool (`tools/user.yaml`)
+
+Read-only MCP tool that returns the calling user's organization settings block — org-level feature flags and preferences, including `live_remediation_enabled` (governs whether a blocked test-run execution pauses for interactive live remediation or auto-fails with `BLOCKER_ENCOUNTERED`). Resolves the org from the OAuth context; `userIntent`-only input. Full 4-hint annotation block (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`); `getCredential` upgraded to the same 4-hint shape in passing. Server handler ships in `kobiton/api` (the MCP server) — see KOB-53298.
+
+### New `create-test-run` skill (`skills/create-test-run/`)
+
+`automate:create-test-run` turns a "run this" request into a created test run with minimal friction, then offers to watch it. When details are omitted it fills defaults from the `createTestRun` schema (1 device matching the target platform via `INDIVIDUAL_DEVICES`, latest test-case version, the case's app, `CROSS_DEVICE`), shows a one-screen summary, and asks to proceed or customize before creating. After creation it offers monitoring in a **single** prompt — monitor + auto-open live remediation (only when the org flag is ON), monitor only, or don't monitor — and delegates the watch to `monitor-test-run` (passing the auto-open choice so that skill doesn't re-ask). The summary shows human-readable allocation labels matching the Portal dropdown (`CROSS_DEVICE` → "All Permutations — run each test case on each device"; `SINGLE_DEVICE` → "Random Allocation — run each test case once, randomly chosen from the selected devices"), never the bare enum. Conversational glue over `createTestRun` / `getOrgSettings` / `listDevices`; no local runtime.
+
+### `createTestRun` tool schema — exact enum values
+
+`tools/test-management.yaml` now declares the real `enum`s for `createTestRun`, fixing a recurring first-call rejection where the model used the documented lower-case examples (`test_case`, `specific_devices`). Authoritative values: `testSelection.type` ∈ `TEST_CASE`/`TEST_SUITE`, `deviceSelection.type` ∈ `INDIVIDUAL_DEVICES`/`DEVICE_BUNDLE`, `deviceAllocationStrategy` ∈ `CROSS_DEVICE`/`SINGLE_DEVICE`.
+
+### New `monitor-test-run` skill (`skills/monitor-test-run/`)
+
+`automate:monitor-test-run` watches a running Kobiton test run and narrates it: reads the live-remediation flag once via `getOrgSettings`, watches the run via a bundled poller until every execution is terminal, surfaces the live-remediation URL the moment an execution is blocked, and post-mortems so a `COMPLETED` execution with `failure_type = BLOCKER_ENCOUNTERED` is never reported as passed. Quiet on passes, loud on blockers and the final summary; suite runs grouped by test case. Uses `getOrgSettings` (up front) and `terminateTestRun` (on request); the watch is the bundled script. See KOB-53299.
+
+- **Execution-status model** follows the revisit-execution contract: terminal status is `COMPLETED`, with the outcome carried by `failure_type` (`NONE` = passed, `BLOCKER_ENCOUNTERED`, `TERMINATED_BY_USER`/`TERMINATED_BY_SYSTEM` = terminated, others = failed). The blocked moment is flag-dependent — with live remediation **on** the execution pauses in a blocked-waiting state and waits; with it **off** it ends immediately as `COMPLETED + BLOCKER_ENCOUNTERED`.
+- **Device id + live-remediation window.** Reads `assigned_device_id` straight off each execution to build the live-remediation URL (paired with an `api` change that passes `assigned_device_id` through the `getTestRun` MCP response). The portal base is derived from the MCP server's env (`api-{env}` → `portal-{env}`), not hardcoded to production. When live remediation is on, the skill asks **up front** (before monitoring) whether to auto-open the live-remediation window on a blocker; if yes, it opens the view via the shared chromeless launcher when a blocker hits — full default view in a wider-than-phone 1400×900 window — falling back to the printed URL otherwise or if Chrome is absent.
+- **Bundled emit-on-change poller** (`scripts/poll-test-run.js`). The watch loop is a Node script (no deps; reads `~/.kobiton/.credentials` for auth, skipping commented/INI lines) that polls run state over REST and prints a line **only when an execution's state changes** (dispatched / blocked / resumed / terminal), backing off during quiet stretches and exiting on `DONE`. (A background process can't call the MCP `getTestRun` tool, hence REST.) The host must **stream** the poller's stdout so each line re-engages it: on Claude Code via the `Monitor` tool (not `run_in_background`, which doesn't stream back — a real prior failure); other hosts use their native streamed-shell / watch / loop affordance, falling back to a foreground loop rather than a silent detached process.
+- **Blocked-waiting is treated as an open ask of the user, not a passive watch.** A flag-ON blocker is on a resolution countdown, so the skill frames it urgently ("action needed now — will auto-fail on timeout") and the poller emits a throttled `WAITING blocked=<n>` heartbeat (default 60 s, `--waiting-heartbeat 0` disables) while executions stay blocked, so the host keeps nudging instead of going silent until the timeout. A blocked execution that ends `BLOCKER_ENCOUNTERED` is reported as **timed out / unresolved**, never as a pass.
+- `.codex/` mirror included.
+
 ## 1.6.0 - 2026-06-12
 
 ### New `drive-automation-session` skill

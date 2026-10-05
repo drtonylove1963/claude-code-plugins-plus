@@ -1,7 +1,7 @@
 ---
 name: audit-plugin
 description: Performs a deep review of the Claude Code plugin, skill, or sub-agent defined in the current project against official best practices. Documents findings as GitHub issues and writes a prioritised fix plan to the project CLAUDE.md. Use when the user says audit this plugin, review this skill, check this agent, or audit addon.
-allowed-tools: Read Glob Grep Bash WebSearch WebFetch
+allowed-tools: Read Glob Grep Bash WebSearch WebFetch Edit Write
 disable-model-invocation: true
 ---
 
@@ -108,7 +108,7 @@ EOF
 Group closely related findings into a single issue where it makes sense.
 Use `--label "bug"` for broken or non-compliant fields, `--label "enhancement"` for improvements.
 
-Note the issue numbers as you go.
+Record each issue number for reference in the next step.
 
 ## Step 5: Write prioritised fix plan to CLAUDE.md
 

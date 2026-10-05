@@ -51,9 +51,9 @@ prefix. Claude will not fire them automatically, even if the conversation matche
 This prevents accidental side effects (commits, issue creation, PR reviews) without explicit user
 intent.
 
-Recognised trigger phrases (for reference — always invoke manually):
+When to invoke each skill:
 
-| Skill | Trigger phrases |
+| Skill | Natural language cues |
 |---|---|
 | `/promote` | "ship this", "release", "get back to main", "tag and release" |
 | `/audit-plugin` | "audit this plugin", "review this skill", "check this agent" |

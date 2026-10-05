@@ -4,12 +4,30 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-06-17T16:28:18.403Z",
+  "last_sync": "2026-10-05T06:33:21.936Z",
   "author": {
     "name": "Jeremy Longshore",
     "github": "jeremylongshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "Apache-2.0",
-  "files_synced": 8
+  "files_synced": 16,
+  "files": [
+    ".claude-plugin/marketplace.json",
+    ".claude-plugin/plugin.json",
+    ".mcp.json",
+    "LICENSE",
+    "README.md",
+    "contrib/golden-set/v1/README.md",
+    "hooks/README.md",
+    "onboarding/README.md",
+    "plugin-runtime/bootstrap.cjs",
+    "plugin-runtime/governed-brain.cjs",
+    "plugin-runtime/package-lock.json",
+    "plugin-runtime/package.json",
+    "skills/brain-save/SKILL.md",
+    "skills/brain-save/references/runtime-contract.md",
+    "skills/brain/SKILL.md",
+    "skills/brain/references/runtime-contract.md"
+  ]
 }
