@@ -9,10 +9,16 @@ tools:
       enforces that the session is a manual, prime-completed, revisit-eligible
       session owned by the user. The test case is named after the source
       session; call updateTestCase with action 'update_info' afterward to
-      rename, describe, or retag it. Returns the created test case record.
+      rename, describe, or retag it. Returns the created test case record. The
+      created test case inherits the source session's team (team_id in the
+      response; null = org-level). If the session had no team, the test case
+      is org-level and is NOT visible to org members through listTestCases;
+      use getTestCase with the returned id.
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -31,12 +37,14 @@ tools:
   - name: listTestCases
     title: List Test Cases
     description: >
-      List test cases in the current user's organization with optional team,
-      keyword, and platform filters. Returns test case ID, name, description,
-      platform, owner, and timestamps.
+      List test cases for one team (teamId required for org members; admins
+      may omit it to get org-level items only), with optional keyword and
+      platform filters. Returns test case ID, name, description, platform,
+      owner, and timestamps.
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -49,9 +57,9 @@ tools:
         teamId:
           type: integer
           description: >-
-            Optional team scope. When set, only test cases visible to the
-            caller via that team are returned (in addition to org-shared ones).
-            Omit to list every test case the caller can access in the org.
+            Team scope. Required for org members, optional for admins (omit =
+            org-level items only). Get ids from listTeams; results carry
+            team_id (null = org-level).
         keyword:
           type: string
           description: Search by test case name, tag, or app package
@@ -80,6 +88,7 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -115,6 +124,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -207,6 +218,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: true
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -229,10 +242,14 @@ tools:
       test case versions against the chosen devices. Provide either
       `testSuiteId` (run an existing suite) or `testCaseSelections` (run a
       bespoke list of test case versions). Returns the test run ID and the
-      sessions that were queued.
+      sessions that were queued. Test runs are team-homogeneous: the suite or
+      selected test case versions must all belong to one team; results carry
+      team_id (null = org-level).
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -252,17 +269,22 @@ tools:
           type: object
           description: >-
             How to choose which test cases to run. Either provide a
-            `testSuiteId` (run a suite) or a `testCaseSelections` list (run
-            specific versions).
+            `testSuiteId` (with `type: TEST_SUITE`) or a `testCaseSelections`
+            list (with `type: TEST_CASE`).
           properties:
             type:
               type: string
-              description: Selection type identifier (e.g. `test_suite`, `test_cases`)
+              enum: [TEST_CASE, TEST_SUITE]
+              description: >-
+                Selection type. Use `TEST_CASE` with `testCaseSelections`, or
+                `TEST_SUITE` with `testSuiteId`. Exact upper-case values
+                required (not `test_case`/`test_suite`).
             testSuiteId:
               type: string
-              description: Run all test cases in this suite (mutually exclusive with `testCaseSelections`)
+              description: "Run all test cases in this suite (use with type TEST_SUITE; mutually exclusive with testCaseSelections)"
             testCaseSelections:
               type: array
+              description: "Specific test case versions to run (use with type TEST_CASE)"
               items:
                 type: object
                 properties:
@@ -276,12 +298,17 @@ tools:
           properties:
             type:
               type: string
-              description: Selection type (e.g. `device_bundle`, `specific_devices`)
+              enum: [INDIVIDUAL_DEVICES, DEVICE_BUNDLE]
+              description: >-
+                Selection type. Use `INDIVIDUAL_DEVICES` with `specificDevices`,
+                or `DEVICE_BUNDLE` with `deviceBundleId`. Exact upper-case values
+                required (not `specific_devices`/`device_bundle`).
             deviceBundleId:
               type: integer
-              description: Run on devices in the named device bundle
+              description: "Run on devices in the named device bundle (use with type DEVICE_BUNDLE)"
             specificDevices:
               type: array
+              description: "Explicit devices to run on (use with type INDIVIDUAL_DEVICES)"
               items:
                 type: object
                 properties:
@@ -307,17 +334,24 @@ tools:
           description: App versions to install on the run devices
         deviceAllocationStrategy:
           type: string
-          description: How to allocate devices across the selected test cases
+          enum: [CROSS_DEVICE, SINGLE_DEVICE]
+          description: >-
+            How to allocate devices across the selected test cases. `CROSS_DEVICE`
+            (default) runs each test case across all devices; `SINGLE_DEVICE` pins
+            a test case to one device. Exact upper-case values required.
       required:
         - userIntent
   - name: listTestRuns
     title: List Test Runs
     description: >
-      List test runs with optional team, keyword, and platform filters. Returns
-      test run ID, name, status, platform, and aggregated execution counts.
+      List test runs for one team (teamId required for org members; admins
+      may omit it to get org-level items only), with optional keyword and
+      platform filters. Returns test run ID, name, status, platform, and
+      aggregated execution counts.
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -330,9 +364,9 @@ tools:
         teamId:
           type: integer
           description: >-
-            Optional team scope. When set, only test runs visible to the caller
-            via that team are returned (in addition to org-shared ones). Omit
-            to list every test run the caller can access in the org.
+            Team scope. Required for org members, optional for admins (omit =
+            org-level items only). Get ids from listTeams; results carry
+            team_id (null = org-level).
         keyword:
           type: string
           description: Search by test run name
@@ -352,7 +386,12 @@ tools:
           default: 10
         sortBy:
           type: string
-          description: Sort key (e.g. `createdAt`)
+          enum:
+            - NAME
+            - CREATED_AT
+          description: >-
+            Sort key - exact upper-case values only. CREATED_AT sorts by
+            creation time, NAME by run name.
         sortType:
           type: string
           enum:
@@ -369,6 +408,7 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -397,6 +437,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: true
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -415,12 +457,14 @@ tools:
   - name: listTestSuites
     title: List Test Suites
     description: >
-      List test suites in the current user's organization with optional team,
-      keyword and platform filters. Returns test suite ID, name, description,
-      platform, and member count.
+      List test suites for one team (teamId required for org members; admins
+      may omit it to get org-level items only), with optional keyword and
+      platform filters. Returns test suite ID, name, description, platform,
+      and member count.
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -432,7 +476,10 @@ tools:
             logging.
         teamId:
           type: integer
-          description: Filter by team ID
+          description: >-
+            Team scope. Required for org members, optional for admins (omit =
+            org-level items only). Get ids from listTeams; results carry
+            team_id (null = org-level).
         keyword:
           type: string
           description: Search by test suite name
@@ -460,6 +507,7 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -488,6 +536,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -499,7 +549,11 @@ tools:
             logging.
         teamId:
           type: integer
-          description: Optional team ID that owns the new test suite
+          description: >-
+            Team that owns the new suite. Required for org members, optional
+            for admins (omit = org-level bucket). Get ids from listTeams.
+            Suites are team-homogeneous: every member test case must belong to
+            the suite's team.
         name:
           type: string
           description: Name for the new test suite
@@ -532,6 +586,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -572,6 +628,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: true
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
