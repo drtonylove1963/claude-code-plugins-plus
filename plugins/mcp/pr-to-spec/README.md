@@ -1,15 +1,23 @@
 # pr-to-spec
 
+<!-- intent-select-partner:start -->
+<p><a href="https://intentsolutions.io/"><img src="https://raw.githubusercontent.com/intent-solutions-io/.github/b82af5d3e7951d85e39ea9e65cc24ee8278722a7/assets/brand/claude-select-partner.svg" alt="Intent Solutions: Claude Partner Network Select Services Partner" width="300" height="95" /></a></p>
+
+Intent Solutions is a Claude Partner Network Select Services Partner.
+<!-- intent-select-partner:end -->
+
 **The flight envelope for agentic coding.**
 
 CodeRabbit reviews for humans. `pr-to-spec` converts for agents.
 
 Turn any code change — a GitHub PR, a local branch, staged edits — into a structured, agent-consumable spec with intent drift detection. CLI *and* MCP server — use it from the terminal or as a plugin in Claude Code, Cursor, and Windsurf.
 
-[![CI](https://github.com/jeremylongshore/pr-to-spec/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremylongshore/pr-to-spec/actions/workflows/ci.yml)
+[![CI](https://github.com/jeremylongshore/pr-to-prompt/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremylongshore/pr-to-prompt/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Gist: One-Pager & Audit](https://img.shields.io/badge/gist-one--pager%20%26%20audit-blue)](https://gist.github.com/jeremylongshore/5b2de7ba9baca1eaaa0a757b5b0c48db)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://jeremylongshore.github.io/pr-to-prompt/)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
 
 ---
 
@@ -93,20 +101,25 @@ pr-to-spec ships an MCP server for IDE integration. When installed as a Claude C
 
 ### Plugin Installation
 
-Install as a Claude Code plugin:
+Install the skill with the official skills CLI:
 
 ```bash
-claude plugin add jeremylongshore/pr-to-spec
+npx skills add jeremylongshore/pr-to-prompt --skill pr-to-spec
 ```
 
-Or add to your project's `.mcp.json`:
+To load both the skill and bundled MCP server from a checkout, run Claude Code
+with `--plugin-dir /path/to/pr-to-prompt`. Or add the bundled server to your
+project's `.mcp.json` and expose `GITHUB_TOKEN` in the server environment:
 
 ```json
 {
   "mcpServers": {
     "pr-spec-analyzer": {
       "command": "node",
-      "args": ["path/to/dist/servers/pr-spec-analyzer.js"]
+      "args": ["/path/to/pr-to-prompt/dist/mcp-bundle/index.js"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
     }
   }
 }
@@ -301,7 +314,7 @@ jobs:
 
       - name: Generate spec
         id: spec
-        uses: jeremylongshore/pr-to-spec@main
+        uses: jeremylongshore/pr-to-prompt@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INPUT_COMMENT: "true"

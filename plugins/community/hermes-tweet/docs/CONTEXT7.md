@@ -1,27 +1,30 @@
-# Context7 Guide
+# Context7 guide
 
 Use this page as the compact Context7-facing guide for Hermes Tweet. It focuses
 on install, auth, safe tool use, and smoke tests for coding agents.
 
 ## Install
 
-Install from the public GitHub repository:
+Install from the public GitHub repository.
 
 ```bash
 hermes plugins install Xquik-dev/hermes-tweet --enable
 ```
 
-Hermes plugins are opt-in. If the plugin was installed without `--enable`, run:
+Hermes plugins are opt-in. If you installed the plugin without `--enable`, run this command.
 
 ```bash
 hermes plugins enable hermes-tweet
 hermes plugins list
 ```
 
-Install the published Python package into the Hermes Python environment:
+Hermes installs no extra Python package for this plugin. Hermes core already
+ships `httpx`, its only dependency.
+
+If you manage the Hermes Python environment yourself, add the published Python
+package to it. Then enable the plugin.
 
 ```bash
-uv pip install --python ~/.hermes/hermes-agent/venv/bin/python hermes-tweet
 hermes plugins enable hermes-tweet
 ```
 
@@ -30,18 +33,18 @@ Use the PyPI package name `hermes-tweet` and the Hermes toolset name
 
 Hermes Agent v0.16.0 includes Desktop and remote gateway profiles. For a remote
 gateway profile, install and enable Hermes Tweet on the remote Hermes host and
-set `XQUIK_API_KEY` there. The desktop app is only the client surface unless it
+set `XQUIK_API_KEY` there. The desktop app is only the client unless it
 also runs the Hermes runtime locally.
 
 ## Configure
 
-Create an API key in the Xquik dashboard and set it in the runtime environment:
+Create an API key in the Xquik dashboard. Set it in the runtime environment.
 
 ```bash
 export XQUIK_API_KEY="xq_..."
 ```
 
-Optional settings:
+These settings are optional.
 
 ```bash
 export XQUIK_BASE_URL="https://xquik.com"
@@ -66,7 +69,7 @@ media reads, monitors, webhooks, draws, or extraction jobs.
 Copied endpoint URLs are accepted only when they resolve to catalog-listed
 paths.
 
-## Hermes Agent Patterns
+## Hermes Agent patterns
 
 - Treat Hermes Tweet as the X context layer for Hermes Agent research,
   monitoring, support, launch, and content workflows.
@@ -88,14 +91,14 @@ only when the workflow intentionally allows posting, replies, likes, retweets,
 follows, DMs, monitor changes, webhook changes, media uploads, or other account
 changes.
 
-## Smoke Test
+## Smoke test
 
 ```bash
 hermes tools list
 hermes -z "Use tweet_explore, then read /api/v1/account. Do not call tweet_action." --toolsets hermes-tweet
 ```
 
-Expected result:
+Expect these results.
 
 - `tweet_explore` finds endpoints without using the API key.
 - `tweet_read` can read `/api/v1/account` after `XQUIK_API_KEY` is set.
@@ -105,12 +108,12 @@ Expected result:
 If you edit `~/.hermes/.env` during an active Hermes CLI session, run
 `/reload`. Gateway and cron sessions need a restart or new session.
 
-## Public Sources
+## Public sources
 
-- GitHub: <https://github.com/Xquik-dev/hermes-tweet>
-- Repository guide: <https://github.com/Xquik-dev/hermes-tweet#readme>
-- PyPI: <https://pypi.org/project/hermes-tweet/>
-- DeepWiki: <https://deepwiki.com/Xquik-dev/hermes-tweet>
-- Context7: <https://context7.com/xquik-dev/hermes-tweet>
-- Hermes Agent plugins guide: <https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins/>
-- Build a Hermes Plugin: <https://hermes-agent.nousresearch.com/docs/guides/build-a-hermes-plugin/>
+- [GitHub repository](https://github.com/Xquik-dev/hermes-tweet)
+- [Repository guide](https://github.com/Xquik-dev/hermes-tweet#readme)
+- [PyPI package](https://pypi.org/project/hermes-tweet/)
+- [DeepWiki](https://deepwiki.com/Xquik-dev/hermes-tweet)
+- [Context7](https://context7.com/xquik-dev/hermes-tweet)
+- [Hermes Agent plugins guide](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins/)
+- [Build a Hermes Plugin](https://hermes-agent.nousresearch.com/docs/developer-guide/plugins)
