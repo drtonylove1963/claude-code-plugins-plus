@@ -14,10 +14,7 @@ tools:
       properties:
         userIntent:
           type: string
-          description: >-
-            A brief summary of what the user is trying to accomplish with this
-            tool call, refined from their original prompt. Used for audit
-            logging.
+          description: A brief summary of why this call is being made.
         state:
           type: string
           enum:
@@ -55,14 +52,25 @@ tools:
           type: integer
           description: Offset for pagination
           default: 0
-      required:
-        - userIntent
   - name: getSession
     title: Get Session
     description: >
       Get detailed information about a specific test session including commands
       executed, device info, desired capabilities, metadata, and test results.
       `video_url` may be null; there is no separate `has_video` indicator.
+      `scan_status` reports whether the background validation scans that run
+      after a session ends have settled, one entry per scan type —
+      `accessibility`, `crash`, `response_time` and `flex_correct` — each
+      `complete` (no more findings of that type will arrive), `in_progress`
+      (findings may still be arriving) or `not_applicable` (that scan does not
+      apply to this session, e.g. Flex Correct was not requested, a CLI or
+      virtual USB session, or no result arrived within 24 hours of the session
+      ending). Crash and response-time results usually settle within minutes of
+      the session ending; accessibility results can take several hours. A type
+      reads `in_progress` for at most 24 hours after the session ends. Before
+      treating a validation list as final, check that its type is no longer
+      `in_progress`; if it still is after a few checks a few minutes apart,
+      report the findings so far as partial instead of waiting longer.
     annotations:
       readOnlyHint: true
       destructiveHint: false
@@ -72,15 +80,11 @@ tools:
       properties:
         userIntent:
           type: string
-          description: >-
-            A brief summary of what the user is trying to accomplish with this
-            tool call, refined from their original prompt. Used for audit
-            logging.
+          description: A brief summary of why this call is being made.
         sessionId:
           type: integer
           description: The session ID
       required:
-        - userIntent
         - sessionId
   - name: getSessionArtifacts
     title: Get Session Artifacts
@@ -96,15 +100,11 @@ tools:
       properties:
         userIntent:
           type: string
-          description: >-
-            A brief summary of what the user is trying to accomplish with this
-            tool call, refined from their original prompt. Used for audit
-            logging.
+          description: A brief summary of why this call is being made.
         sessionId:
           type: integer
           description: The session ID
       required:
-        - userIntent
         - sessionId
   - name: getUserInputEvents
     title: Get User Input Events
@@ -125,10 +125,7 @@ tools:
       properties:
         userIntent:
           type: string
-          description: >-
-            A brief summary of what the user is trying to accomplish with this
-            tool call, refined from their original prompt. Used for audit
-            logging.
+          description: A brief summary of why this call is being made.
         sessionId:
           type: integer
           description: The session ID
@@ -141,13 +138,14 @@ tools:
         limit:
           type: integer
           description: >-
-            Maximum number of events to return (default 50, max 200). Useful on
-            the first poll against a session where the human has been
-            interacting before you started — pages forward by re-calling with
-            the newest seen timestamp as sinceTimestamp.
-          default: 50
+            Maximum number of events to return (default 10, max 20; larger
+            values are reduced to 20). When a call returns `limit` events, more
+            may be buffered — page forward by calling again with the newest
+            event's timestamp as `sinceTimestamp` until a call returns fewer
+            than `limit`. The next page skips any other event with exactly that
+            timestamp, so a page boundary can drop a rare same-millisecond event.
+          default: 10
       required:
-        - userIntent
         - sessionId
   - name: terminateSession
     title: Terminate Session
@@ -164,13 +162,463 @@ tools:
       properties:
         userIntent:
           type: string
-          description: >-
-            A brief summary of what the user is trying to accomplish with this
-            tool call, refined from their original prompt. Used for audit
-            logging.
+          description: A brief summary of why this call is being made.
         sessionId:
           type: integer
           description: Session ID to terminate
       required:
-        - userIntent
+        - sessionId
+  - name: startNativeSession
+    title: Start Native Session
+    description: >
+      Start a native automation session on a Kobiton device using a native test
+      framework — XCUITest (iOS), UIAutomator (Android), or GameDriver. Upload
+      the app under test and the test-runner bundle to Kobiton Store first
+      (uploadAppToStore) and pass their kobiton-store identifiers as `app` and
+      `testRunner`. Returns the created session ID plus the booked device UDID
+      and a test-report download URL. This starts a real, billable device
+      session — prefer listDevices first to confirm a matching device is
+      available.
+    annotations:
+      readOnlyHint: false
+      destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        testFramework:
+          type: string
+          enum:
+            - XCUITEST
+            - UIAUTOMATOR
+            - GAMEDRIVER
+          description: >-
+            Native test framework to run. Exact upper-case values required.
+            XCUITEST is iOS-only; UIAUTOMATOR is Android-only.
+        sessionName:
+          type: string
+          description: Optional name for the session
+        sessionDescription:
+          type: string
+          description: Optional description for the session
+        deviceName:
+          type: string
+          description: >-
+            Device name to match (e.g. "Galaxy S21"). Ignored when `udid` is
+            given.
+        udid:
+          type: string
+          description: >-
+            Exact device UDID to run on. Takes precedence over deviceName /
+            platformVersion matching.
+        platformVersion:
+          type: string
+          description: OS version to match (e.g. "14", "17.4")
+        deviceGroup:
+          type: string
+          enum:
+            - KOBITON
+            - ORGANIZATION
+            - ANY
+          description: >-
+            Which device pool to book from. KOBITON = Kobiton public cloud
+            devices, ORGANIZATION = your organization's own private devices,
+            ANY = search both pools. Defaults to ANY when omitted.
+        groupId:
+          type: integer
+          description: Team ID to run the session under
+        app:
+          type: string
+          description: >-
+            App under test, as a kobiton-store:<appId> identifier returned by
+            uploadAppToStore. Required for XCUITEST and UIAUTOMATOR — the
+            server rejects the call when omitted.
+        testRunner:
+          type: string
+          description: >-
+            Test runner bundle (XCUITest test-runner .ipa, UIAutomator test
+            .apk, or GameDriver runner), as a kobiton-store:<appId> identifier.
+            Required for XCUITEST and UIAUTOMATOR — the server rejects the
+            call when omitted.
+        noReset:
+          type: boolean
+          description: >-
+            Keep app data between runs (do not reset the app). Mutually
+            exclusive with fullReset — set at most one of the two.
+        fullReset:
+          type: boolean
+          description: >-
+            Uninstall and reinstall the app before the run. Mutually exclusive
+            with noReset — set at most one of the two.
+        sessionTimeout:
+          type: integer
+          description: Maximum session duration in minutes (default 60)
+        testTimeout:
+          type: integer
+          description: Maximum test execution time in minutes
+        deviceTags:
+          type: array
+          description: Only book devices carrying all of these device tags
+          items:
+            type: string
+        deviceWaitTimeout:
+          type: integer
+          description: >-
+            How long (in seconds, 1-86400) to wait for a matching device to
+            become available before failing. Only honored for queued
+            executions.
+        runCommand:
+          type: string
+          description: >-
+            GameDriver only — command line used to launch the runner. Ignored
+            for XCUITEST and UIAUTOMATOR.
+        args:
+          type: array
+          description: Extra arguments passed to the test runner
+          items:
+            type: string
+        env:
+          type: object
+          description: Environment variables to set for the test runner process
+          additionalProperties:
+            type: string
+      required:
+        - testFramework
+
+  - name: listAccessibilityValidations
+    title: List Accessibility Validations
+    description: >
+      List the accessibility findings recorded during a test session — issues such
+      as low colour contrast, missing content labels or touch targets that are too
+      small, each naming the command it was found on and the issue it represents.
+      Items are lean by default; use `include` to add the element, metadata, screen
+      or screenshot URL. Reach for this when the user asks about "a11y",
+      "accessibility issues", "contrast", "labels" or "touch targets" in a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. While the session's
+      validation scan is still running, an empty or short result may be
+      partial — confirm with getSession that `scan_status.accessibility` is no longer
+      `in_progress` before treating it as final.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        commandId:
+          type: integer
+          description: >-
+            Narrow the results to one command (step) of the session. Omit for
+            the whole session.
+        type:
+          type: string
+          enum:
+            - TOUCH_TARGET_SIZE
+            - COLOR_CONTRAST
+            - CONTENT_LABELING
+          description: >-
+            Narrow the results to one kind of finding: TOUCH_TARGET_SIZE (tap
+            targets smaller than the guideline), COLOR_CONTRAST (text that
+            fails a contrast ratio) or CONTENT_LABELING (missing or duplicated
+            labels). Omit for all kinds.
+        include:
+          type: array
+          description: >-
+            Heavy fields to add to each item. By default an item carries only
+            its id, command id, type, issue name and standard — enough to count
+            and group findings. Ask for more only when you need it: `element`
+            (xpath, attributes and on-screen rect), `metadata` (the measured
+            values, e.g. contrast ratio vs threshold), `screen` (the raw screen
+            record) and `screenshot_url` (a presigned image link). Each roughly
+            multiplies the size of the response.
+          items:
+            type: string
+            enum:
+              - element
+              - metadata
+              - screen
+              - screenshot_url
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: listCrashValidations
+    title: List Crash Validations
+    description: >
+      List the app crashes detected during a test session — when the crash
+      happened, which app package crashed, the command (step) it happened on, and
+      presigned URLs for the crash log and the screenshot. Reach for this when the
+      user asks "did the app crash", "any crashes", "crash log" or "why did it die"
+      for a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. While the session's
+      validation scan is still running, an empty or short result may be
+      partial — confirm with getSession that `scan_status.crash` is no longer
+      `in_progress` before treating it as final.
+      The response also carries `pending_count`, the number of crash logs
+      still being processed; they are not in `items` yet, so when
+      `pending_count` is above 0 the list is partial — call again later.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        commandId:
+          type: integer
+          description: >-
+            Narrow the results to one command (step) of the session. Omit for
+            the whole session.
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: listResponseTimeValidations
+    title: List Response Time Validations
+    description: >
+      List the commands (steps) of a test session whose network response time
+      exceeded the response-time threshold — each item names the command and the
+      actual versus target response time in milliseconds. Reach for this when the
+      user asks about "performance", "slow steps", "response time" or "latency" in
+      a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. While the session's
+      validation scan is still running, an empty or short result may be
+      partial — confirm with getSession that `scan_status.response_time` is no longer
+      `in_progress` before treating it as final.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        commandId:
+          type: integer
+          description: >-
+            Narrow the results to one command (step) of the session. Omit for
+            the whole session.
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: listBlockerValidations
+    title: List Blocker Validations
+    description: >
+      List the blockers hit while a saved test case was replayed in this session —
+      steps the run could not get past, newest first, with the step, the execution
+      it belonged to and whether it has been resolved. Reach for this when the
+      user asks "what blocked the run", "stuck step" or "blockers" for a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. These findings come from
+      test-run executions, and while an execution is still being scanned an
+      empty or short result may be partial — confirm with getTestRun that
+      `is_processing` is false (each execution's
+      `accessibility_scanning_status`, `crash_scanning_status` and
+      `network_payload_scanning_status` show which scans are still running)
+      before treating it as final. If it is still true after a few checks a
+      few minutes apart, report the result as possibly partial instead of
+      waiting longer — a scan that never reports keeps it true.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: listElementSelectionValidations
+    title: List Element Selection Validations
+    description: >
+      List the element-selection validations of a test session — steps where the
+      target element resolved to a different element than the one recorded, with
+      the recorded screens, target element, action type and action data. Reach for
+      this when the user asks about "wrong element", "locator", "element mismatch"
+      or "element selection" in a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. These findings come from
+      test-run executions, and while an execution is still being scanned an
+      empty or short result may be partial — confirm with getTestRun that
+      `is_processing` is false (each execution's
+      `accessibility_scanning_status`, `crash_scanning_status` and
+      `network_payload_scanning_status` show which scans are still running)
+      before treating it as final. If it is still true after a few checks a
+      few minutes apart, report the result as possibly partial instead of
+      waiting longer — a scan that never reports keeps it true.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        commandId:
+          type: integer
+          description: >-
+            Narrow the results to one command (step) of the session. Omit for
+            the whole session.
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: listFlexCorrects
+    title: List Flex Corrects
+    description: >
+      List the steps Flex Correct self-healed during a test session — the corrected
+      element, the baseline device the step was recorded on, and the recorded step.
+      Reach for this when the user asks "what was auto-corrected", "self-healed
+      steps" or "flex correct" for a session.
+      Results are paged: each call returns at most `limit` items (default 10,
+      max 20) plus `page`, `total_pages` and `total_items`; pass `offset` to
+      page forward. A session with no findings of this type returns
+      `total_items: 0` and an empty `items` array. While the session's
+      validation scan is still running, an empty or short result may be
+      partial — confirm with getSession that `scan_status.flex_correct` is no longer
+      `in_progress` before treating it as final.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+        commandId:
+          type: integer
+          description: >-
+            Narrow the results to one command (step) of the session. Omit for
+            the whole session.
+        limit:
+          type: integer
+          description: Maximum number of items to return (default 10, max 20)
+          default: 10
+        offset:
+          type: integer
+          description: Item offset for pagination
+          default: 0
+      required:
+        - sessionId
+
+  - name: getAccessibilityValidationsSummary
+    title: Get Accessibility Validations Summary
+    description: >
+      Summarise a test session's accessibility findings as counts instead of
+      rows: the total, how many commands (steps) were scanned, when the most
+      recent finding was recorded, and the breakdown by finding type and by
+      issue name. Reach for this first whenever the question is "how bad is it",
+      "what kinds of accessibility issues does this session have" or "are there
+      any" — a busy session can hold tens of thousands of findings that collapse
+      to a handful of distinct issue kinds, so the summary answers in a fraction
+      of the size. Use listAccessibilityValidations afterwards to look at
+      individual findings. A session with no findings returns zero totals and
+      empty breakdowns with a null last-validation timestamp. Findings can keep
+      arriving for several minutes after a session ends, so while the
+      session's validation scan is still running the counts may be partial:
+      `scan_complete` is true when no more accessibility findings will arrive
+      (the same signal as getSession `scan_status.accessibility`), and false
+      while they may still be arriving — call again later before treating
+      zero or low counts as final.
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      properties:
+        userIntent:
+          type: string
+          description: A brief summary of why this call is being made.
+        sessionId:
+          type: integer
+          description: The session ID
+      required:
         - sessionId
