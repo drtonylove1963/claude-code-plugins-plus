@@ -14,6 +14,9 @@ This repository contains template files in `context/templates/`:
 - `CLIENT_PREFERENCES.md`
 - `SESSION_NOTES.md`
 - `SOURCES.md`
+- `INDEX.md`
+- `history/INDEX.md`
+- `METRICS_LOG.csv`
 
 These templates provide structure and examples but contain no real user data. When the plugin is installed, the
 `SessionStart` hook copies them to `~/.claude/over-50s-health-advisor/templates/` before each session so the agent
@@ -25,15 +28,23 @@ On the first conversation, the agent creates personal context files at:
 
 ```text
 ~/.claude/over-50s-health-advisor/context/
-├── INITIAL_USER_INFORMATION.md
-├── CLIENT_HEALTH_CONTEXT.md
-├── CLIENT_PREFERENCES.md
-├── SESSION_NOTES.md
-└── SOURCES.md
+├── INITIAL_USER_INFORMATION.md     # core — read every session
+├── CLIENT_HEALTH_CONTEXT.md        # core — read every session
+├── CLIENT_PREFERENCES.md           # core — read every session
+├── SESSION_NOTES.md                # core — read every session (last ~2 entries only)
+├── SOURCES.md                      # core — read every session
+├── INDEX.md                        # history — read on demand only
+├── history/
+│   ├── INDEX.md                    # history — read on demand only
+│   └── YYYY/
+│       └── YYYY-MM-DD.md           # history — read on demand only
+└── METRICS_LOG.csv                 # analysis — read only on demand
 ```
 
 These files contain actual health information and are never committed to version control.
-Reinstalling or updating the plugin never touches these files.
+Reinstalling or updating the plugin never touches these files. The agent checks for each file individually on
+first run, so upgrading from an older install that only has the original files simply adds any new ones alongside
+— nothing is renamed, moved, or rewritten.
 
 ## Context File Descriptions
 
@@ -66,12 +77,8 @@ Preferences for guidance:
 
 ### SESSION_NOTES.md
 
-Chronological log of interactions:
-
-- Date-stamped session summaries
-- Key decisions or plans made
-- Progress updates
-- Questions for follow-up
+Active session notes — the ~2 most recent entries only. Older entries move to individual files under
+`history/YYYY/` when this file grows past that. Quantifiable metrics go to `METRICS_LOG.csv` (append-only).
 
 ### SOURCES.md
 
@@ -80,6 +87,36 @@ Curated list of evidence-based resources:
 - High-quality sources the agent has cited
 - Personal research findings
 - Clinician-provided resources
+
+### INDEX.md
+
+Master session index — one line per session with date, topics (extracted from the session heading), and whether
+metrics were logged that day. Read to find relevant dates before reading specific session files.
+
+### history/INDEX.md
+
+Yearly index mirroring the root INDEX.md, organised by year directory.
+
+### history/YYYY/YYYY-MM-DD.md
+
+Individual session files, one per date, organised by year. YAML frontmatter includes `date` and `metrics`
+(yes/no). Full narrative follows the frontmatter. Newest-first order. Not read at session start.
+
+### METRICS_LOG.csv
+
+Tidy, append-only time series of every quantifiable metric mentioned in a session — weight, body composition,
+vitals, sleep, labs, nutrition, activity, and so on — one row per metric per date:
+
+```csv
+date,metric,value,unit,note
+2026-01-23,weight,185,lb,
+2026-01-23,resting_hr,58,bpm,
+```
+
+This is the file trend and annual reports read from. It exists so that a "summarize my year" request pulls
+structured rows instead of re-parsing a year of narrative prose. Metric names are freeform (snake_case) rather
+than a fixed schema, since clients track different things. If a note needs a comma, wrap it in double quotes so
+the row still parses as CSV.
 
 ## Required vs Optional Context
 
@@ -93,6 +130,9 @@ Curated list of evidence-based resources:
 - `CLIENT_HEALTH_CONTEXT.md`
 - `SESSION_NOTES.md`
 - `SOURCES.md`
+- `INDEX.md`
+- `history/YYYY/YYYY-MM-DD.md`
+- `METRICS_LOG.csv`
 
 ## Privacy and Data Management
 
@@ -104,10 +144,16 @@ Curated list of evidence-based resources:
 
 ## Context Budget Management
 
-The agent aims to keep total context under 2,000 words to ensure efficient processing. The agent will:
+The agent aims to keep the five **core** files (the ones read every session) under 2,000 words combined. The
+history files (`INDEX.md`, `history/` files) and the analysis file (`METRICS_LOG.csv`) are deliberately excluded
+from this budget — they are only read on demand, so their size does not cost tokens on ordinary turns. The agent
+will:
 
-- Monitor total word count across all context files at the start of each session
-- Archive older SESSION_NOTES entries automatically when approaching the limit
+- Monitor total word count across the five core files at the start of each session
+- Keep only the ~2 most recent full entries in `SESSION_NOTES.md`
+- Move (not condense) older entries into individual files under `history/YYYY/YYYY-MM-DD.md` — never delete or
+  summarise archive entries in place
+- Never prune or condense `METRICS_LOG.csv` — it is designed to grow indefinitely at low cost per row
 - Request approval before pruning `INITIAL_USER_INFORMATION.md` or `CLIENT_PREFERENCES.md`
 
 ## Artifact Ingestion
@@ -128,7 +174,7 @@ Common workflows:
 nano ~/.claude/over-50s-health-advisor/context/CLIENT_HEALTH_CONTEXT.md
 
 # Review past sessions
-cat ~/.claude/over-50s-health-advisor/context/SESSION_NOTES.md
+ls ~/.claude/over-50s-health-advisor/context/history/2026/
 
 # Update preferences
 code ~/.claude/over-50s-health-advisor/context/CLIENT_PREFERENCES.md

@@ -1,7 +1,7 @@
 ---
 name: audit-standards
 description: Audits the current project against the development standards defined in ~/.claude/CLAUDE.md. Documents non-compliant findings as GitHub issues and writes a prioritised fix plan to the project CLAUDE.md. Use when the user says audit against settings, audit standards, check standards compliance, or audit this project.
-allowed-tools: Read Glob Grep Bash
+allowed-tools: Read Glob Grep Bash Edit Write
 disable-model-invocation: true
 ---
 
@@ -185,7 +185,7 @@ EOF
 Use `--label "bug"` for missing required files or broken standards; `--label "enhancement"` for
 improvements and style compliance.
 
-Note each issue number as you go.
+Record each issue number for reference in the next step.
 
 ## Step 4: Write prioritised fix plan to CLAUDE.md
 

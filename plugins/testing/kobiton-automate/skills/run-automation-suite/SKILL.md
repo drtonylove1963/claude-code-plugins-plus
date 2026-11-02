@@ -19,8 +19,11 @@ version: 1.0.2
 author: Kobiton Inc.
 license: MIT
 compatibility: >-
-  Compatible with any MCP-aware AI coding assistant. Requires Node.js >= 18
-  and Appium 2.x. Test scripts must use Appium WebDriver protocol.
+  Any OS, but requires a persistent local filesystem — it runs the user's own
+  Appium script from a local directory, so it cannot work where the host
+  offers only an MCP connection. Requires Node.js >= 18, Appium 2.x, and whichever
+  language runtime the test script uses. Test scripts must use the Appium
+  WebDriver protocol.
 tags: [mobile, testing, appium, automation, devices, kobiton]
 ---
 
@@ -33,6 +36,8 @@ Execute Appium-based mobile test automation suites on Kobiton's device cloud. Gi
 Use this skill when the user asks to run mobile tests, validate an APK or IPA across real devices, or trigger a Kobiton-hosted automation run from a local script directory.
 
 ## Prerequisites
+
+**Runs on any OS, but needs a persistent local filesystem** — its whole job is running the user's *local* Appium script, plus that script's own language runtime. Where the host can't provide those, route to `create-test-run` to execute a test case already saved in Kobiton instead. See the Skill compatibility matrix in `CLAUDE.md`.
 
 Before invoking this skill, ensure:
 
@@ -55,6 +60,8 @@ If the skill is invoked and no MCP connection is established, abort step 1 and s
 
 ## Instructions
 
+> **`userIntent`.** Optional: pass one sentence on why when the tool name and arguments show what the call does but not why (e.g. `terminateSession`, `deleteTestCase`); omit it when the reason is obvious from the call (e.g. `listDevices`, `getSession`).
+
 ### 1. Identify the app
 
 **IMPORTANT: Always ask the user this question, even if they already provided an app file path. Do NOT skip ahead or start uploading automatically.**
@@ -71,7 +78,7 @@ Wait for their response before proceeding. Do not call any upload or app-related
 
 **If reusing an existing app:** Check `appium:app` field of capabilities in the test script. Call `listApps` with that app version as keywork to check uploaded or not. Let the user pick the version to use (e.g., `kobiton-store:v72107`) if needed
 
-### 2. Select a device
+### 2. Select a device and ask how to observe the run
 
 Ask the user which device or platform to target.
 
@@ -80,6 +87,12 @@ Call `listDevices` with the relevant platform filter to show available options.
 If the user has a specific device in mind, confirm its availability with `getDeviceStatus`.
 
 Reserve the device with `reserveDevice` if needed.
+
+**In the same exchange, ask how they want to observe the run** — don't wait until the script is already running to raise it:
+
+> "Open the device live view in a browser window to watch the run, or run it in the background?"
+
+Remember the choice; act on it in Step 5 (which happens right after the script launches in Step 4). Do NOT auto-open a window without asking — some users prefer silent runs, especially on shared screens. If the user's request already made the preference clear (e.g. "just run it in the background", "open it so I can watch"), skip the question and honor what they said.
 
 ### 3. Identify script & parse capabilities
 
@@ -153,13 +166,11 @@ Wait for user confirmation, then execute the command **in the background** using
 
 ### 5. Open running session in browser
 
-Ask the user:
+Act on the observation choice the user already made in Step 2 — do **not** re-ask here.
 
-> "Would you like me to open the running session in the browser?"
+If they chose to **run in the background**, skip to Step 6.
 
-Wait for their response. If they decline, skip to Step 6.
-
-If they agree, wait **2 seconds** after the script was launched in Step 4 (to allow the session to initialize on Kobiton), then open the session in the user's browser.
+If they chose to **open the live view**, wait **2 seconds** after the script was launched in Step 4 (to allow the session to initialize on Kobiton), then open the session in the user's browser.
 
 **Determine the portal URL:** Read `.mcp.json` to get the MCP server URL, then derive the portal base URL by replacing the `api` host with the `portal` equivalent (drop any trailing `/mcp`):
 
@@ -203,7 +214,7 @@ All three presets share the same `920 px` height — only the width grows by dev
 
 If `getSession` / the rendered capabilities report `orientation=LANDSCAPE`, swap width and height (use the **Landscape** column above). Default is portrait.
 
-Pick the right command for the host OS:
+Pick the right command for the host OS. **Run it in the background** (Claude Code: `Bash` tool with `run_in_background: true`; other hosts: append `&` and `disown`) so the launcher's resize-polling loop doesn't block Step 6's result collection. The launcher's stdout/stderr and exit code surface later when it completes; the session URL printed above is the user's fallback if the launcher silently fails.
 
 | OS | Command |
 |----|---------|
@@ -215,7 +226,7 @@ Pick the right command for the host OS:
 
 **On macOS, the very first run** triggers a system prompt: *"X wants to control Google Chrome.app"* — click OK. The grant lives under System Settings → Privacy & Security → **Automation** (NOT Accessibility) and persists per host process. Tell the user this once if you can see it's their first invocation.
 
-**Launcher exit codes drive the fallback:**
+**Launcher exit codes drive the fallback** (they arrive in the background-task completion event, not synchronously):
 
 - `0` — Chrome was launched (resize may have logged a warning, but the session is fine). **Continue to Step 6.**
 - `2` — Chrome / Chromium is not installed on the host. **Fall through** to the default-browser fallback table below.
@@ -259,7 +270,7 @@ Call `getSessionArtifacts` with the session ID to retrieve:
 
 **Watch for user redirection (when the device-only view is open).** While the background script runs, poll `getUserInputEvents` with the matched `sessionId` between your scripted commands — no faster than once per second. Track the timestamp of the newest event you have seen and pass it as `sinceTimestamp` on the next call so you only get new gestures:
 
-- On the first poll, omit `sinceTimestamp` to drain everything buffered. Each response is capped (default 50 events, max 200) — if you see exactly that many events in a single response there may be more behind them; re-poll immediately with `sinceTimestamp` set to the newest event's timestamp to page forward.
+- On the first poll, omit `sinceTimestamp` to drain everything buffered. Each response is capped (default 10 events, max 20 via `limit`) — if you see exactly that many events in a single response there may be more behind them; re-poll immediately with `sinceTimestamp` set to the newest event's timestamp to page forward.
 - If the response contains events, surface them as observations and let them steer your plan — e.g. a touch at `(0.42, 0.78)` near the bottom-right means "the user tapped there; they may want me to focus on whatever is at that position (looks like Settings)." A swipe (`xNorm/yNorm` → `xNorm2/yNorm2`) means they want you to scroll or navigate in that direction.
 - Advance `sinceTimestamp` to the largest `timestamp` you received, so the next poll returns only newer gestures.
 - The user's tap also reaches the device in real time, so by the time you read these gestures the device has already moved. Don't try to "replay" or undo them — they reflect what the human just did. Adapt your remaining script: pivot focus, re-orient, or pause for the next user signal. You are no longer the sole driver of the device while a human is watching the device-only view.
@@ -278,7 +289,7 @@ Present a summary to the user:
 
 On successful completion, the skill returns:
 
-- **Live session URL**: `https://portal.kobiton.com/devices/launch?id=<deviceId>`, opened automatically in the user's default browser as the script starts.
+- **Live session URL**: `https://portal.kobiton.com/devices/launch?id=<deviceId>` — opened in a browser window once the session starts **only if** the user chose to watch the run at Step 2; background runs skip the window and just surface the URL as text.
 - **Session metadata**: session ID, device ID, app version, start time, and final pass/fail status (via `getSession`).
 - **Session artifacts**: video recording URL, device logs URL, screenshots, and test reports (via `getSessionArtifacts`).
 - **Execution duration**: wall-clock time from script launch to completion.
@@ -300,13 +311,13 @@ On failure, the skill surfaces error output from the test runner, the session UR
 
 > "Run `./tests/checkout.js` on a Pixel 7 - upload the latest APK from `./build/app.apk` first."
 
-The skill detects the `.apk` build, uploads it via `uploadAppToStore`, queries `listDevices` filtered to Pixel 7, reserves the device with `reserveDevice`, parses the script's capabilities, confirms the launch summary with the user, runs `node ./tests/checkout.js <udid>` in the background, opens the live session URL in the user's browser, and returns the session ID plus artifacts when the run completes.
+The skill detects the `.apk` build, uploads it via `uploadAppToStore`, queries `listDevices` filtered to Pixel 7, reserves the device with `reserveDevice`, parses the script's capabilities, confirms the launch summary with the user (asking at device selection whether to watch the run or run it in the background), runs `node ./tests/checkout.js <udid>` in the background, opens the live session URL in the user's browser if they chose to watch, and returns the session ID plus artifacts when the run completes.
 
 ### Run an attached IPA with an attached script on a specific iOS device
 
 > "Test this app @TestApp.ipa by this script @automation.js on Kobiton iOS iPhone 15 Pro"
 
-The skill resolves the two `@`-referenced files from the chat context, uploads `TestApp.ipa` via `uploadAppToStore`, queries `listDevices` filtered to iOS iPhone 15 Pro, reserves the matching device, parses `automation.js` for capabilities, reconciles them against the rendered defaults for the selected device, confirms the launch summary with the user, runs `node automation.js <udid>` in the background, opens the live session URL in the user's browser, and surfaces the session ID plus artifacts when the run completes.
+The skill resolves the two `@`-referenced files from the chat context, uploads `TestApp.ipa` via `uploadAppToStore`, queries `listDevices` filtered to iOS iPhone 15 Pro, reserves the matching device, parses `automation.js` for capabilities, reconciles them against the rendered defaults for the selected device, confirms the launch summary with the user (asking at device selection whether to watch the run or run it in the background), runs `node automation.js <udid>` in the background, opens the live session URL in the user's browser if they chose to watch, and surfaces the session ID plus artifacts when the run completes.
 
 ## Resources
 

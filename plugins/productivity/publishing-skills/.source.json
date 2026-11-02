@@ -4,12 +4,25 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-06-19T07:15:51.124Z",
+  "last_sync": "2026-11-02T06:18:34.806Z",
   "author": {
     "name": "AutomateLab",
     "github": "AutomateLab-tech",
     "email": "hello@automatelab.tech"
   },
   "license": "MIT-0",
-  "files_synced": 10
+  "files_synced": 11,
+  "files": [
+    "LICENSE",
+    "README.md",
+    "examples/offline-bundle/README.md",
+    "skills/blog-editorial-calendar/SKILL.md",
+    "skills/blog-editorial-calendar/backlog.json",
+    "skills/blog-editorial-calendar/config.json",
+    "skills/blog-figure-svg/SKILL.md",
+    "skills/blog-topic-research/SKILL.md",
+    "skills/seo-blog-writer/SKILL.md",
+    "skills/seo-blog-writer/references/decorate.js",
+    "skills/seo-blog-writer/references/glossary-schema.md"
+  ]
 }
