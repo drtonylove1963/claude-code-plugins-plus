@@ -1,15 +1,22 @@
 # Over-50s Health Advisor
 
-A Claude Code Agent definition for evidence-based, age-appropriate health, fitness, nutrition, and longevity guidance
-for adults 50+. The agent works with local context files only and always recommends confirming advice with a healthcare
-professional.
+A Claude Code and OpenCode Agent definition for evidence-based, age-appropriate health, fitness, nutrition, and
+longevity guidance for adults 50+. The agent works with local context files only and always recommends confirming
+advice with a healthcare professional.
 
 ## Features
 
-- Evidence-based guidance with citations and a Sources section
+- Evidence-based guidance with citations and a Sources section, weighted toward clinical measurements over
+  device streams
+- Noise-floor discipline: reports a metric as unchanged, not a trend, when its change is within measurement
+  error
+- Collection-cost transparency: states what decision a requested metric or artifact could change, and names
+  an exit condition for any recurring log
+- Optional long-term memory via [Hindsight](https://github.com/vectorize-io/hindsight) — a self-hosted recall
+  and reflection layer over your local history files
 - Safety boundaries and red-flag referral policy
 - Local context management via Markdown files
-- Install via Claude Code plugin system (`/plugin install over-50s-health@ali5ter`)
+- Install via Claude Code plugin system (`/plugin install over-50s-health@ali5ter`) or OpenCode (auto-discovered)
 - Automatic context file creation on first run
 
 ## Repository structure
@@ -19,7 +26,7 @@ system, the agent is managed by Claude Code and your personal context files are 
 
 ```text
 agents/
-  advisor.md                       # Agent definition (source)
+  advisor.md                       # Claude Code agent definition (source)
 context/
   templates/                       # Reference context templates
     INITIAL_USER_INFORMATION.md
@@ -27,13 +34,27 @@ context/
     CLIENT_PREFERENCES.md
     SESSION_NOTES.md
     SOURCES.md
+    SESSION_NOTES_ARCHIVE.md       # On-demand narrative history
+    METRICS_LOG.csv                # On-demand structured metrics for trend reports
+    history/                       # Per-session history templates
+      INDEX.md
   README.md
 .claude-plugin/
   plugin.json                      # Plugin manifest
 hooks/
-  hooks.json                       # SessionStart hook (template sync)
+  hooks.json                       # SessionStart, PreToolUse, SubagentStop + Stop hooks
 hooks-handlers/
   sync-templates.sh                # Copies templates from plugin cache to ~/.claude/over-50s-health-advisor/templates/
+  guard-bash-scope.sh              # Agent-scoped PreToolUse hook: scopes the advisor's Bash access
+  retain-session.sh                # SubagentStop + Stop hook: persists session to Hindsight via hindsight-retain.py
+  check-retain-staleness.sh        # SubagentStop + Stop hook: warns when on-disk history is not yet retained
+.opencode/
+  agents/
+    over-50s-health/
+      advisor.md                   # OpenCode agent definition (auto-discovered); id = over-50s-health/advisor
+scripts/
+  hindsight-retain.py              # MCP transport: retains documents into the health bank (idempotent manifest)
+  backfill-history.sh              # One-off: ingest all history into Hindsight
 migrate                            # Migration script for v2.x users
 README.md
 LICENSE
@@ -44,19 +65,32 @@ After installation, your personal context files are stored at:
 ```text
 ~/.claude/over-50s-health-advisor/
     context/                       # Your personal context files (auto-created on first run)
-        ├── INITIAL_USER_INFORMATION.md
-        ├── CLIENT_HEALTH_CONTEXT.md
-        ├── CLIENT_PREFERENCES.md
-        ├── SESSION_NOTES.md
-        └── SOURCES.md
+        ├── INITIAL_USER_INFORMATION.md   # core — read every session
+        ├── CLIENT_HEALTH_CONTEXT.md      # core — read every session
+        ├── CLIENT_PREFERENCES.md         # core — read every session
+        ├── SESSION_NOTES.md              # core — read every session (last ~2 entries)
+        ├── SOURCES.md                    # core — read every session
+        ├── INDEX.md                      # session index — read on demand
+        ├── history/                      # per-session history files
+        │   └── YYYY/YYYY-MM-DD.md       # one file per session
+        ├── METRICS_LOG.csv               # analysis — read on demand
+        └── _legacy/                      # pre-v4.0.0 archives (never deleted)
 ```
 
 ## Requirements
 
-- Claude Code CLI v2.0.73 or later
-- Uses Claude Opus 4.6 by default for highest reasoning quality; override with `/model` if preferred
+One of the two harnesses below works — the agent is packaged for both, and you need only one:
+
+- **Claude Code:** the CLI, v2.0.73 or later. Uses Claude Opus 4.6 by default for highest reasoning quality;
+  override with `/model` if preferred.
+- **OpenCode:** the `opencode` CLI (<https://opencode.ai>), plus a reachable model endpoint. The agent pins
+  `model: ollama/qwen3.8:27b` by default. If that model is unavailable on your endpoint, override it with the
+  `--model provider/model` flag (e.g. `opencode run --model ollama/other-model …`) or by editing the agent's
+  `model:` frontmatter.
 
 ## Install
+
+### Claude Code
 
 Inside Claude Code, run:
 
@@ -68,7 +102,59 @@ Inside Claude Code, run:
 The first time you start a health conversation, the agent automatically creates your context files at
 `~/.claude/over-50s-health-advisor/context/`.
 
+### OpenCode
+
+The agent ships project-local and is auto-discovered when OpenCode is opened from this project (or globally from
+`~/.config/opencode/agents/`). Its OpenCode agent id is **`over-50s-health/advisor`** — the nested directory name
+is part of the id.
+
+**Project-local** (recommended — no setup required):
+
+1. Open OpenCode from this project directory (or any parent).
+2. OpenCode auto-discovers the agent from `.opencode/agents/over-50s-health/advisor.md`. Select it with
+   **Shift+Tab** (cycle agents) or **Ctrl+X then A** (list agents); the active agent and model are shown in the
+   session footer.
+
+**Global install** (use from any project — run from the repo root):
+
+```bash
+DEST=~/.config/opencode/agents/over-50s-health
+mkdir -p "$DEST"
+cp .opencode/agents/over-50s-health/advisor.md "$DEST/advisor.md"
+```
+
+### Invoke
+
+**From OpenCode:**
+
+- **Interactive TUI:** in a session, press **Shift+Tab** to cycle to **`over-50s-health/advisor`** (or **Ctrl+X
+  then A** to list all agents). The active agent and model are shown in the footer.
+- **Non-interactive** (the closest thing to `claude --agent …`):
+
+  ```bash
+  opencode run --agent over-50s-health/advisor "your health question"
+  ```
+
+  The agent pins `model: ollama/qwen3.8:27b`, so no `--model` flag is needed. The run prints a header like
+  `> over-50s-health/advisor · qwen3.8:27b`, so you always know which agent is active.
+
+**From Claude Code:**
+
+- Just ask a health question — the agent activates automatically.
+- Or target it directly: `claude --agent over-50s-health:advisor`
+- Or inside Claude Code: `/agent over-50s-health:advisor`
+
+### Context path
+
+Both Claude Code and OpenCode share the same context files:
+
+```text
+~/.claude/over-50s-health-advisor/context/
+```
+
 ## Uninstall
+
+### Claude Code uninstall
 
 Inside Claude Code, run:
 
@@ -76,7 +162,17 @@ Inside Claude Code, run:
 /plugin uninstall over-50s-health@ali5ter
 ```
 
-This removes the plugin and agent. Your personal context files are **not** removed. To delete them:
+### OpenCode uninstall
+
+**Project-local**: nothing to remove — the agent lives in the project directory.
+
+**Global**:
+
+```bash
+rm ~/.config/opencode/agents/over-50s-health/advisor.md
+```
+
+Your personal context files are **not** removed. To delete them:
 
 ```bash
 rm -rf ~/.claude/over-50s-health-advisor
@@ -90,8 +186,8 @@ If you previously installed via `./install.sh`, run the migration script from th
 ./migrate
 ```
 
-This removes the old manually-installed agent file. Your context files are preserved. Then install via the plugin
-commands above.
+This removes the old manually-installed agent file. Your context files are preserved. Then install via the appropriate
+platform commands above.
 
 ## Usage
 
@@ -103,10 +199,137 @@ first conversation.
 2. Keep `CLIENT_HEALTH_CONTEXT.md` and `SESSION_NOTES.md` current as new information is shared with the agent.
 3. Maintain `SOURCES.md` as a curated reference list (the agent will add sources; you can remove low-quality ones
    and add high-quality evidence).
-4. Use the agent from any directory in Claude Code. The agent will read and update these context files automatically.
+4. Use the agent from any directory in your chosen platform. The agent will read and update these context files automatically.
 5. Keep the "Last updated" dates accurate in each file.
+6. Ask for a "trend summary" or "how have I done this year" and the agent will read `METRICS_LOG.csv` — a
+   structured, append-only record of every metric it has logged — instead of re-reading a year of session
+   notes. See `context/README.md` for details on `METRICS_LOG.csv` and `SESSION_NOTES_ARCHIVE.md`.
+
+## Bash access
+
+The agent has `Bash` for local analysis: reading `METRICS_LOG.csv` and running your own health export scripts. A
+`PreToolUse` hook (`hooks-handlers/guard-bash-scope.sh`, registered in `hooks/hooks.json`) scopes what it can
+actually run: destructive commands (`rm`, `mv`, `sudo`, `chmod`, `chown`, `dd`, force-pushes) and network egress
+(`curl`, `wget`, `nc`) are denied outright — everything else it allows outright or leaves to the normal permission
+prompt.
+
+Claude Code silently ignores `hooks:` set in a plugin agent's own frontmatter, so this hook is registered in the
+plugin's `hooks/hooks.json` instead, which applies plugin-wide rather than to one agent. It self-scopes by
+checking the `agent_type` field Claude Code passes it and is a no-op outside an active
+`over-50s-health:advisor` session — it has no effect on your other Claude Code sessions.
+
+## Long-term memory (Hindsight)
+
+The advisor can use [Hindsight](https://github.com/vectorize-io/hindsight) as an optional recall and reflection
+layer over your local history files. Hindsight must be self-hosted — it is **not** bundled in this plugin.
+
+### Prerequisites
+
+- A machine running Hindsight 0.10.3+ with an MCP endpoint
+- Ollama (or another LLM server) for the LLM provider
+- The `health` bank configured in Hindsight
+- Hindsight MCP server configured (via **Configure the MCP server** below)
+
+### Setup
+
+1. **Install Hindsight** on your host machine. See
+   [Hindsight docs](https://github.com/vectorize-io/hindsight) for installation instructions.
+
+2. **Configure the MCP server** for your platform:
+
+   **Claude Code** (user scope):
+
+   ```bash
+   claude mcp add --scope user hindsight-health <command>
+   ```
+
+   **OpenCode** (user scope):
+
+   ```bash
+   opencode mcp add --global hindsight-health <command>
+   ```
+
+   Replace `<command>` with your Hindsight MCP server command (e.g. the Ollama-based endpoint).
+   The MCP server is restricted server-side to `recall`, `reflect`, and `retain` tools only.
+
+3. **Enable retention** by writing the enable gate to `~/.hindsight/retain.env` — the same
+   persistent-file pattern as the API key, set once and independent of how Claude Code is launched:
+
+   ```bash
+   echo 'export HINDSIGHT_RETAIN_ENABLED=true' > ~/.hindsight/retain.env
+   ```
+
+   The `SubagentStop`/`Stop` hook (`hooks-handlers/retain-session.sh`) sources that file and, when
+   enabled, delegates to `scripts/hindsight-retain.py`, which retains the session's history file into
+   the `health` bank over the MCP transport. It fails silently if Hindsight is unreachable. A sibling
+   hook, `check-retain-staleness.sh`, warns on session end when on-disk history has not yet been
+   retained (see **Checking staleness** below); it is offline and makes no network call.
+
+4. **Backfill existing history** (one-time):
+
+    ```bash
+    ./scripts/backfill-history.sh
+    ```
+
+    This ingests all `history/` files, `CONTEXT_ARCHIVE.md`, `_legacy/` archives, and
+    `METRICS_LOG.csv` rows into the Hindsight `health` bank. Retention runs over the MCP transport
+    (`scripts/hindsight-retain.py`) and keeps a local idempotency manifest at
+    `~/.hindsight/retain-manifest.json`; a first run seeds it from the bank, so re-runs skip what is
+    already present and add nothing new.
+
+    Options:
+    - `--host HOST` — custom Hindsight host (default: 192.168.1.63)
+    - `--dry-run` — show what would be retained without sending
+    - `--skip-legacy` — skip `_legacy/` archives
+
+### How it works
+
+- **Session start**: the agent orients with a **targeted `recall`** to the Hindsight MCP server, a
+  small budget, a recent temporal window — querying the Client's recent sessions to surface what is
+  unresolved. Do **not** use an unbounded `reflect` (the slow synthesis call), which can return confident
+  but wrong facts; reserve `reflect` for genuine cross-session reasoning. Treat any recall result as a
+  **lead, not a fact** — cross-check against the core files. If Hindsight is unavailable, the agent falls
+  back to reading core files + the two most recent history entries.
+- **Retrieval**: when the Client mentions past topics, the agent calls `recall` first and notes what
+  it checked in a **History checked:** line. If the MCP call fails, it falls back to INDEX.md + Grep.
+- **Session end**: the `SubagentStop`/`Stop` hooks delegate to `hindsight-retain.py`, which retains the
+  session file into the `health` bank over the MCP transport (skipping it if the manifest already has
+  it). If unreachable, the file on disk is untouched. A sibling hook, `check-retain-staleness.sh`,
+  warns on end when on-disk history is not yet retained.
+
+**Files are always canonical.** Hindsight is a layer on top — if it is unavailable, the agent degrades
+to the plain-file behaviour with no data loss.
+
+### Checking staleness
+
+Because retention can miss sessions or metric groups (a session end that never fired, a backfill run
+before new sessions existed, a manifest not yet re-seeded), the `check-retain-staleness.sh` hook makes
+that gap observable: on every `SubagentStop`/`Stop` it compares the local manifest against the on-disk
+`history/` files and `METRICS_LOG.csv` and warns (on stderr, non-blocking) when anything is not yet
+retained. It is **offline** — it reads only the manifest and the local files, making no network call —
+so it is safe on every session end. Run it on demand for the full list:
+
+```bash
+./hooks-handlers/check-retain-staleness.sh --report
+```
+
+The fix for any reported gap is idempotent — re-run `./scripts/backfill-history.sh`, which skips what
+is already retained and adds only what is missing. The check runs only when `HINDSIGHT_RETAIN_ENABLED=true`.
+
+### Known limitations
+
+- `reflect` on local models (e.g., `qwen3.8:27b` via Ollama) can produce confident factual errors.
+  v5.1.0 mitigates this at session start by orienting with a **targeted `recall`** instead and treating
+  the result as a lead to cross-check against the files; reserve `reflect` for genuine cross-session
+  synthesis, and always verify figures against the files.
+- Recall quality: temporal queries are strong (8/8 in testing), entity queries are good but not perfect
+  (9/12 at top-5 in testing).
+- The spike results are documented in the
+  [sysadmin-studio repo](https://github.com/ali5ter/sysadmin-studio/blob/main/docs/hindsight-setup-record.md).
 
 ## Invoking the Agent
+
+### Invoking with Claude Code
 
 The health advisor agent is invoked automatically when you ask a health-related question in Claude Code. You can
 also target it directly using the `--agent` flag:
@@ -120,6 +343,22 @@ automatically; for anything else, the default assistant responds.
 
 Alternatively, just start Claude Code normally and ask a health question — the agent will activate based on your
 query.
+
+### Invoking with OpenCode
+
+OpenCode has no `/agent` slash command and does not auto-route health queries to the agent, so you select it
+explicitly:
+
+- **Interactive TUI:** press **Shift+Tab** to cycle agents, or **Ctrl+X then A** to list them, and then pick
+  **`over-50s-health/advisor`**.
+- **Non-interactive:**
+
+  ```bash
+  opencode run --agent over-50s-health/advisor "your health question"
+  ```
+
+The agent pins `model: ollama/qwen3.8:27b`. The run prints a header (`> over-50s-health/advisor · qwen3.8:27b`) so
+you always know which agent is active.
 
 ## Starting a Conversation
 

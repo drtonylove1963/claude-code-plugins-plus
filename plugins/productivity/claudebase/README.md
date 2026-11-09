@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/rohithzr/claudebase/actions/workflows/test.yml/badge.svg)](https://github.com/rohithzr/claudebase/actions/workflows/test.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.6-green.svg)](CHANGELOG.md)
 
 Your Claude Code setup is infrastructure. Agents, skills, rules, hooks, memory — these accumulate over weeks of work and represent real investment. Losing them to a disk wipe, or manually recreating them on a new machine, shouldn't happen.
 
@@ -13,19 +13,40 @@ Your Claude Code setup is infrastructure. Agents, skills, rules, hooks, memory �
 
 ## Install
 
+**From the Claude directory (recommended).** Open [Claudebase in the Claude directory](https://claude.ai/directory?q=claudebase) and add it. Plugins added on claude.ai sync to Claude Code automatically (they show up as `claudebase@synced`) and update when a new version is published.
+
+**From the command line, in one step** (Claude Code v2.1.292+):
+
+```bash
+claude plugin install claudebase --marketplace rohithzr/claudebase
+```
+
+Or from inside a session (v2.1.275+):
+
+```
+/plugin install claudebase --marketplace rohithzr/claudebase
+```
+
+<details>
+<summary>Older Claude Code versions</summary>
+
 ```bash
 claude plugin marketplace add rohithzr/claudebase
 claude plugin install claudebase@rohithzr
 ```
+</details>
 
 Then restart Claude Code or run `/reload-plugins`.
 
 <details>
 <summary>Update / Uninstall</summary>
 
+Installed from the directory: updates arrive automatically; remove it from claude.ai to uninstall.
+
+Installed from the command line:
+
 ```bash
 # Update
-claude plugins marketplace update
 claude plugin update claudebase@rohithzr
 
 # Uninstall
@@ -198,18 +219,8 @@ brew install gh jq git
 gh auth login
 ```
 
-**Linux (Debian/Ubuntu)**
+**Linux (Debian/Ubuntu)** — install `gh` from GitHub's [official Linux instructions](https://github.com/cli/cli/blob/trunk/docs/install_linux.md), then:
 ```bash
-# GitHub CLI (https://github.com/cli/cli/blob/trunk/docs/install_linux.md)
-(type -p wget >/dev/null || sudo apt-get install wget -y) \
-  && sudo mkdir -p -m 755 /etc/apt/keyrings \
-  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-  && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-  && sudo apt update \
-  && sudo apt install gh -y
-
 sudo apt-get install -y jq git
 gh auth login
 ```
@@ -229,16 +240,16 @@ Contributions welcome. See the [Code of Conduct](CODE_OF_CONDUCT.md).
 ```bash
 git clone https://github.com/rohithzr/claudebase.git
 cd claudebase
-git submodule update --init --recursive
+git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git tests/bats
 ```
 
 ### Running tests
 
 ```bash
-./tests/bats/bin/bats tests/                 # All 158 tests
-./tests/bats/bin/bats tests/unit/            # 57 unit tests
-./tests/bats/bin/bats tests/integration/     # 72 integration tests
-./tests/bats/bin/bats tests/e2e/             # 29 E2E tests
+./tests/bats/bin/bats tests/                 # All tests
+./tests/bats/bin/bats tests/unit/            # Unit
+./tests/bats/bin/bats tests/integration/     # Integration
+./tests/bats/bin/bats tests/e2e/             # E2E
 ```
 
 CI runs on every push across macOS, Linux, and Windows.

@@ -5,14 +5,13 @@ X/Twitter plugin for tweet search, user lookup, reply reading, trend checks,
 monitoring, posting, replies, DMs, and other approval-gated X actions through
 Xquik.
 
-This page tracks public, accepted surfaces only. Private outreach notes,
-pending submissions, duplicate checks, manual review routes, and maintainer
-follow-up belong outside the public repository. Use
-`docs/SUBMISSION_READINESS.md` before proposing or adding a new public surface.
+This page tracks accepted public listings. Keep outreach notes, pending
+submissions, duplicate checks, and maintainer follow-up outside this repository.
+Use `docs/SUBMISSION_READINESS.md` before proposing a new listing.
 
-## Official Surfaces
+## Public listings
 
-| Surface | Link |
+| Listing | Link |
 | --- | --- |
 | GitHub | <https://github.com/Xquik-dev/hermes-tweet> |
 | Repository guide | <https://github.com/Xquik-dev/hermes-tweet#readme> |
@@ -21,11 +20,11 @@ follow-up belong outside the public repository. Use
 | DeepWiki | <https://deepwiki.com/Xquik-dev/hermes-tweet> |
 | Context7 | <https://context7.com/xquik-dev/hermes-tweet> |
 
-## Skill And Directory Listings
+## Skill and directory listings
 
-| Surface | Link |
+| Listing | Link |
 | --- | --- |
-| ClawHub | <https://clawhub.ai/skills/hermes-tweet> |
+| ClawHub | <https://clawhub.ai/xquik/hermes-tweet> |
 | SKILLS.re | <https://skills.re/> |
 | Terminal Skills xquik-twitter skill | <https://github.com/TerminalSkills/skills/blob/main/skills/xquik-twitter/SKILL.md> |
 | Antigravity Awesome Skills Xquik X/Twitter skill | <https://github.com/sickn33/antigravity-awesome-skills/blob/main/skills/x-twitter-scraper/SKILL.md> |
@@ -44,7 +43,6 @@ follow-up belong outside the public repository. Use
 | Awesome Claude Code And Skills Hermes Tweet listing | <https://github.com/GetBindu/awesome-claude-code-and-skills/blob/main/readme.md> |
 | Awesome Hermes Agent plugin listing | <https://github.com/SamurAIGPT/awesome-hermes-agent#plugins> |
 | Gaia Skill Tree Hermes Tweet named skill | <https://github.com/mbtiongson1/gaia-skill-tree/blob/main/registry/named/xquik-dev/hermes-tweet.md> |
-| Claude Skill Registry Hermes Tweet skill | <https://github.com/majiayu000/claude-skill-registry/blob/main/skills/api/hermes-tweet/SKILL.md> |
 | Claude Skill Registry Data Hermes Tweet archive | <https://github.com/majiayu000/claude-skill-registry-data/blob/main/api/hermes-tweet/SKILL.md> |
 | Awesome Hermes Use Cases X social automation use case | <https://github.com/aliaihub/awesome-hermes-usecases/blob/main/usecases/x-social-automation-toolset.md> |
 | Learn Hermes Agent skill-system tutorial | <https://github.com/longyunfeigu/learn-hermes-agent/blob/main/docs/en/s08-skill-system.md> |
@@ -56,20 +54,21 @@ follow-up belong outside the public repository. Use
 | Mercury Agent Skills X/Twitter automation skill | <https://github.com/cosmicstack-labs/mercury-agent-skills/blob/main/categories/automation/x-twitter-automation/SKILL.md> |
 | OpenDirectory Twitter GTM Find skill | <https://github.com/Varnan-Tech/opendirectory/tree/main/skills/twitter-GTM-find-skill> |
 | Awesome Omni Skills Xquik Twitter scraper skill | <https://github.com/diegosouzapw/awesome-omni-skills/blob/main/skills/x-twitter-scraper-v2/SKILL.md> |
-| Awesome Skill Forge Hermes Tweet mirror | <https://github.com/Lord1Egypt/awesome-skill-forge/blob/master/community/clawhub/h/hermes-tweet/SKILL.md> |
+| Awesome Skill Forge Hermes Tweet mirror | <https://raw.githubusercontent.com/Lord1Egypt/awesome-skill-forge/master/community/clawhub/h/hermes-tweet/SKILL.md> |
 | RA-Skills Hermes Tweet mirror | <https://github.com/Lord1Egypt/RA-Skills/blob/master/skills/community/clawhub/h/hermes-tweet/SKILL.md> |
 | TweetClaw cross-link | <https://github.com/Xquik-dev/tweetclaw#readme> |
 
-## MCP And Agent Integrations
+## MCP and agent integrations
 
-| Surface | Link |
+| Integration | Link |
 | --- | --- |
+| Xquik remote MCP with OAuth 2.1 | <https://docs.xquik.com/mcp/overview> |
 | GenAIwithMS Twitter MCP optional Hermes Tweet backend | <https://github.com/GenAIwithMS/twitter-mcp#readme> |
 | xpost optional Hermes Tweet topic context | <https://github.com/Hakurei-git/xpost#readme> |
 
-## Public Positioning
+## Public wording
 
-Use these concrete phrases in public docs when they match the workflow:
+Use these concrete phrases in public docs when they match the workflow.
 
 - Hermes Agent Twitter plugin
 - Hermes Agent X plugin
